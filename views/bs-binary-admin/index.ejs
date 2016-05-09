@@ -1,0 +1,138 @@
+<html ng-app="appAngular">
+
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width" initial-scale="1.0"/>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>{{titleWeb}}</title>
+    <!-- Materials icons -->
+    <link href="stylesheets/fontAwesome/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="general-styles/chat.css">
+    <!-- Javascript Libraries -->
+    <script src="bower_components/jquery/dist/jquery.min.js"></script>
+    <script type="text/javascript" src="bower_components/angular/angular.min.js"></script>
+    <script type="text/javascript" src="bower_components/angular-route/angular-route.min.js"></script>
+    <script type="text/javascript" src="bower_components/angular-sanitize/angular-sanitize.min.js"></script>
+    <!-- BootBox -->
+    <script src="bower_components/bootbox/bootbox.js"></script>
+    <script src="bower_components/ngBootbox/dist/ngBootbox.js"></script>
+    <!-- This Script concatenate all the file in the  folder /public/javascripts/ -->
+    <script type="text/javascript" src="includes/concat.js"></script>
+    <script type="text/javascript" src="includes/angular-table.min.js"></script>
+    <script type="text/javascript" src="includes/angular-drag-and-drop-lists.js"></script>
+    <script src="includes/socket.io-1.3.7.js"></script>
+    <script src="bower_components/angular-socket-io/socket.js"></script>
+    <script type="text/javascript" src="includes/optimumModel.js"></script>
+    <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+    <!-- UI-SELECT -->
+    <script type="text/javascript" src="bower_components/ui-select/dist/select.js"></script>
+    <link rel="stylesheet" type="text/css" href="bower_components/ui-select/dist/select.css">
+    <!-- UI Bootsrap -->
+    <link rel="stylesheet" href="bower_components/angular-bootstrap/ui-bootstrap-csp.css">
+    <script type="text/javascript" src="bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
+    <script type="text/javascript" src="bower_components/angular-bootstrap/ui-bootstrap.min.js"></script>
+    <!-- EXTRAS CSS -->
+    <link rel="stylesheet" href="bs-binary-admin/css/custom.css">
+    <!-- EXTRAS JS -->
+    <script src="bs-binary-admin/js/custom.js"></script>
+    <script src="bs-binary-admin/js/jquery.metisMenu.js"></script>
+
+</head>
+
+<body>
+
+<div id="wrapper" ng-show="route" ng-controller="bootstrapController">
+    <nav class="navbar navbar-default navbar-cls-top " role="navigation" style="margin-bottom: 0">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".sidebar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="">{{project.name}}</a>
+        </div>
+        <div style="color: white;
+padding: 15px 50px 5px 50px;
+float: right;
+font-size: 16px;"> Last access : 30 May 2014 &nbsp; <a href="" ng-click='logout()'
+                                                       class="btn btn-danger square-btn-adjust">Logout</a></div>
+    </nav>
+    <!-- /. NAV TOP  -->
+    <nav class="navbar-default navbar-side" role="navigation">
+        <div class="sidebar-collapse">
+            <ul class="nav" id="main-menu">
+                <li class="text-center">
+                    <img src="bs-binary-admin/img/find_user.png"
+                         class="user-image img-responsive"/><a>{{user.username}}</a>
+                </li>
+                <li>
+                    <a href="#/userList"><i class="fa fa-desktop fa-3x"></i> User List</a>
+                </li>
+                <li ng-if="user.rol >= 4">
+                    <a  href="#/Audit"><i class="fa fa-qrcode fa-3x"></i> Audit</a>
+                </li>
+                <li>
+                    <a href=""><i class="fa fa-table fa-3x"></i> Table Examples</a>
+                </li>
+                <li>
+                    <a href=""><i class="fa fa-edit fa-3x"></i> Forms </a>
+                </li>
+
+
+                <li>
+                    <a href=""><i class="fa fa-sitemap fa-3x"></i> Menu<span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level">
+                        <li ng-repeat="menu in menus">
+                            <a href="#/{{menu.name}}">{{menu.name}}</a>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <a class="active-menu" href=""><i class="fa fa-square-o fa-3x"></i> Blank Page</a>
+                </li>
+            </ul>
+
+        </div>
+
+    </nav>
+    <!-- #Proyects views -->
+    <section ng-if="route" id="page-wrapper">
+        <ng-view></ng-view>
+    </section>
+    <!-- /#Proyects views -->
+
+</div>
+
+<!-- #login -->
+<section ng-if="!route">
+    <ng-view></ng-view>
+</section>
+<!-- /#login -->
+<footer id="footer" ng-show="route" ng-if="user.rol == 5">
+    <div class="container-fluid">
+        <ul class="nav nav-pills">
+            <li role="presentation"><a href="#"><img class="logoMean" src="../../../setup/public/imgs/meanlogowhite.png" alt="MEANCASE"></a></li>
+
+            <li class="dropup" role="presentation">
+                <a class="btn dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown"
+                   aria-haspopup="true" aria-expanded="false">
+                    <i class="fa fa-paint-brush"></i> Templates
+                    <span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="dropdownMenu2">
+                    <li><a href="#/uploadTemplates">Upload Template</a></li>
+                    <li><a href="#/selectTemplates">Change Template</a></li>
+                </ul>
+            </li>
+            <li role="presentation"><a href="#/crud"><i class="fa fa-archive"></i> Crud Generator</a></li>
+            <li role="presentation"><a href="#/relationship"><i class="fa fa-arrows-v"></i> Relationships</a></li>
+            <li role="prestation"><a href="#/listSchemas"><i class="fa fa-table"></i> List Schemas</a></li>
+            <li role="prestation"  ng-if="project.projectType == 2"><a href="#/exportProject"><i class="fa fa-expand"></i> Export Project</a></li>
+        </ul>
+    </div>
+</footer>
+</body>
+
+</html>

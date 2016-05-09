@@ -1,0 +1,25 @@
+<link rel="stylesheet" href="/javascripts/setup/selectTemplates/css/selectTemplatesStyles.css"/>
+<div class="container">
+    <h1 class="text-center">Update Template</h1>
+
+    <div class="grid" ng-repeat="layout in layouts">
+        <grid>
+            <h3 class="text-center">{{layout.name}}</h3>
+            <img class="gridImg" ng-bootbox-title="{{layout.name}}"
+                 ng-bootbox-custom-dialog='<img class="modalImg" src="../../../{{layout.label}}/preview.jpg" alt="{{layout.name}}"/>'
+                 ng-bootbox-class-name="some-class"
+                 src="../../../{{layout.label}}/preview.jpg" alt="{{layout.name}}"/>
+
+            <div class="text-center">
+                <button ng-class="{'btn-primary': $index == index}"
+                        ng-click="selectTemplate(layout, $index)"
+                        class="btn btn-default" role="button"
+                        ng-model="template">
+                    <i class="glyphicon glyphicon-ok-sign"></i>Use
+                </button>
+            </div>
+
+        </grid>
+    </div>
+
+</div>

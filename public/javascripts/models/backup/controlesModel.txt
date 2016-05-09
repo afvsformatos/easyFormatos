@@ -1,0 +1,6 @@
+.service('controlesModel', function ($optimumModel) {
+  var model = new $optimumModel();
+  model.url = '/api/controles';
+  model.constructorModel = ["fecha"];
+  return model;
+})

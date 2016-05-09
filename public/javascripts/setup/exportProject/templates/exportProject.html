@@ -1,0 +1,59 @@
+<div class="container">
+                <div class="col-md-4 col-md-offset-4">
+                    <h1>Export Project</h1>
+                </div>
+                <div class="row">
+                    <form class="col-md-4 col-md-offset-3">
+                        <div class="row">
+                            <!-- Project Name-->
+                            <div class="form-group">
+                               <label for="projectName">Project Name </label>
+                                <input ng-model="projectName" ng-change="validate()"  type="text" class="form-control"
+                                       id="exampleInputEmail1">
+                            </div>
+                            <!-- Author Name -->
+                            <div class="form-group">
+                                <label for="author">Author</label>
+                                <input ng-change="validate()" ng-model="authorName"  type="text" class="form-control">
+                            </div>
+                            <!-- Author Email -->
+                            <div class="form-group">
+                                <label for="email">Email</label>
+                                <input ng-change="validate()" ng-model="email"  type="text" class="form-control">
+                            </div>
+                            <!-- Project License -->
+                            <div class="form-group">
+                                <label for="license">License</label>
+                                <input ng-change="validate()" ng-model="license"  type="text" class="form-control">
+                            </div>
+                             <!-- Project Module -->
+                            <div class="form-group">
+                                <label for="module">Project Modules</label>
+                                <input ng-disabled="true" ng-model="models"  type="text" class="form-control"><div class="alert alert-warning" ng-if="models == ''">
+You do not have to export new modules</div>
+                            </div>
+                            <!-- Project Template -->
+                            <div class="form-group">
+                                <label for="template"> Project Template </label>
+                                  <ui-select ng-model="template" ng-change="setTemplate(template)" theme="bootstrap" ng-disabled="disabled" style="min-width: 300px;" title="Choose a template">
+								    <ui-select-match placeholder="Select a Template...">{{$select.selected.name}}</ui-select-match>
+								    <ui-select-choices repeat="lay.label as lay in layouts | propsFilter: {name: $select.search}">
+								      <div ng-bind-html="lay.name | highlight: $select.search"></div>
+								    </ui-select-choices>
+								  </ui-select>
+				                <div class = "thumbnail">
+							      <img ng-click="open()" class="gridImg"  src="../../../{{template}}/preview.jpg" alt="{{template}}"/>
+							      <div class="caption col-md-offset-3">
+							        <h3>{{template}}</h3>
+							      </div>
+							    </div>
+							    <div class="col-md-offset-4">
+							    	<button ng-disabled="submitBtn" ng-click="submit()" class="btn btn-primary">Generate</button>
+							    </div>
+							    
+                            </div>
+                        </div>
+                      
+                    </form>
+                </div>
+            </div>

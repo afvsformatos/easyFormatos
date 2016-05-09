@@ -1,0 +1,66 @@
+.div-padding{
+	padding: 14px 14px 14px 0;
+}
+
+.page-wrapper {
+	margin-right: auto;
+	margin-left: auto;
+}
+
+.testdiv{
+	background: gray;
+}
+.container-fluid {
+    padding-right: 15px;
+    padding-left: 15px;
+    margin-right: auto;
+    margin-left: auto;
+    margin-bottom: 50px;
+}
+
+/* FOOTER */
+@media(min-width:768px){
+	#footer {
+		position: fixed;
+		bottom: 0;
+		width: 100%;
+		/* Set the fixed height of the footer here */
+		height: 40px;
+		background-color: #f5f5f5;
+	}
+
+	.footer-block { margin: 20px 0; }
+
+	#footer {
+		left: 0px;
+		margin-top: 20px;
+		padding-right: 15px;
+		padding-left: 15px;
+		background-color:#000000;
+	}
+
+}
+
+@media(max-width:768px){
+	#footer {
+		position: fixed;
+		bottom: 0;
+		width: 100%;
+		/* Set the fixed height of the footer here */
+		height: 40px;
+		background-color: #f5f5f5;
+	}
+
+	#footer {
+		padding-right: 15px;
+		padding-left: 15px;
+		background-color:#000000;
+	}
+}
+
+.logoMean{
+	width: 50px;
+	height: auto;
+	top: 15px;
+}
+/* /FOOTER */

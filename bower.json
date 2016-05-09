@@ -1,0 +1,32 @@
+{
+  "name": "meanCase",
+  "version": "0.0.1",
+  "homepage": "https://github.com/afvs1989/scaffoldMeanHeroic",
+  "authors": [
+    "Andres Valenzuela <afvs1989@gmail.com>"
+  ],
+  "description": "MEANCASE is a fullstack framework based on the MEAN stack, which brings you several features that ease the process of developing a web application. One of the most relevant features is the Crud Generator that lets you create an entire module with a visual tool in less than 5 minutes.",
+  "main": "views/index.ejs",
+  "moduleType": [],
+  "license": "GPL V3",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "public/bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular": "~1.4.7",
+    "angular-route": "~1.4.7",
+    "bootstrap": "~3.3.5",
+    "angular-bootstrap": "~0.14.2",
+    "angular-sanitize": "~1.4.7",
+    "ui-select": "angular-ui-select#~0.13.2",
+    "fullpage.js": "~2.7.4",
+    "ngBootbox": "~0.1.2",
+    "bootbox.js": "bootbox#~4.4.0",
+    "angular-socket-io": "~0.7.0"
+  }
+}
