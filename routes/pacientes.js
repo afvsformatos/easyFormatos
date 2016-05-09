@@ -44,11 +44,15 @@ router.get('/pacientes/afvs', function(req, res) {
       res.json(users);
     });*/
 
-    conversorCabecera.findAll({
+    /*conversorCabecera.findAll({
       include: [ conversorDetalle ]
-    }).then(function(users) {
-      res.json(users);
-    });
+    }).then(function(conversor) {
+      res.json(conversor);
+    });*/
+     conversorCabecera.findAll().then(function(cabeceras) {
+        res.json(cabeceras);
+      });
+
 
 
 });
