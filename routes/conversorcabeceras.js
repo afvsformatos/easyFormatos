@@ -67,10 +67,17 @@ router.put('/conversorcabeceras/:id', function(req, res){
 });
 /* DELETE - conversorcabeceras. */
 router.delete('/conversorcabeceras/:id', function(req, res){
-   conversorcabeceras.findByIdAndRemove(req.params.id, function(err){
+   /*conversorcabeceras.findByIdAndRemove(req.params.id, function(err){
      if(err){res.send(err)}
      res.json({message: 'conversorcabeceras delete successful!'});
      meanCaseBase.auditSave(req,'Delete Register','conversorcabeceras','Id: '+req.params.id);
-   })
+   })*/
+
+   conversorCabecera.create({ IdFormato: req.params.id }).then(function(task) {
+      return conversorCabecera.destroy();
+    }).then(function() {
+         res.json({message: 'conversorcabeceras delete successful!'});
+         meanCaseBase.auditSave(req,'Delete Register','conversorcabeceras','Id: '+req.params.id);
+    })
 });
 module.exports = router;
