@@ -1,0 +1,44 @@
+<div class="container-fluid">
+   <div class="row div-padding">
+     <button ng-click="open()" class="btn btn-default "><i class="fa fa-plus"></i> Create New</button>
+     <div class="alert alert-{{alert}}" ng-show="msjAlert">{{message}}</div>
+   </div>
+   <div class="row">
+     <div class="input-group">
+       <span class="input-group-addon" id="basic-addon1"><i class="fa fa-search"></i></span>
+       <input ng-model="searchText" type="text" class="form-control" placeholder="Search" aria-describedby="basic-addon1">
+     </div>
+     <table ng-hide="preloader" class="table table-bordered table-hover table-striped" at-table at-paginated at-list="conversorcabecerasList | filter:searchText" at-config="configTable">
+       <thead></thead>
+       <tbody>
+         <tr>
+           <td  at-sortable  at-title='ID FORMATO' width='150'>{{item.id_formato}}</td>
+           <td  at-sortable  at-title='NOMBRE FORMATO' width='150'>{{item.nombre_formato}}</td>
+           <td  at-sortable  at-title='DESCRIPCION FORMATO' width='150'>{{item.descripcion_formato}}</td>
+           <td  at-sortable  at-title='CABECERA' width='150'>{{item.cabecera}}</td>
+           <td  at-sortable  at-title='PIE' width='150'>{{item.pie}}</td>
+           <td  at-sortable  at-title='SEPARADOR' width='150'>{{item.separador}}</td>
+           <td  at-sortable  at-title='FORMATO CONVERSION' width='150'>{{item.formato_conversion}}</td>
+           <td  at-sortable  at-title='FORMATO DESTINO' width='150'>{{item.formato_destino}}</td>
+           <td  at-sortable  at-title='TIPO PROCESO' width='150'>{{item.tipo_proceso}}</td>
+           <td  at-sortable  at-title='NOMBRE OBJETO' width='150'>{{item.nombre_objeto}}</td>
+           <td  at-sortable  at-title='ESTADO' width='150'>{{item.estado}}</td>
+           <td  at-sortable  at-title='TIPO ARCHIVO SALIDA' width='150'>{{item.tipo_archivo_salida}}</td>
+           <td  at-sortable  at-title='ORIENTACION' width='150'>{{item.orientacion}}</td>
+           <td  at-sortable  at-title='RUTINA PREVALIDACION' width='150'>{{item.rutina_prevalidacion}}</td>
+           <td  at-sortable  at-title='UNIFICADOR' width='150'>{{item.unificador}}</td>
+           <td  at-sortable  at-title='CHECK TOTALES POR' width='150'>{{item.check_totales_por}}</td>
+           <td  at-sortable  at-title='VALIDAIDENTIFICACION' width='150'>{{item.validaidentificacion}}</td>
+           <td  at-sortable  at-title='RUTINA PRECONVERSION' width='150'>{{item.rutina_preconversion}}</td>
+           <td  at-sortable  at-title='INFIERE TIPO ID CLIENTE' width='150'>{{item.infiere_tipo_id_cliente}}</td>
+           <td  at-sortable  at-title='MUESTRA CABECERA COLUMNA' width='150'>{{item.muestra_cabecera_columna}}</td>
+           <td  at-sortable  at-title='TIPO CONVERSION' width='150'>{{item.tipo_conversion}}</td>
+           
+           <td  at-title="Acción" width="250"><button type="button" class="btn btn-default" ng-click="open(item)"><i class="fa fa-pencil-square-o"></i></button><button type="button" class="btn btn-default" ng-click="openDelete(item)"><i class="fa fa-trash-o"></i></button></td>
+         </tr>
+       </tbody>
+     </table>
+     <div class="col-md-6 col-md-offset-3" ><at-pagination ng-hide="preloader" at-list="conversorcabecerasList" at-config="configTable"></at-pagination></div>
+     <div class="row col-lg-offset-6 col-md-offset-6 col-xs-offset-6" ng-hide="!preloader"><i class="fa fa-spinner fa-spin fa-5x position-spinner"></i></div>
+   </div>
+</div>

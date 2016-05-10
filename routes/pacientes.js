@@ -49,9 +49,17 @@ router.get('/pacientes/afvs', function(req, res) {
     }).then(function(conversor) {
       res.json(conversor);
     });*/
-     conversorCabecera.findAll().then(function(cabeceras) {
+     /*conversorCabecera.findAll().then(function(cabeceras) {
         res.json(cabeceras);
-      });
+      });*/
+    /*conversorDetalle.findOne({ where: {IdFormato: '48764'} }).then(function(detalles) {
+      res.json(detalles);
+    })*/
+
+     conversorDetalle.findAll({ where: { IdFormato: '48764' } }).then(function(detalles) {
+        res.json(detalles);
+     })
+
 
 
 

@@ -1,0 +1,42 @@
+<div class="modal-header">
+   <div class="pull-right">
+     <button type="button" class="close pull-right" ng-click="$dismiss()">&times;</button>
+   </div>
+<div>
+   <h3 class="modal-title" ng-if="!item._id">Create</h3>
+   <h3 class="modal-title" ng-if="item._id">Edit</h3>
+</div>
+</div>
+<div>
+<form name="myForm" ng-submit="save()" method="POST">
+   <div class="modal-body">
+     <fieldset>
+       <div class="row" ><div class="form-group col-md-12"><label for="id_formato" class="bold">ID FORMATO</label><input  autofocus required name="id_formato" type="number" class="form-control"  ng-model="item.id_formato" ></div></div>
+       <div class="row" ><div class="form-group col-md-12"><label for="nombre_formato" class="bold">NOMBRE FORMATO</label><input  autofocus required name="nombre_formato" type="text" class="form-control"  ng-model="item.nombre_formato" ></div></div>
+       <div class="row" ><div class="form-group col-md-12"><label for="descripcion_formato" class="bold">DESCRIPCION FORMATO</label><input  autofocus required name="descripcion_formato" type="text" class="form-control"  ng-model="item.descripcion_formato" ></div></div>
+       <div class="row" ><div class="form-group col-md-12"><label for="cabecera" class="bold">CABECERA</label><input  autofocus required name="cabecera" type="text" class="form-control"  ng-model="item.cabecera" ></div></div>
+       <div class="row" ><div class="form-group col-md-12"><label for="pie" class="bold">PIE</label><input  autofocus required name="pie" type="text" class="form-control"  ng-model="item.pie" ></div></div>
+       <div class="row" ><div class="form-group col-md-12"><label for="separador" class="bold">SEPARADOR</label><input  autofocus required name="separador" type="text" class="form-control"  ng-model="item.separador" ></div></div>
+       <div class="row" ><div class="form-group col-md-12"><label for="formato_conversion" class="bold">FORMATO CONVERSION</label><input  autofocus required name="formato_conversion" type="number" class="form-control"  ng-model="item.formato_conversion" ></div></div>
+       <div class="row" ><div class="form-group col-md-12"><label for="formato_destino" class="bold">FORMATO DESTINO</label><input  autofocus required name="formato_destino" type="text" class="form-control"  ng-model="item.formato_destino" ></div></div>
+       <div class="row" ><div class="form-group col-md-12"><label for="tipo_proceso" class="bold">TIPO PROCESO</label><input  autofocus required name="tipo_proceso" type="text" class="form-control"  ng-model="item.tipo_proceso" ></div></div>
+       <div class="row" ><div class="form-group col-md-12"><label for="nombre_objeto" class="bold">NOMBRE OBJETO</label><input  autofocus required name="nombre_objeto" type="text" class="form-control"  ng-model="item.nombre_objeto" ></div></div>
+       <div class="row" ><div class="form-group col-md-12"><label for="estado" class="bold">ESTADO</label><input  autofocus required name="estado" type="text" class="form-control"  ng-model="item.estado" ></div></div>
+       <div class="row" ><div class="form-group col-md-12"><label for="tipo_archivo_salida" class="bold">TIPO ARCHIVO SALIDA</label><input  autofocus required name="tipo_archivo_salida" type="text" class="form-control"  ng-model="item.tipo_archivo_salida" ></div></div>
+       <div class="row" ><div class="form-group col-md-12"><label for="orientacion" class="bold">ORIENTACION</label><input  autofocus required name="orientacion" type="text" class="form-control"  ng-model="item.orientacion" ></div></div>
+       <div class="row" ><div class="form-group col-md-12"><label for="rutina_prevalidacion" class="bold">RUTINA PREVALIDACION</label><input  autofocus required name="rutina_prevalidacion" type="text" class="form-control"  ng-model="item.rutina_prevalidacion" ></div></div>
+       <div class="row" ><div class="form-group col-md-12"><label for="unificador" class="bold">UNIFICADOR</label><input  autofocus required name="unificador" type="text" class="form-control"  ng-model="item.unificador" ></div></div>
+       <div class="row" ><div class="form-group col-md-12"><label for="check_totales_por" class="bold">CHECK TOTALES POR</label><input  autofocus required name="check_totales_por" type="text" class="form-control"  ng-model="item.check_totales_por" ></div></div>
+       <div class="row" ><div class="form-group col-md-12"><label for="validaidentificacion" class="bold">VALIDAIDENTIFICACION</label><input  autofocus required name="validaidentificacion" type="text" class="form-control"  ng-model="item.validaidentificacion" ></div></div>
+       <div class="row" ><div class="form-group col-md-12"><label for="rutina_preconversion" class="bold">RUTINA PRECONVERSION</label><input  autofocus required name="rutina_preconversion" type="text" class="form-control"  ng-model="item.rutina_preconversion" ></div></div>
+       <div class="row" ><div class="form-group col-md-12"><label for="infiere_tipo_id_cliente" class="bold">INFIERE TIPO ID CLIENTE</label><input  autofocus required name="infiere_tipo_id_cliente" type="text" class="form-control"  ng-model="item.infiere_tipo_id_cliente" ></div></div>
+       <div class="row" ><div class="form-group col-md-12"><label for="muestra_cabecera_columna" class="bold">MUESTRA CABECERA COLUMNA</label><input  autofocus required name="muestra_cabecera_columna" type="text" class="form-control"  ng-model="item.muestra_cabecera_columna" ></div></div>
+       <div class="row" ><div class="form-group col-md-12"><label for="tipo_conversion" class="bold">TIPO CONVERSION</label><input  autofocus required name="tipo_conversion" type="text" class="form-control"  ng-model="item.tipo_conversion" ></div></div>
+       
+     </fieldset>
+</div>
+<div class="modal-footer">
+   <button ng-disabled="myForm.$invalid || myForm.$pristine" class="btn btn-primary pull-right" type="submit" title="Save"><span ng-if="saving"><i class="fa fa-spinner fa fa-spin"></i>&nbsp;</span><span>Save</span></button>
+</div>
+</form>
+</div>
