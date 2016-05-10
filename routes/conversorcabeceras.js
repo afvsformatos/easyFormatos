@@ -25,14 +25,30 @@ router.get('/conversorcabeceras', function(req, res, next) {
      meanCaseBase.auditSave(req,'Query all Registers','conversorcabeceras','Query all Registers');
    })*/
 });
+/* Obtener detalles de conversor cabecera*/
+
+router.get('/conversorcabeceras/detalles/:id', function (req, res) {
+  conversorDetalle.findAll({ where: { IdFormato: req.params.id } }).then(function(detalles) {
+        res.json(detalles);
+  });
+
+});
+
+
 /* POST - Add conversorcabeceras. */
 router.post('/conversorcabeceras', function(req, res, next){
-   var model = new conversorcabeceras(req.body);
+   /*var model = new conversorcabeceras(req.body);
    model.save(function(err, data){
      if(err){return next(err)}
      res.json(data);
      meanCaseBase.auditSave(req,'Insert Register','conversorcabeceras',data);
-   })
+   })*/
+   req.body.IdFormato = 9998;
+   res.json(req.body);
+   /*conversorCabecera.create(req.body).then(function() {
+      res.json(data);
+      meanCaseBase.auditSave(req,'Insert Register','conversorcabeceras',data);
+    });*/
 });
 /* PUT - Update conversorcabeceras. */
 router.put('/conversorcabeceras/:id', function(req, res){
@@ -72,12 +88,14 @@ router.delete('/conversorcabeceras/:id', function(req, res){
      res.json({message: 'conversorcabeceras delete successful!'});
      meanCaseBase.auditSave(req,'Delete Register','conversorcabeceras','Id: '+req.params.id);
    })*/
-
-   conversorCabecera.create({ IdFormato: req.params.id }).then(function(task) {
-      return conversorCabecera.destroy();
-    }).then(function() {
-         res.json({message: 'conversorcabeceras delete successful!'});
-         meanCaseBase.auditSave(req,'Delete Register','conversorcabeceras','Id: '+req.params.id);
-    })
+   conversorCabecera.destroy({
+    where: {
+      IdFormato: req.params.id
+    }
+  }).then(function() {
+      res.json({message: 'conversorcabeceras delete successful!'});
+      meanCaseBase.auditSave(req,'Delete Register','conversorcabeceras','Id: '+req.params.id);
+  });
+   
 });
 module.exports = router;

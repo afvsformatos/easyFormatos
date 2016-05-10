@@ -1,5 +1,6 @@
 var connectionDb = require('../../config/connectionDb.js');
 var conversorDetalle = require('../../config/relationalModels/conversorDetalle.js');
+var conversorDetallePlantilla = require('../../config/relationalModels/conversorDetallePlantilla.js');
 var conversorCabecera = connectionDb.sequelize.define('Conversor_Cabecera', {
   IdFormato: {
     type: connectionDb.Sequelize.INTEGER,
@@ -80,6 +81,11 @@ conversorCabecera.hasMany(conversorDetalle, {
  /* scope: {
     commentable: 'post'
   }*/
+});
+
+conversorCabecera.hasMany(conversorDetallePlantilla, {
+  foreignKey: 'IdFormato',
+  constraints: false
 });
 
 module.exports = conversorCabecera;

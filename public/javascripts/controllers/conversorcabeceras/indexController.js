@@ -1,15 +1,33 @@
 .controller('conversorcabecerasController',
   ['$rootScope','$scope', '$location', 'conversorcabecerasModel','$uibModal',
   function ($rootScope,$scope, $location, conversorcabecerasModel,$uibModal) {
+
     $scope.titleController = 'MEAN-CASE SUPER HEROIC';
     $rootScope.titleWeb = 'conversorcabeceras';
     $scope.preloader = true;
     $scope.msjAlert = false;
-    conversorcabecerasModel.getAll().then(function(data) {
-      $scope.conversorcabecerasList = data;
-      $scope.conversorcabecerasTemp = angular.copy($scope.conversorcabecerasList);
-      $scope.preloader = false;
-    });
+    var obtenerCabeceras = function(){
+      conversorcabecerasModel.getAll().then(function(data) {
+        $scope.conversorcabecerasList = data;
+        $scope.conversorcabecerasTemp = angular.copy($scope.conversorcabecerasList);
+        $scope.preloader = false;
+      });
+    }
+    obtenerCabeceras();
+
+    $scope.obtenerDetalles = function(idFormato){
+      conversorcabecerasModel.url = '/api/conversorcabeceras/detalles';
+      conversorcabecerasModel.findById(idFormato).then(function(detalles){
+        
+        //$location.url('/conversorcabeceras/detalles');
+        $scope.conversoDetalles = detalles;
+        console.log($scope.conversoDetalles);
+      });
+      
+     
+    }
+
+
     /*  Modal */
      $scope.open = function (item) {
        var modalInstance = $uibModal.open({
@@ -50,7 +68,7 @@
       var idx = $scope.conversorcabecerasList.indexOf(data);
       $scope.conversorcabecerasList.splice(idx, 1);
       conversorcabecerasModel
-        .destroy(data._id)
+        .destroy(data.IdFormato)
         .then(function(result) {
           $scope.msjAlert = true;
           $scope.alert = 'success';

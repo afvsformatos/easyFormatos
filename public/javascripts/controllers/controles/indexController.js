@@ -50,7 +50,7 @@
       var idx = $scope.controlesList.indexOf(data);
       $scope.controlesList.splice(idx, 1);
       controlesModel
-        .destroy(data._id)
+        .destroy(data.IdFormato)
         .then(function(result) {
           $scope.msjAlert = true;
           $scope.alert = 'success';

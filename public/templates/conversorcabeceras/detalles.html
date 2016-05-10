@@ -1,8 +1,3 @@
-<style type="text/css">
-  .app-modal-window .modal-dialog {
-    width: 500000px;
-  }
-</style>
 <div class="container-fluid">
    <div class="row div-padding">
      <button ng-click="open()" class="btn btn-default "><i class="fa fa-plus"></i> Create New</button>
@@ -13,15 +8,16 @@
        <span class="input-group-addon" id="basic-addon1"><i class="fa fa-search"></i></span>
        <input ng-model="searchText.NombreFormato" type="text" class="form-control" placeholder="Search" aria-describedby="basic-addon1">
      </div>
-     <table ng-hide="preloader" class="table table-bordered table-hover table-striped" at-table at-paginated at-list="conversorcabecerasList | filter:searchText" at-config="configTable">
+     {{afvstest}}
+     <table ng-hide="preloader" class="table table-bordered table-hover table-striped" at-table at-paginated at-list="conversoDetalles | filter:searchText" at-config="configTable">
        <thead></thead>
        <tbody>
          <tr>
            <!--<td  at-sortable  at-title='ID FORMATO' width='150'>{{item.IdFormato}}</td>-->
-           <td  at-sortable  at-title='NOMBRE FORMATO' width='150'><a ng-click="obtenerDetalles(item.IdFormato)">{{item.NombreFormato}}</a></td>
-           <td  at-sortable  at-title='DESCRIPCION FORMATO' width='150'>{{item.DescripcionFormato}}</td>
+           <td  at-sortable  at-title='NOMBRE FORMATO' width='150'>{{item.CampoEquivalente}}</td>
+           <td  at-sortable  at-title='DESCRIPCION FORMATO' width='150'>{{item.CaracterConcatenacion}}</td>
            <td  at-sortable  at-title='CABECERA' width='150'>{{item.Cabecera}}</td>
-           <td  at-sortable  at-title='PIE' width='150'>{{item.Pie}}</td>
+           <td  at-sortable  at-title='PIE' width='150'>{{item.Default_Value}}</td>
            <td  at-sortable  at-title='SEPARADOR' width='150'>{{item.Separador}}</td>
            <td  at-sortable  at-title='FORMATO CONVERSION' width='150'>{{item.FormatoConversion}}</td>
            <td  at-sortable  at-title='FORMATO DESTINO' width='150'>{{item.Formato_destino}}</td>
