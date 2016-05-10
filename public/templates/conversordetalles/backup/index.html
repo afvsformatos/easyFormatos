@@ -1,0 +1,46 @@
+<div class="container-fluid">
+   <div class="row div-padding">
+     <button ng-click="open()" class="btn btn-default "><i class="fa fa-plus"></i> Create New</button>
+     <div class="alert alert-{{alert}}" ng-show="msjAlert">{{message}}</div>
+   </div>
+   <div class="row">
+     <div class="input-group">
+       <span class="input-group-addon" id="basic-addon1"><i class="fa fa-search"></i></span>
+       <input ng-model="searchText" type="text" class="form-control" placeholder="Search" aria-describedby="basic-addon1">
+     </div>
+     <table ng-hide="preloader" class="table table-bordered table-hover table-striped" at-table at-paginated at-list="conversordetallesList | filter:searchText" at-config="configTable">
+       <thead></thead>
+       <tbody>
+         <tr>
+           <td  at-sortable  at-title='IDDETALLE' width='150'>{{item.iddetalle}}</td>
+           <td  at-sortable  at-title='IDFORMATO' width='150'>{{item.idformato}}</td>
+           <td  at-sortable  at-title='TIPOREGISTRO' width='150'>{{item.tiporegistro}}</td>
+           <td  at-sortable  at-title='NUMEROCAMPO' width='150'>{{item.numerocampo}}</td>
+           <td  at-sortable  at-title='POSICIONINICIO' width='150'>{{item.posicioninicio}}</td>
+           <td  at-sortable  at-title='LONGITUDCAMPO' width='150'>{{item.longitudcampo}}</td>
+           <td  at-sortable  at-title='TIPOCAMPO' width='150'>{{item.tipocampo}}</td>
+           <td  at-sortable  at-title='SEPARADORDECIMALES' width='150'>{{item.separadordecimales}}</td>
+           <td  at-sortable  at-title='NUMERODECIMALES' width='150'>{{item.numerodecimales}}</td>
+           <td  at-sortable  at-title='DESCRIPCIONCAMPO' width='150'>{{item.descripcioncampo}}</td>
+           <td  at-sortable  at-title='IDCAMPOEQUIVALENTE' width='150'>{{item.idcampoequivalente}}</td>
+           <td  at-sortable  at-title='CAMPOEQUIVALENTE' width='150'>{{item.campoequivalente}}</td>
+           <td  at-sortable  at-title='OBLIGATORIO' width='150'>{{item.obligatorio}}</td>
+           <td  at-sortable  at-title='VALIDACIONES' width='150'>{{item.validaciones}}</td>
+           <td  at-sortable  at-title='TIPO REGISTRO' width='150'>{{item.tipo_registro}}</td>
+           <td  at-sortable  at-title='DEFAULT VALUE' width='150'>{{item.default_value}}</td>
+           <td  at-sortable  at-title='OBSERVACION' width='150'>{{item.observacion}}</td>
+           <td  at-sortable  at-title='RUTINA VALIDACION' width='150'>{{item.rutina_validacion}}</td>
+           <td  at-sortable  at-title='RUTINA TRANSFORMACION' width='150'>{{item.rutina_transformacion}}</td>
+           <td  at-sortable  at-title='CARACTERCONCATENACION' width='150'>{{item.caracterconcatenacion}}</td>
+           <td  at-sortable  at-title='ORDENCAMPO' width='150'>{{item.ordencampo}}</td>
+           <td  at-sortable  at-title='RUTINA CONVERSION' width='150'>{{item.rutina_conversion}}</td>
+           <td  at-sortable  at-title='VALIDAENMASIVAS' width='150'>{{item.validaenmasivas}}</td>
+           
+           <td  at-title="Acción" width="250"><button type="button" class="btn btn-default" ng-click="open(item)"><i class="fa fa-pencil-square-o"></i></button><button type="button" class="btn btn-default" ng-click="openDelete(item)"><i class="fa fa-trash-o"></i></button></td>
+         </tr>
+       </tbody>
+     </table>
+     <div class="col-md-6 col-md-offset-3" ><at-pagination ng-hide="preloader" at-list="conversordetallesList" at-config="configTable"></at-pagination></div>
+     <div class="row col-lg-offset-6 col-md-offset-6 col-xs-offset-6" ng-hide="!preloader"><i class="fa fa-spinner fa-spin fa-5x position-spinner"></i></div>
+   </div>
+</div>

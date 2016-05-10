@@ -1,0 +1,44 @@
+<div class="modal-header">
+   <div class="pull-right">
+     <button type="button" class="close pull-right" ng-click="$dismiss()">&times;</button>
+   </div>
+<div>
+   <h3 class="modal-title" ng-if="!item._id">Create</h3>
+   <h3 class="modal-title" ng-if="item._id">Edit</h3>
+</div>
+</div>
+<div>
+<form name="myForm" ng-submit="save()" method="POST">
+   <div class="modal-body">
+     <fieldset>
+       <div class="row" ><div class="form-group col-md-12"><label for="iddetalle" class="bold">IDDETALLE</label><input  autofocus required name="iddetalle" type="number" class="form-control"  ng-model="item.iddetalle" ></div></div>
+       <div class="row" ><div class="form-group col-md-12"><label for="idformato" class="bold">IDFORMATO</label><input  autofocus required name="idformato" type="number" class="form-control"  ng-model="item.idformato" ></div></div>
+       <div class="row" ><div class="form-group col-md-12"><label for="tiporegistro" class="bold">TIPOREGISTRO</label><input  autofocus required name="tiporegistro" type="text" class="form-control"  ng-model="item.tiporegistro" ></div></div>
+       <div class="row" ><div class="form-group col-md-12"><label for="numerocampo" class="bold">NUMEROCAMPO</label><input  autofocus required name="numerocampo" type="number" class="form-control"  ng-model="item.numerocampo" ></div></div>
+       <div class="row" ><div class="form-group col-md-12"><label for="posicioninicio" class="bold">POSICIONINICIO</label><input  autofocus required name="posicioninicio" type="number" class="form-control"  ng-model="item.posicioninicio" ></div></div>
+       <div class="row" ><div class="form-group col-md-12"><label for="longitudcampo" class="bold">LONGITUDCAMPO</label><input  autofocus required name="longitudcampo" type="number" class="form-control"  ng-model="item.longitudcampo" ></div></div>
+       <div class="row" ><div class="form-group col-md-12"><label for="tipocampo" class="bold">TIPOCAMPO</label><input  autofocus required name="tipocampo" type="text" class="form-control"  ng-model="item.tipocampo" ></div></div>
+       <div class="row" ><div class="form-group col-md-12"><label for="separadordecimales" class="bold">SEPARADORDECIMALES</label><input  autofocus required name="separadordecimales" type="text" class="form-control"  ng-model="item.separadordecimales" ></div></div>
+       <div class="row" ><div class="form-group col-md-12"><label for="numerodecimales" class="bold">NUMERODECIMALES</label><input  autofocus required name="numerodecimales" type="number" class="form-control"  ng-model="item.numerodecimales" ></div></div>
+       <div class="row" ><div class="form-group col-md-12"><label for="descripcioncampo" class="bold">DESCRIPCIONCAMPO</label><input  autofocus required name="descripcioncampo" type="text" class="form-control"  ng-model="item.descripcioncampo" ></div></div>
+       <div class="row" ><div class="form-group col-md-12"><label for="idcampoequivalente" class="bold">IDCAMPOEQUIVALENTE</label><input  autofocus required name="idcampoequivalente" type="number" class="form-control"  ng-model="item.idcampoequivalente" ></div></div>
+       <div class="row" ><div class="form-group col-md-12"><label for="campoequivalente" class="bold">CAMPOEQUIVALENTE</label><input  autofocus required name="campoequivalente" type="text" class="form-control"  ng-model="item.campoequivalente" ></div></div>
+       <div class="row" ><div class="form-group col-md-12"><label for="obligatorio" class="bold">OBLIGATORIO</label><input  autofocus required name="obligatorio" type="text" class="form-control"  ng-model="item.obligatorio" ></div></div>
+       <div class="row" ><div class="form-group col-md-12"><label for="validaciones" class="bold">VALIDACIONES</label><input  autofocus required name="validaciones" type="text" class="form-control"  ng-model="item.validaciones" ></div></div>
+       <div class="row" ><div class="form-group col-md-12"><label for="tipo_registro" class="bold">TIPO REGISTRO</label><input  autofocus required name="tipo_registro" type="text" class="form-control"  ng-model="item.tipo_registro" ></div></div>
+       <div class="row" ><div class="form-group col-md-12"><label for="default_value" class="bold">DEFAULT VALUE</label><input  autofocus required name="default_value" type="text" class="form-control"  ng-model="item.default_value" ></div></div>
+       <div class="row" ><div class="form-group col-md-12"><label for="observacion" class="bold">OBSERVACION</label><input  autofocus required name="observacion" type="text" class="form-control"  ng-model="item.observacion" ></div></div>
+       <div class="row" ><div class="form-group col-md-12"><label for="rutina_validacion" class="bold">RUTINA VALIDACION</label><input  autofocus required name="rutina_validacion" type="text" class="form-control"  ng-model="item.rutina_validacion" ></div></div>
+       <div class="row" ><div class="form-group col-md-12"><label for="rutina_transformacion" class="bold">RUTINA TRANSFORMACION</label><input  autofocus required name="rutina_transformacion" type="text" class="form-control"  ng-model="item.rutina_transformacion" ></div></div>
+       <div class="row" ><div class="form-group col-md-12"><label for="caracterconcatenacion" class="bold">CARACTERCONCATENACION</label><input  autofocus required name="caracterconcatenacion" type="text" class="form-control"  ng-model="item.caracterconcatenacion" ></div></div>
+       <div class="row" ><div class="form-group col-md-12"><label for="ordencampo" class="bold">ORDENCAMPO</label><input  autofocus required name="ordencampo" type="text" class="form-control"  ng-model="item.ordencampo" ></div></div>
+       <div class="row" ><div class="form-group col-md-12"><label for="rutina_conversion" class="bold">RUTINA CONVERSION</label><input  autofocus required name="rutina_conversion" type="text" class="form-control"  ng-model="item.rutina_conversion" ></div></div>
+       <div class="row" ><div class="form-group col-md-12"><label for="validaenmasivas" class="bold">VALIDAENMASIVAS</label><input  autofocus required name="validaenmasivas" type="text" class="form-control"  ng-model="item.validaenmasivas" ></div></div>
+       
+     </fieldset>
+</div>
+<div class="modal-footer">
+   <button ng-disabled="myForm.$invalid || myForm.$pristine" class="btn btn-primary pull-right" type="submit" title="Save"><span ng-if="saving"><i class="fa fa-spinner fa fa-spin"></i>&nbsp;</span><span>Save</span></button>
+</div>
+</form>
+</div>

@@ -161,6 +161,162 @@
  		});
  	});
  })
+.controller('bootstrapController',
+  ['$scope', '$location', 'AuthService','bootstrapService','$route',
+  function ($scope, $location, AuthService,bootstrapService,$route) {
+    $scope.test = "Menú 1";
+         /*  LOGOUT  */
+	    $scope.logout = function () {
+	      AuthService.logout()
+	        .then(function () {
+	          $location.path('/login');
+	        });
+
+	    };
+	    bootstrapService.getMenu().then(function(data) {
+	      $scope.menus = data;
+	    });	
+
+	    $scope.reloadRoute = function(menu){
+	    	if(menu.flat == 'cabecera')
+	    		location.reload();
+
+	    	
+	    	
+	    }
+	    
+}])
+.controller('homeController',
+  ['$rootScope','$scope', '$location', 'AuthService','$uibModal','mySocket',
+  function ($rootScope,$scope, $location, AuthService,$uibModal,mySocket) {
+    $scope.arrayMsg = [];
+    $scope.titleHomeController = "Welcome";
+    $scope.testSocket = function(){
+    	mySocket.emit('chat message',{user:$rootScope.user.username,input:$scope.msgInput});
+    	mySocket.emit('test', 'test test');
+      
+    }
+    $scope.$on('socket:chat message', function(event, data) {
+      
+      var size = $scope.arrayMsg.length;
+      console.log(size);
+      if(size > 0){
+        var oldUser = $scope.arrayMsg[size-1].user;
+        var newUser = data.user;
+        if(oldUser =! newUser){
+          data["class1"] = "amigo";
+          data["class2"] = "derecha";
+        }else{
+          data["class1"] = "autor";
+          data["class2"] = "izquierda";
+        }
+         
+       
+      }else{
+        data["class1"] = "autor";
+        data["class2"] = "izquierda";
+      }
+      $scope.arrayMsg.push(data);
+      $scope.msgInput = '';
+      window.setInterval(function() {
+        var elem = document.getElementById('mensajes');
+        elem.scrollTop = elem.scrollHeight;
+      }, 5000);
+        
+    });
+    $scope.$on('socket:test', function(event, data) {
+    	console.log(data);
+    });
+}])
+.controller('loginController', ['$rootScope', '$scope', '$location', 'AuthService','$uibModal',
+  function ($rootScope, $scope, $location, AuthService,$uibModal) {
+		$scope.titleLoginController = "MEAN_CASE HEROIC";
+		$rootScope.titleWeb = "Login";
+		$scope.registerSuccess = false;
+		$scope.login = function () {
+
+			// initial values
+			$scope.registerSuccess = false;
+			$scope.error = false;
+			$scope.disabled = true;
+			// call login from service
+			AuthService.login($scope.loginForm.username, $scope.loginForm.password, $scope.remember)
+				// handle success
+				.then(function () {
+					$location.path('/');
+					$scope.disabled = false;
+					$scope.loginForm = {};
+				})
+				// handle error
+				.catch(function () {
+					$scope.error = true;
+					$scope.errorMessage = "Invalid username and/or password";
+					$scope.disabled = false;
+					$scope.loginForm = {};
+				});
+
+		};
+
+	 /*  Open   Register */
+	     $scope.open = function (size) {
+	        var modalInstance = $uibModal.open({
+	          animation: true,
+	          templateUrl: 'templates/login/loginRegister.html',
+	          controller: 'registerLoginUserController',
+	          size: size
+	        });
+
+	        modalInstance.result.then(function(data) {
+	          $scope.error = false;
+	          $scope.registerSuccess = true;
+	          $scope.msjSuccess = "Register Successful";
+	        });
+	    };
+
+    /*  Open Register    */
+
+		/* REGISTRAR  */
+		$scope.register = function () {
+
+			// initial values
+			$scope.error = false;
+			$scope.disabled = true;
+
+			// call register from service
+			AuthService.register($scope.registerForm.username, $scope.registerForm.password, $scope.rol)
+				// handle success
+				.then(function () {
+					$location.path('/');
+					$scope.disabled = false;
+					$scope.registerForm = {};
+				})
+				// handle error
+				.catch(function (err) {
+					$scope.error = true;
+					$scope.errorMessage = "User already exists!";
+					$scope.disabled = false;
+					$scope.registerForm = {};
+					$scope.rol = "";
+				});
+
+		};
+
+}])
+.controller('registerLoginUserController',
+  ['$scope', '$uibModalInstance','AuthService','userService',
+  function ($scope, $uibModalInstance,AuthService,userService) {
+  
+    $scope.saving = false;
+     
+    $scope.save = function () {
+        $scope.saving = true;
+        AuthService.register($scope.item.username,$scope.item.password,1).then(function(r){
+          $scope.saving = false;
+        });
+        $uibModalInstance.close();
+    };
+
+}])
 .factory('AuditService',
   ['$q', '$http',
   function ($q, $http) {
@@ -441,6 +597,12 @@
   model.constructorModel = ["IdFormato","NombreFormato","DescripcionFormato","Cabecera","Pie","Separador","FormatoConversion","Formato_destino","Tipo_Proceso","NombreObjeto","estado","tipo_archivo_salida","ORIENTACION","RutinaPrevalidacion","Unificador","Check_Totales_Por","ValidaIdentificacion","RutinaPreconversion","InfiereTipoIdCliente","MuestraCabeceraColumna","TipoConversion"];
   return model;
 })
+.service('conversordetallesModel', function ($optimumModel) {
+  var model = new $optimumModel();
+  model.url = '/api/conversordetalles';
+  model.constructorModel = ["iddetalle","idformato","tiporegistro","numerocampo","posicioninicio","longitudcampo","tipocampo","separadordecimales","numerodecimales","descripcioncampo","idcampoequivalente","campoequivalente","obligatorio","validaciones","tipo_registro","default_value","observacion","rutina_validacion","rutina_transformacion","caracterconcatenacion","ordencampo","rutina_conversion","validaenmasivas"];
+  return model;
+})
 .service('pacientesModel', function ($optimumModel) {
   var model = new $optimumModel();
   model.url = '/api/pacientes';
@@ -454,160 +616,798 @@
 	return model;
 })
 
-.controller('bootstrapController',
-  ['$scope', '$location', 'AuthService','bootstrapService','$route',
-  function ($scope, $location, AuthService,bootstrapService,$route) {
-    $scope.test = "Menú 1";
-         /*  LOGOUT  */
-	    $scope.logout = function () {
-	      AuthService.logout()
-	        .then(function () {
-	          $location.path('/login');
-	        });
-
-	    };
-	    bootstrapService.getMenu().then(function(data) {
-	      $scope.menus = data;
-	    });	
-
-	    $scope.reloadRoute = function(menu){
-	    	if(menu.flat == 'cabecera')
-	    		location.reload();
-
-	    	
-	    	
-	    }
-	    
-}])
-.controller('homeController',
-  ['$rootScope','$scope', '$location', 'AuthService','$uibModal','mySocket',
-  function ($rootScope,$scope, $location, AuthService,$uibModal,mySocket) {
-    $scope.arrayMsg = [];
-    $scope.titleHomeController = "Welcome";
-    $scope.testSocket = function(){
-    	mySocket.emit('chat message',{user:$rootScope.user.username,input:$scope.msgInput});
-    	mySocket.emit('test', 'test test');
-      
-    }
-    $scope.$on('socket:chat message', function(event, data) {
-      
-      var size = $scope.arrayMsg.length;
-      console.log(size);
-      if(size > 0){
-        var oldUser = $scope.arrayMsg[size-1].user;
-        var newUser = data.user;
-        if(oldUser =! newUser){
-          data["class1"] = "amigo";
-          data["class2"] = "derecha";
-        }else{
-          data["class1"] = "autor";
-          data["class2"] = "izquierda";
+.controller('AuditController',
+  ['$rootScope','$scope', '$location', 'AuditService','$uibModal',
+  function ($rootScope,$scope, $location, AuditService,$uibModal) {
+    $scope.titleController = 'MEAN-CASE SUPER HEROIC';
+    $rootScope.titleWeb = 'Audit';
+    $scope.preloader = true;
+    $scope.msjAlert = false;
+    AuditService.allAudit().then(function(data) {
+      $scope.AuditList = data;
+      $scope.AuditTemp = angular.copy($scope.AuditList);
+      $scope.preloader = false;
+    });
+    /*  Modal */
+     $scope.open = function (item) {
+       var modalInstance = $uibModal.open({
+        animation: true,
+        templateUrl: 'templates/Audit/modalCreate.html',
+        controller: 'modalAuditCreateController',
+        size: 'lg',
+        resolve: {
+         item: function () {
+          return item;
+         }
         }
-         
-       
-      }else{
-        data["class1"] = "autor";
-        data["class2"] = "izquierda";
+      });
+      modalInstance.result.then(function(data) {
+        if(!item) {
+           $scope.AuditList.push(data);
+           $scope.AuditTemp = angular.copy($scope.AuditList);
+        }
+      },function(result){
+      $scope.AuditList = $scope.AuditTemp;
+      $scope.AuditTemp = angular.copy($scope.AuditList);
+    });
+  };
+  /*  Delete  */
+  $scope.openDelete = function (item) {
+    var modalInstance = $uibModal.open({
+      animation: true,
+      templateUrl: 'templates/Audit/modalDelete.html',
+      controller: 'modalAuditDeleteController',
+      size: 'lg',
+      resolve: {
+        item: function () {
+           return item;
+        }
       }
-      $scope.arrayMsg.push(data);
-      $scope.msgInput = '';
-      window.setInterval(function() {
-        var elem = document.getElementById('mensajes');
-        elem.scrollTop = elem.scrollHeight;
-      }, 5000);
-        
     });
-    $scope.$on('socket:test', function(event, data) {
-    	console.log(data);
+    modalInstance.result.then(function(data) {
+      var idx = $scope.AuditList.indexOf(data);
+      $scope.AuditList.splice(idx, 1);
+      AuditService
+        .del(data._id)
+        .then(function(result) {
+          $scope.msjAlert = true;
+          $scope.alert = 'success';
+          $scope.message = result.message;
+        })
+        .catch(function(err) {
+          $scope.msjAlert = true;
+          $scope.alert = 'danger';
+          $scope.message = 'Error '+err;
+        })
+      });
+    };
+}])
+.config(function ($routeProvider) {
+  $routeProvider
+    .when('/Audit', {
+      templateUrl: '/templates/Audit/auditIndex.html',
+      controller: 'AuditController',
+      access: {
+        restricted: false,
+       rol: 4
+      }
     });
+ })
+.controller('controlesController',
+  ['$rootScope','$scope', '$location', 'controlesModel','$uibModal',
+  function ($rootScope,$scope, $location, controlesModel,$uibModal) {
+    $scope.titleController = 'MEAN-CASE SUPER HEROIC';
+    $rootScope.titleWeb = 'controles';
+    $scope.preloader = true;
+    $scope.msjAlert = false;
+    controlesModel.getAll().then(function(data) {
+      $scope.controlesList = data;
+      $scope.controlesTemp = angular.copy($scope.controlesList);
+      $scope.preloader = false;
+    });
+    /*  Modal */
+     $scope.open = function (item) {
+       var modalInstance = $uibModal.open({
+        animation: true,
+        templateUrl: 'templates/controles/modalCreate.html',
+        controller: 'modalcontrolesCreateController',
+        size: 'lg',
+        resolve: {
+         item: function () {
+          return item;
+         }
+        }
+      });
+      modalInstance.result.then(function(data) {
+           controlesModel.getAll().then(function(d) {
+             $scope.controlesList = d;
+             $scope.controlesTemp = angular.copy($scope.controlesList);
+           });
+      },function(result){
+      $scope.controlesList = $scope.controlesTemp;
+      $scope.controlesTemp = angular.copy($scope.controlesList);
+    });
+  };
+  /*  Delete  */
+  $scope.openDelete = function (item) {
+    var modalInstance = $uibModal.open({
+      animation: true,
+      templateUrl: 'templates/controles/modalDelete.html',
+      controller: 'modalcontrolesDeleteController',
+      size: 'lg',
+      resolve: {
+        item: function () {
+           return item;
+        }
+      }
+    });
+    modalInstance.result.then(function(data) {
+      var idx = $scope.controlesList.indexOf(data);
+      $scope.controlesList.splice(idx, 1);
+      controlesModel
+        .destroy(data.IdFormato)
+        .then(function(result) {
+          $scope.msjAlert = true;
+          $scope.alert = 'success';
+          $scope.message = result.message;
+        })
+        .catch(function(err) {
+          $scope.msjAlert = true;
+          $scope.alert = 'danger';
+          $scope.message = 'Error '+err;
+        })
+      });
+    };
 }])
-.controller('loginController', ['$rootScope', '$scope', '$location', 'AuthService','$uibModal',
-  function ($rootScope, $scope, $location, AuthService,$uibModal) {
-		$scope.titleLoginController = "MEAN_CASE HEROIC";
-		$rootScope.titleWeb = "Login";
-		$scope.registerSuccess = false;
-		$scope.login = function () {
-
-			// initial values
-			$scope.registerSuccess = false;
-			$scope.error = false;
-			$scope.disabled = true;
-			// call login from service
-			AuthService.login($scope.loginForm.username, $scope.loginForm.password, $scope.remember)
-				// handle success
-				.then(function () {
-					$location.path('/');
-					$scope.disabled = false;
-					$scope.loginForm = {};
-				})
-				// handle error
-				.catch(function () {
-					$scope.error = true;
-					$scope.errorMessage = "Invalid username and/or password";
-					$scope.disabled = false;
-					$scope.loginForm = {};
-				});
-
-		};
-
-	 /*  Open   Register */
-	     $scope.open = function (size) {
-	        var modalInstance = $uibModal.open({
-	          animation: true,
-	          templateUrl: 'templates/login/loginRegister.html',
-	          controller: 'registerLoginUserController',
-	          size: size
-	        });
-
-	        modalInstance.result.then(function(data) {
-	          $scope.error = false;
-	          $scope.registerSuccess = true;
-	          $scope.msjSuccess = "Register Successful";
-	        });
-	    };
-
-    /*  Open Register    */
-
-		/* REGISTRAR  */
-		$scope.register = function () {
-
-			// initial values
-			$scope.error = false;
-			$scope.disabled = true;
-
-			// call register from service
-			AuthService.register($scope.registerForm.username, $scope.registerForm.password, $scope.rol)
-				// handle success
-				.then(function () {
-					$location.path('/');
-					$scope.disabled = false;
-					$scope.registerForm = {};
-				})
-				// handle error
-				.catch(function (err) {
-					$scope.error = true;
-					$scope.errorMessage = "User already exists!";
-					$scope.disabled = false;
-					$scope.registerForm = {};
-					$scope.rol = "";
-				});
-
-		};
-
-}])
-.controller('registerLoginUserController',
-  ['$scope', '$uibModalInstance','AuthService','userService',
-  function ($scope, $uibModalInstance,AuthService,userService) {
-  
+.controller('modalcontrolesCreateController',
+  ['$scope', '$uibModalInstance', 'item','controlesModel','$filter',"pacientesModel",
+  function ($scope, $uibModalInstance, item,controlesModel,$filter,pacientesModel) {
+    $scope.item = item;
     $scope.saving = false;
+    if(item){
+      item.dateAsString1 = $filter("date")(item.fecha, "yyyy-MM-dd");
+       //add optional code
+    }
+    $scope.save = function () {
+      if(!item){
+        $scope.saving = true;
+        item = {fecha: $scope.item.fecha};
+        var controles = controlesModel.create();
+        controles.pacientes = $scope.item.pacientes;
+        controles.fecha = $scope.item.fecha;
+        controles.save().then(function(r){
+          $scope.saving = false;
+          $uibModalInstance.close(r);
+        });
+      }else{
+        if($scope.item.fecha === undefined){
+          $scope.item.fecha = Date.parse(item.dateAsString1);
+          $scope.item.fecha = new Date($scope.item.fecha);
+          $scope.item.fecha = $scope.item.fecha.setDate($scope.item.fecha.getDate() + 1);
+        }
+        controlesModel.findById($scope.item._id);
+        controlesModel.pacientes =  $scope.item.pacientes;
+        controlesModel.fecha = $scope.item.fecha;
+        controlesModel.save().then(function(r){
+          $scope.saving = false;
+          $uibModalInstance.close(r);
+        });
+      }
+    };
+    pacientesModel.getAll().then(function(data) {
+      $scope.pacientes = data;
+    });
+}])
+.controller('modalcontrolesDeleteController',
+  ['$scope', '$uibModalInstance', 'item',
+  function ($scope, $uibModalInstance, item) {
+    $scope.item = item;
+    $scope.ok = function () {
+      $uibModalInstance.close($scope.item);
+    };
+    $scope.cancel = function () {
+       $uibModalInstance.dismiss('cancel');
+     };
+}])
+.config(function ($routeProvider) {
+  $routeProvider
+    .when('/controles', {
+      templateUrl: '/templates/controles/index.html',
+      controller: 'controlesController',
+      access: {
+        restricted: false,
+       rol: 1
+      }
+    });
+ })
+.controller('conversorcabecerasController',
+  ['$rootScope','$scope', '$location', 'conversorcabecerasModel','$uibModal',
+  function ($rootScope,$scope, $location, conversorcabecerasModel,$uibModal) {
+
+    $scope.titleController = 'MEAN-CASE SUPER HEROIC';
+    $rootScope.titleWeb = 'conversorcabeceras';
+    $scope.preloader = true;
+    $scope.msjAlert = false;
+    var obtenerCabeceras = function(){
+      conversorcabecerasModel.getAll().then(function(data) {
+        $scope.conversorcabecerasList = data;
+        $scope.conversorcabecerasTemp = angular.copy($scope.conversorcabecerasList);
+        $scope.preloader = false;
+      });
+    }
+    obtenerCabeceras();
+
+    $scope.obtenerDetalles = function(idFormato){
+      conversorcabecerasModel.url = '/api/conversorcabeceras/detalles';
+      conversorcabecerasModel.findById(idFormato).then(function(detalles){
+        
+        //$location.url('/conversorcabeceras/detalles');
+        $scope.conversoDetalles = detalles;
+        console.log($scope.conversoDetalles);
+      });
+      
+     
+    }
+
+
+    /*  Modal */
+     $scope.open = function (item) {
+       var modalInstance = $uibModal.open({
+        animation: true,
+        templateUrl: 'templates/conversorcabeceras/modalCreate.html',
+        controller: 'modalconversorcabecerasCreateController',
+        size: 'lg',
+        resolve: {
+         item: function () {
+          return item;
+         }
+        }
+      });
+      modalInstance.result.then(function(data) {
+        if(!item) {
+           $scope.conversorcabecerasList.push(data);
+           $scope.conversorcabecerasTemp = angular.copy($scope.conversorcabecerasList);
+        }
+      },function(result){
+      $scope.conversorcabecerasList = $scope.conversorcabecerasTemp;
+      $scope.conversorcabecerasTemp = angular.copy($scope.conversorcabecerasList);
+    });
+  };
+  /*  Delete  */
+  $scope.openDelete = function (item) {
+    var modalInstance = $uibModal.open({
+      animation: true,
+      templateUrl: 'templates/conversorcabeceras/modalDelete.html',
+      controller: 'modalconversorcabecerasDeleteController',
+      size: 'lg',
+      resolve: {
+        item: function () {
+           return item;
+        }
+      }
+    });
+    modalInstance.result.then(function(data) {
+      var idx = $scope.conversorcabecerasList.indexOf(data);
+      $scope.conversorcabecerasList.splice(idx, 1);
+      conversorcabecerasModel
+        .destroy(data.IdFormato)
+        .then(function(result) {
+          $scope.msjAlert = true;
+          $scope.alert = 'success';
+          $scope.message = result.message;
+        })
+        .catch(function(err) {
+          $scope.msjAlert = true;
+          $scope.alert = 'danger';
+          $scope.message = 'Error '+err;
+        })
+      });
+    };
+}])
+.controller('modalconversorcabecerasCreateController',
+  ['$scope', '$uibModalInstance', 'item','conversorcabecerasModel','$filter',
+  function ($scope, $uibModalInstance, item,conversorcabecerasModel,$filter) {
+    $scope.item = item;
+    $scope.saving = false;
+    if(item){
+       //add optional code
+    }
+    $scope.save = function () {
+      if(!item){
+        $scope.saving = true;
+        item = {IdFormato: $scope.item.IdFormato,NombreFormato: $scope.item.NombreFormato,DescripcionFormato: $scope.item.DescripcionFormato,Cabecera: $scope.item.Cabecera,Pie: $scope.item.Pie,Separador: $scope.item.Separador,FormatoConversion: $scope.item.FormatoConversion,formato_destino: $scope.item.formato_destino,Tipo_Proceso: $scope.item.Tipo_Proceso,NombreObjeto: $scope.item.NombreObjeto,estado: $scope.item.estado,tipo_archivo_salida: $scope.item.tipo_archivo_salida,ORIENTACION: $scope.item.ORIENTACION,RutinaPrevalidacion: $scope.item.RutinaPrevalidacion,Unificador: $scope.item.Unificador,Check_Totales_Por: $scope.item.Check_Totales_Por,ValidaIdentificacion: $scope.item.ValidaIdentificacion,RutinaPreconversion: $scope.item.RutinaPreconversion,InfiereTipoIdCliente: $scope.item.InfiereTipoIdCliente,MuestraCabeceraColumna: $scope.item.MuestraCabeceraColumna,TipoConversion: $scope.item.TipoConversion};
+        var conversorCabeceras = conversorcabecerasModel.create();
+        conversorCabeceras.IdFormato = $scope.item.IdFormato;
+        conversorCabeceras.NombreFormato = $scope.item.NombreFormato;
+        conversorCabeceras.DescripcionFormato = $scope.item.DescripcionFormato;
+        conversorCabeceras.Cabecera = $scope.item.Cabecera;
+        conversorCabeceras.Pie = $scope.item.Pie;
+        conversorCabeceras.Separador = $scope.item.Separador;
+        conversorCabeceras.FormatoConversion = $scope.item.FormatoConversion;
+        conversorCabeceras.formato_destino = $scope.item.formato_destino;
+        conversorCabeceras.Tipo_Proceso = $scope.item.Tipo_Proceso;
+        conversorCabeceras.NombreObjeto = $scope.item.NombreObjeto;
+        conversorCabeceras.estado = $scope.item.estado;
+        conversorCabeceras.tipo_archivo_salida = $scope.item.tipo_archivo_salida;
+        conversorCabeceras.ORIENTACION = $scope.item.ORIENTACION;
+        conversorCabeceras.RutinaPrevalidacion = $scope.item.RutinaPrevalidacion;
+        conversorCabeceras.Unificador = $scope.item.Unificador;
+        conversorCabeceras.Check_Totales_Por = $scope.item.Check_Totales_Por;
+        conversorCabeceras.ValidaIdentificacion = $scope.item.ValidaIdentificacion;
+        conversorCabeceras.RutinaPreconversion = $scope.item.RutinaPreconversion;
+        conversorCabeceras.InfiereTipoIdCliente = $scope.item.InfiereTipoIdCliente;
+        conversorCabeceras.MuestraCabeceraColumna = $scope.item.MuestraCabeceraColumna;
+        conversorCabeceras.TipoConversion = $scope.item.TipoConversion;
+        console.log(conversorCabeceras);
+        conversorCabeceras.save().then(function(r){
+          $scope.saving = false;
+          $uibModalInstance.close(r);
+        });
+      }else{
+        conversorCabecerasModel.findById($scope.item.IdFormato);
+        conversorCabecerasModel.IdFormato = $scope.item.IdFormato;
+        conversorCabecerasModel.NombreFormato = $scope.item.NombreFormato;
+        conversorCabecerasModel.DescripcionFormato = $scope.item.DescripcionFormato;
+        conversorCabecerasModel.Cabecera = $scope.item.Cabecera;
+        conversorCabecerasModel.Pie = $scope.item.Pie;
+        conversorCabecerasModel.Separador = $scope.item.Separador;
+        conversorCabecerasModel.FormatoConversion = $scope.item.FormatoConversion;
+        conversorCabecerasModel.formato_destino = $scope.item.formato_destino;
+        conversorCabecerasModel.Tipo_Proceso = $scope.item.Tipo_Proceso;
+        conversorCabecerasModel.NombreObjeto = $scope.item.NombreObjeto;
+        conversorCabecerasModel.estado = $scope.item.estado;
+        conversorCabecerasModel.tipo_archivo_salida = $scope.item.tipo_archivo_salida;
+        conversorCabecerasModel.ORIENTACION = $scope.item.ORIENTACION;
+        conversorCabecerasModel.RutinaPrevalidacion = $scope.item.RutinaPrevalidacion;
+        conversorCabecerasModel.Unificador = $scope.item.Unificador;
+        conversorCabecerasModel.Check_Totales_Por = $scope.item.Check_Totales_Por;
+        conversorCabecerasModel.ValidaIdentificacion = $scope.item.ValidaIdentificacion;
+        conversorCabecerasModel.RutinaPreconversion = $scope.item.RutinaPreconversion;
+        conversorCabecerasModel.InfiereTipoIdCliente = $scope.item.InfiereTipoIdCliente;
+        conversorCabecerasModel.MuestraCabeceraColumna = $scope.item.MuestraCabeceraColumna;
+        conversorCabecerasModel.TipoConversion = $scope.item.TipoConversion;
+        conversorCabecerasModel.save().then(function(r){
+          $scope.saving = false;
+          $uibModalInstance.close(r);
+        });
+      }
+    };
+}])
+.controller('modalconversorcabecerasDeleteController',
+  ['$scope', '$uibModalInstance', 'item',
+  function ($scope, $uibModalInstance, item) {
+    $scope.item = item;
+    $scope.ok = function () {
+      $uibModalInstance.close($scope.item);
+    };
+    $scope.cancel = function () {
+       $uibModalInstance.dismiss('cancel');
+     };
+}])
+.config(function ($routeProvider) {
+  $routeProvider
+    .when('/conversorcabeceras', {
+      templateUrl: '/templates/conversorcabeceras/index.html',
+      controller: 'conversorcabecerasController',
+      access: {
+        restricted: false,
+       rol: 1
+      }
+    });
+ })
+.controller('conversordetallesController',
+  ['$rootScope','$scope', '$location', 'conversordetallesModel','$uibModal',
+  function ($rootScope,$scope, $location, conversordetallesModel,$uibModal) {
+    $scope.titleController = 'MEAN-CASE SUPER HEROIC';
+    $rootScope.titleWeb = 'conversordetalles';
+    $scope.preloader = true;
+    $scope.msjAlert = false;
+    conversordetallesModel.getAll().then(function(data) {
+      $scope.conversordetallesList = data;
+      $scope.conversordetallesTemp = angular.copy($scope.conversordetallesList);
+      $scope.preloader = false;
+    });
+    /*  Modal */
+     $scope.open = function (item) {
+       var modalInstance = $uibModal.open({
+        animation: true,
+        templateUrl: 'templates/conversordetalles/modalCreate.html',
+        controller: 'modalconversordetallesCreateController',
+        size: 'lg',
+        resolve: {
+         item: function () {
+          return item;
+         }
+        }
+      });
+      modalInstance.result.then(function(data) {
+        if(!item) {
+           $scope.conversordetallesList.push(data);
+           $scope.conversordetallesTemp = angular.copy($scope.conversordetallesList);
+        }
+      },function(result){
+      $scope.conversordetallesList = $scope.conversordetallesTemp;
+      $scope.conversordetallesTemp = angular.copy($scope.conversordetallesList);
+    });
+  };
+  /*  Delete  */
+  $scope.openDelete = function (item) {
+    var modalInstance = $uibModal.open({
+      animation: true,
+      templateUrl: 'templates/conversordetalles/modalDelete.html',
+      controller: 'modalconversordetallesDeleteController',
+      size: 'lg',
+      resolve: {
+        item: function () {
+           return item;
+        }
+      }
+    });
+    modalInstance.result.then(function(data) {
+      var idx = $scope.conversordetallesList.indexOf(data);
+      $scope.conversordetallesList.splice(idx, 1);
+      conversordetallesModel
+        .destroy(data._id)
+        .then(function(result) {
+          $scope.msjAlert = true;
+          $scope.alert = 'success';
+          $scope.message = result.message;
+        })
+        .catch(function(err) {
+          $scope.msjAlert = true;
+          $scope.alert = 'danger';
+          $scope.message = 'Error '+err;
+        })
+      });
+    };
+}])
+.controller('modalconversordetallesCreateController',
+  ['$scope', '$uibModalInstance', 'item','conversordetallesModel','$filter',
+  function ($scope, $uibModalInstance, item,conversordetallesModel,$filter) {
+    $scope.item = item;
+    $scope.saving = false;
+    if(item){
+       //add optional code
+    }
+    $scope.save = function () {
+      if(!item){
+        $scope.saving = true;
+        item = {iddetalle: $scope.item.iddetalle,idformato: $scope.item.idformato,tiporegistro: $scope.item.tiporegistro,numerocampo: $scope.item.numerocampo,posicioninicio: $scope.item.posicioninicio,longitudcampo: $scope.item.longitudcampo,tipocampo: $scope.item.tipocampo,separadordecimales: $scope.item.separadordecimales,numerodecimales: $scope.item.numerodecimales,descripcioncampo: $scope.item.descripcioncampo,idcampoequivalente: $scope.item.idcampoequivalente,campoequivalente: $scope.item.campoequivalente,obligatorio: $scope.item.obligatorio,validaciones: $scope.item.validaciones,tipo_registro: $scope.item.tipo_registro,default_value: $scope.item.default_value,observacion: $scope.item.observacion,rutina_validacion: $scope.item.rutina_validacion,rutina_transformacion: $scope.item.rutina_transformacion,caracterconcatenacion: $scope.item.caracterconcatenacion,ordencampo: $scope.item.ordencampo,rutina_conversion: $scope.item.rutina_conversion,validaenmasivas: $scope.item.validaenmasivas};
+        var conversordetalles = conversordetallesModel.create();
+        conversordetalles.iddetalle = $scope.item.iddetalle;
+        conversordetalles.idformato = $scope.item.idformato;
+        conversordetalles.tiporegistro = $scope.item.tiporegistro;
+        conversordetalles.numerocampo = $scope.item.numerocampo;
+        conversordetalles.posicioninicio = $scope.item.posicioninicio;
+        conversordetalles.longitudcampo = $scope.item.longitudcampo;
+        conversordetalles.tipocampo = $scope.item.tipocampo;
+        conversordetalles.separadordecimales = $scope.item.separadordecimales;
+        conversordetalles.numerodecimales = $scope.item.numerodecimales;
+        conversordetalles.descripcioncampo = $scope.item.descripcioncampo;
+        conversordetalles.idcampoequivalente = $scope.item.idcampoequivalente;
+        conversordetalles.campoequivalente = $scope.item.campoequivalente;
+        conversordetalles.obligatorio = $scope.item.obligatorio;
+        conversordetalles.validaciones = $scope.item.validaciones;
+        conversordetalles.tipo_registro = $scope.item.tipo_registro;
+        conversordetalles.default_value = $scope.item.default_value;
+        conversordetalles.observacion = $scope.item.observacion;
+        conversordetalles.rutina_validacion = $scope.item.rutina_validacion;
+        conversordetalles.rutina_transformacion = $scope.item.rutina_transformacion;
+        conversordetalles.caracterconcatenacion = $scope.item.caracterconcatenacion;
+        conversordetalles.ordencampo = $scope.item.ordencampo;
+        conversordetalles.rutina_conversion = $scope.item.rutina_conversion;
+        conversordetalles.validaenmasivas = $scope.item.validaenmasivas;
+        conversordetalles.save().then(function(r){
+          $scope.saving = false;
+          $uibModalInstance.close(r);
+        });
+      }else{
+        conversordetallesModel.findById($scope.item._id);
+        conversordetallesModel.iddetalle = $scope.item.iddetalle;
+        conversordetallesModel.idformato = $scope.item.idformato;
+        conversordetallesModel.tiporegistro = $scope.item.tiporegistro;
+        conversordetallesModel.numerocampo = $scope.item.numerocampo;
+        conversordetallesModel.posicioninicio = $scope.item.posicioninicio;
+        conversordetallesModel.longitudcampo = $scope.item.longitudcampo;
+        conversordetallesModel.tipocampo = $scope.item.tipocampo;
+        conversordetallesModel.separadordecimales = $scope.item.separadordecimales;
+        conversordetallesModel.numerodecimales = $scope.item.numerodecimales;
+        conversordetallesModel.descripcioncampo = $scope.item.descripcioncampo;
+        conversordetallesModel.idcampoequivalente = $scope.item.idcampoequivalente;
+        conversordetallesModel.campoequivalente = $scope.item.campoequivalente;
+        conversordetallesModel.obligatorio = $scope.item.obligatorio;
+        conversordetallesModel.validaciones = $scope.item.validaciones;
+        conversordetallesModel.tipo_registro = $scope.item.tipo_registro;
+        conversordetallesModel.default_value = $scope.item.default_value;
+        conversordetallesModel.observacion = $scope.item.observacion;
+        conversordetallesModel.rutina_validacion = $scope.item.rutina_validacion;
+        conversordetallesModel.rutina_transformacion = $scope.item.rutina_transformacion;
+        conversordetallesModel.caracterconcatenacion = $scope.item.caracterconcatenacion;
+        conversordetallesModel.ordencampo = $scope.item.ordencampo;
+        conversordetallesModel.rutina_conversion = $scope.item.rutina_conversion;
+        conversordetallesModel.validaenmasivas = $scope.item.validaenmasivas;
+        conversordetallesModel.save().then(function(r){
+          $scope.saving = false;
+          $uibModalInstance.close(r);
+        });
+      }
+    };
+}])
+.controller('modalconversordetallesDeleteController',
+  ['$scope', '$uibModalInstance', 'item',
+  function ($scope, $uibModalInstance, item) {
+    $scope.item = item;
+    $scope.ok = function () {
+      $uibModalInstance.close($scope.item);
+    };
+    $scope.cancel = function () {
+       $uibModalInstance.dismiss('cancel');
+     };
+}])
+.config(function ($routeProvider) {
+  $routeProvider
+    .when('/conversordetalles', {
+      templateUrl: '/templates/conversordetalles/index.html',
+      controller: 'conversordetallesController',
+      access: {
+        restricted: false,
+       rol: 1
+      }
+    });
+ })
+.controller('pacientesController',
+  ['$rootScope','$scope', '$location', 'pacientesModel','$uibModal',
+  function ($rootScope,$scope, $location, pacientesModel,$uibModal) {
+    $scope.titleController = 'MEAN-CASE SUPER HEROIC';
+    $rootScope.titleWeb = 'pacientes';
+    $scope.preloader = true;
+    $scope.msjAlert = false;
+    pacientesModel.getAll().then(function(data) {
+      $scope.pacientesList = data;
+      $scope.pacientesTemp = angular.copy($scope.pacientesList);
+      $scope.preloader = false;
+    });
+    /*  Modal */
+     $scope.open = function (item) {
+       var modalInstance = $uibModal.open({
+        animation: true,
+        templateUrl: 'templates/pacientes/modalCreate.html',
+        controller: 'modalpacientesCreateController',
+        size: 'lg',
+        resolve: {
+         item: function () {
+          return item;
+         }
+        }
+      });
+      modalInstance.result.then(function(data) {
+        if(!item) {
+           $scope.pacientesList.push(data);
+           $scope.pacientesTemp = angular.copy($scope.pacientesList);
+        }
+      },function(result){
+      $scope.pacientesList = $scope.pacientesTemp;
+      $scope.pacientesTemp = angular.copy($scope.pacientesList);
+    });
+  };
+  /*  Delete  */
+  $scope.openDelete = function (item) {
+    var modalInstance = $uibModal.open({
+      animation: true,
+      templateUrl: 'templates/pacientes/modalDelete.html',
+      controller: 'modalpacientesDeleteController',
+      size: 'lg',
+      resolve: {
+        item: function () {
+           return item;
+        }
+      }
+    });
+    modalInstance.result.then(function(data) {
+      var idx = $scope.pacientesList.indexOf(data);
+      $scope.pacientesList.splice(idx, 1);
+      pacientesModel
+        .destroy(data._id)
+        .then(function(result) {
+          $scope.msjAlert = true;
+          $scope.alert = 'success';
+          $scope.message = result.message;
+        })
+        .catch(function(err) {
+          $scope.msjAlert = true;
+          $scope.alert = 'danger';
+          $scope.message = 'Error '+err;
+        })
+      });
+    };
+}])
+.controller('modalpacientesCreateController',
+  ['$scope', '$uibModalInstance', 'item','pacientesModel','$filter',
+  function ($scope, $uibModalInstance, item,pacientesModel,$filter) {
+    $scope.item = item;
+    $scope.saving = false;
+    if(item){
+       //add optional code
+    }
+    $scope.save = function () {
+      if(!item){
+        $scope.saving = true;
+        item = {nombres: $scope.item.nombres,edad: $scope.item.edad};
+        var pacientes = pacientesModel.create();
+        pacientes.nombres = $scope.item.nombres;
+        pacientes.edad = $scope.item.edad;
+        pacientes.save().then(function(r){
+          $scope.saving = false;
+          $uibModalInstance.close(r);
+        });
+      }else{
+        pacientesModel.findById($scope.item._id);
+        pacientesModel.nombres = $scope.item.nombres;
+        pacientesModel.edad = $scope.item.edad;
+        pacientesModel.save().then(function(r){
+          $scope.saving = false;
+          $uibModalInstance.close(r);
+        });
+      }
+    };
+}])
+.controller('modalpacientesDeleteController',
+  ['$scope', '$uibModalInstance', 'item',
+  function ($scope, $uibModalInstance, item) {
+    $scope.item = item;
+    $scope.ok = function () {
+      $uibModalInstance.close($scope.item);
+    };
+    $scope.cancel = function () {
+       $uibModalInstance.dismiss('cancel');
+     };
+}])
+.config(function ($routeProvider) {
+  $routeProvider
+    .when('/pacientes', {
+      templateUrl: '/templates/pacientes/index.html',
+      controller: 'pacientesController',
+      access: {
+        restricted: false,
+       rol: 2
+      }
+    });
+ })
+.controller('modalUserCreateController',
+  ['$scope', '$uibModalInstance', 'item','AuthService','userService',
+  function ($scope, $uibModalInstance, item,AuthService,userService) {
+  
+    $scope.item = item;
+    $scope.saving = false;
+    if(item){
+     $scope.tmpUsername = angular.copy(item.username);
+    }
      
     $scope.save = function () {
+
+      if(!item){
         $scope.saving = true;
-        AuthService.register($scope.item.username,$scope.item.password,1).then(function(r){
+        item = {username:$scope.item.username,rol:$scope.item.rol,flat:true};
+        AuthService.register($scope.item.username,$scope.item.password,$scope.item.rol).then(function(r){
           $scope.saving = false;
         });
-        $uibModalInstance.close();
+      }else{
+        userService.editUser($scope.tmpUsername,item.username,$scope.item.password,$scope.item.rol).then(function(r){
+          $scope.saving = false;
+        });
+      }
+      $uibModalInstance.close(item);
     };
+
+}])
+
+.controller('modalUserDeleteController',
+  ['$scope', '$modalInstance', 'item',
+  function ($scope, $modalInstance, item) {
+    
+  $scope.item = item;
+  $scope.ok = function () {
+    $modalInstance.close($scope.item);
+  };
+
+  $scope.cancel = function () {
+    $modalInstance.dismiss('cancel');
+  };
+    
+
+}])
+.controller('userController',
+  ['$rootScope','$scope', '$location', 'userService','$timeout','$uibModal','UsersModel',
+  function ($rootScope,$scope, $location, userService,$timeout,$uibModal,UsersModel) {
+    $scope.titleLoginController = "MEAN-CASE SUPER HEROIC";
+    $rootScope.titleWeb = "Users";
+    $scope.preloader = true;
+    $scope.msjAlert = false;
+    UsersModel.getAll().then(function(data){
+            $scope.usersList = data; 
+            $scope.usersTemp = angular.copy($scope.usersList);
+            $scope.preloader = false;
+    })
+    /*  Modal*/
+
+    /*  Create    */
+     $scope.open = function (size,item) {
+        var modalInstance = $uibModal.open({
+          animation: true,
+          templateUrl: 'templates/users/modalUserCreate.html',
+          controller: 'modalUserCreateController',
+          size: size,
+          resolve: {
+            item: function () {
+              return item;
+            }
+          }
+        });
+
+        modalInstance.result.then(function(data) {
+          if(!data._id) {
+         
+                $scope.usersList.push(data); 
+                $scope.usersTemp = angular.copy($scope.usersList);
+            }      
+        },function(result){
+          $scope.usersList = $scope.usersTemp;
+          $scope.usersTemp = angular.copy($scope.usersList);  
+        });
+    };
+
+    /*  Create    */
+    /*  Delete    */
+    $scope.openDelete = function (size,item) {
+        var modalInstance = $uibModal.open({
+          animation: true,
+          templateUrl: 'templates/users/modalUserDelete.html',
+          controller: 'modalUserDeleteController',
+          size: size,
+          resolve: {
+            item: function () {
+              return item;
+            }
+          }
+        });
+
+        modalInstance.result.then(function(data) { 
+          var idx = $scope.usersList.indexOf(data); 
+          $scope.usersList.splice(idx, 1);
+          userService
+            .deleteUser(data._id)
+            .then(function(result) {
+                $scope.msjAlert = true;
+                $scope.alert = "success";
+                $scope.message = result.message;
+            })
+            .catch(function(err) {
+                //error
+                $scope.msjAlert = true;
+                $scope.alert = "danger";
+                $scope.message = "Error "+err;
+            })            
+        });
+    };
+
+    /*  Delete    */
+
+    /*  Modal*/
+
+    /*    Configuration Watch  Change Serch    */
+         /* $scope.filterText = '';
+          // Instantiate these variables outside the watch
+          var tempFilterText = '',
+          filterTextTimeout;
+          $scope.$watch('searchText', function (val) {
+              if (filterTextTimeout) $timeout.cancel(filterTextTimeout);
+              tempFilterText = val;
+              filterTextTimeout = $timeout(function() {
+                  $scope.filterText = tempFilterText;
+              }, 1500); // delay 250 ms
+          })*/
+    /*    Configuration Watch Change Serch     */
+        
 
 }])
 .controller('crudController',
@@ -1520,637 +2320,3 @@ require: 'ngModel',
  			}
  		});
  })
-.controller('AuditController',
-  ['$rootScope','$scope', '$location', 'AuditService','$uibModal',
-  function ($rootScope,$scope, $location, AuditService,$uibModal) {
-    $scope.titleController = 'MEAN-CASE SUPER HEROIC';
-    $rootScope.titleWeb = 'Audit';
-    $scope.preloader = true;
-    $scope.msjAlert = false;
-    AuditService.allAudit().then(function(data) {
-      $scope.AuditList = data;
-      $scope.AuditTemp = angular.copy($scope.AuditList);
-      $scope.preloader = false;
-    });
-    /*  Modal */
-     $scope.open = function (item) {
-       var modalInstance = $uibModal.open({
-        animation: true,
-        templateUrl: 'templates/Audit/modalCreate.html',
-        controller: 'modalAuditCreateController',
-        size: 'lg',
-        resolve: {
-         item: function () {
-          return item;
-         }
-        }
-      });
-      modalInstance.result.then(function(data) {
-        if(!item) {
-           $scope.AuditList.push(data);
-           $scope.AuditTemp = angular.copy($scope.AuditList);
-        }
-      },function(result){
-      $scope.AuditList = $scope.AuditTemp;
-      $scope.AuditTemp = angular.copy($scope.AuditList);
-    });
-  };
-  /*  Delete  */
-  $scope.openDelete = function (item) {
-    var modalInstance = $uibModal.open({
-      animation: true,
-      templateUrl: 'templates/Audit/modalDelete.html',
-      controller: 'modalAuditDeleteController',
-      size: 'lg',
-      resolve: {
-        item: function () {
-           return item;
-        }
-      }
-    });
-    modalInstance.result.then(function(data) {
-      var idx = $scope.AuditList.indexOf(data);
-      $scope.AuditList.splice(idx, 1);
-      AuditService
-        .del(data._id)
-        .then(function(result) {
-          $scope.msjAlert = true;
-          $scope.alert = 'success';
-          $scope.message = result.message;
-        })
-        .catch(function(err) {
-          $scope.msjAlert = true;
-          $scope.alert = 'danger';
-          $scope.message = 'Error '+err;
-        })
-      });
-    };
-}])
-.config(function ($routeProvider) {
-  $routeProvider
-    .when('/Audit', {
-      templateUrl: '/templates/Audit/auditIndex.html',
-      controller: 'AuditController',
-      access: {
-        restricted: false,
-       rol: 4
-      }
-    });
- })
-.controller('controlesController',
-  ['$rootScope','$scope', '$location', 'controlesModel','$uibModal',
-  function ($rootScope,$scope, $location, controlesModel,$uibModal) {
-    $scope.titleController = 'MEAN-CASE SUPER HEROIC';
-    $rootScope.titleWeb = 'controles';
-    $scope.preloader = true;
-    $scope.msjAlert = false;
-    controlesModel.getAll().then(function(data) {
-      $scope.controlesList = data;
-      $scope.controlesTemp = angular.copy($scope.controlesList);
-      $scope.preloader = false;
-    });
-    /*  Modal */
-     $scope.open = function (item) {
-       var modalInstance = $uibModal.open({
-        animation: true,
-        templateUrl: 'templates/controles/modalCreate.html',
-        controller: 'modalcontrolesCreateController',
-        size: 'lg',
-        resolve: {
-         item: function () {
-          return item;
-         }
-        }
-      });
-      modalInstance.result.then(function(data) {
-           controlesModel.getAll().then(function(d) {
-             $scope.controlesList = d;
-             $scope.controlesTemp = angular.copy($scope.controlesList);
-           });
-      },function(result){
-      $scope.controlesList = $scope.controlesTemp;
-      $scope.controlesTemp = angular.copy($scope.controlesList);
-    });
-  };
-  /*  Delete  */
-  $scope.openDelete = function (item) {
-    var modalInstance = $uibModal.open({
-      animation: true,
-      templateUrl: 'templates/controles/modalDelete.html',
-      controller: 'modalcontrolesDeleteController',
-      size: 'lg',
-      resolve: {
-        item: function () {
-           return item;
-        }
-      }
-    });
-    modalInstance.result.then(function(data) {
-      var idx = $scope.controlesList.indexOf(data);
-      $scope.controlesList.splice(idx, 1);
-      controlesModel
-        .destroy(data.IdFormato)
-        .then(function(result) {
-          $scope.msjAlert = true;
-          $scope.alert = 'success';
-          $scope.message = result.message;
-        })
-        .catch(function(err) {
-          $scope.msjAlert = true;
-          $scope.alert = 'danger';
-          $scope.message = 'Error '+err;
-        })
-      });
-    };
-}])
-.controller('modalcontrolesCreateController',
-  ['$scope', '$uibModalInstance', 'item','controlesModel','$filter',"pacientesModel",
-  function ($scope, $uibModalInstance, item,controlesModel,$filter,pacientesModel) {
-    $scope.item = item;
-    $scope.saving = false;
-    if(item){
-      item.dateAsString1 = $filter("date")(item.fecha, "yyyy-MM-dd");
-       //add optional code
-    }
-    $scope.save = function () {
-      if(!item){
-        $scope.saving = true;
-        item = {fecha: $scope.item.fecha};
-        var controles = controlesModel.create();
-        controles.pacientes = $scope.item.pacientes;
-        controles.fecha = $scope.item.fecha;
-        controles.save().then(function(r){
-          $scope.saving = false;
-          $uibModalInstance.close(r);
-        });
-      }else{
-        if($scope.item.fecha === undefined){
-          $scope.item.fecha = Date.parse(item.dateAsString1);
-          $scope.item.fecha = new Date($scope.item.fecha);
-          $scope.item.fecha = $scope.item.fecha.setDate($scope.item.fecha.getDate() + 1);
-        }
-        controlesModel.findById($scope.item._id);
-        controlesModel.pacientes =  $scope.item.pacientes;
-        controlesModel.fecha = $scope.item.fecha;
-        controlesModel.save().then(function(r){
-          $scope.saving = false;
-          $uibModalInstance.close(r);
-        });
-      }
-    };
-    pacientesModel.getAll().then(function(data) {
-      $scope.pacientes = data;
-    });
-}])
-.controller('modalcontrolesDeleteController',
-  ['$scope', '$uibModalInstance', 'item',
-  function ($scope, $uibModalInstance, item) {
-    $scope.item = item;
-    $scope.ok = function () {
-      $uibModalInstance.close($scope.item);
-    };
-    $scope.cancel = function () {
-       $uibModalInstance.dismiss('cancel');
-     };
-}])
-.config(function ($routeProvider) {
-  $routeProvider
-    .when('/controles', {
-      templateUrl: '/templates/controles/index.html',
-      controller: 'controlesController',
-      access: {
-        restricted: false,
-       rol: 1
-      }
-    });
- })
-.controller('conversorcabecerasController',
-  ['$rootScope','$scope', '$location', 'conversorcabecerasModel','$uibModal',
-  function ($rootScope,$scope, $location, conversorcabecerasModel,$uibModal) {
-
-    $scope.titleController = 'MEAN-CASE SUPER HEROIC';
-    $rootScope.titleWeb = 'conversorcabeceras';
-    $scope.preloader = true;
-    $scope.msjAlert = false;
-    var obtenerCabeceras = function(){
-      conversorcabecerasModel.getAll().then(function(data) {
-        $scope.conversorcabecerasList = data;
-        $scope.conversorcabecerasTemp = angular.copy($scope.conversorcabecerasList);
-        $scope.preloader = false;
-      });
-    }
-    obtenerCabeceras();
-
-    $scope.obtenerDetalles = function(idFormato){
-      conversorcabecerasModel.url = '/api/conversorcabeceras/detalles';
-      conversorcabecerasModel.findById(idFormato).then(function(detalles){
-        
-        //$location.url('/conversorcabeceras/detalles');
-        $scope.conversoDetalles = detalles;
-        console.log($scope.conversoDetalles);
-      });
-      
-     
-    }
-
-
-    /*  Modal */
-     $scope.open = function (item) {
-       var modalInstance = $uibModal.open({
-        animation: true,
-        templateUrl: 'templates/conversorcabeceras/modalCreate.html',
-        controller: 'modalconversorcabecerasCreateController',
-        size: 'lg',
-        resolve: {
-         item: function () {
-          return item;
-         }
-        }
-      });
-      modalInstance.result.then(function(data) {
-        if(!item) {
-           $scope.conversorcabecerasList.push(data);
-           $scope.conversorcabecerasTemp = angular.copy($scope.conversorcabecerasList);
-        }
-      },function(result){
-      $scope.conversorcabecerasList = $scope.conversorcabecerasTemp;
-      $scope.conversorcabecerasTemp = angular.copy($scope.conversorcabecerasList);
-    });
-  };
-  /*  Delete  */
-  $scope.openDelete = function (item) {
-    var modalInstance = $uibModal.open({
-      animation: true,
-      templateUrl: 'templates/conversorcabeceras/modalDelete.html',
-      controller: 'modalconversorcabecerasDeleteController',
-      size: 'lg',
-      resolve: {
-        item: function () {
-           return item;
-        }
-      }
-    });
-    modalInstance.result.then(function(data) {
-      var idx = $scope.conversorcabecerasList.indexOf(data);
-      $scope.conversorcabecerasList.splice(idx, 1);
-      conversorcabecerasModel
-        .destroy(data.IdFormato)
-        .then(function(result) {
-          $scope.msjAlert = true;
-          $scope.alert = 'success';
-          $scope.message = result.message;
-        })
-        .catch(function(err) {
-          $scope.msjAlert = true;
-          $scope.alert = 'danger';
-          $scope.message = 'Error '+err;
-        })
-      });
-    };
-}])
-.controller('modalconversorcabecerasCreateController',
-  ['$scope', '$uibModalInstance', 'item','conversorcabecerasModel','$filter',
-  function ($scope, $uibModalInstance, item,conversorcabecerasModel,$filter) {
-    $scope.item = item;
-    $scope.saving = false;
-    if(item){
-       //add optional code
-    }
-    $scope.save = function () {
-      if(!item){
-        $scope.saving = true;
-        item = {IdFormato: $scope.item.IdFormato,NombreFormato: $scope.item.NombreFormato,DescripcionFormato: $scope.item.DescripcionFormato,Cabecera: $scope.item.Cabecera,Pie: $scope.item.Pie,Separador: $scope.item.Separador,FormatoConversion: $scope.item.FormatoConversion,formato_destino: $scope.item.formato_destino,Tipo_Proceso: $scope.item.Tipo_Proceso,NombreObjeto: $scope.item.NombreObjeto,estado: $scope.item.estado,tipo_archivo_salida: $scope.item.tipo_archivo_salida,ORIENTACION: $scope.item.ORIENTACION,RutinaPrevalidacion: $scope.item.RutinaPrevalidacion,Unificador: $scope.item.Unificador,Check_Totales_Por: $scope.item.Check_Totales_Por,ValidaIdentificacion: $scope.item.ValidaIdentificacion,RutinaPreconversion: $scope.item.RutinaPreconversion,InfiereTipoIdCliente: $scope.item.InfiereTipoIdCliente,MuestraCabeceraColumna: $scope.item.MuestraCabeceraColumna,TipoConversion: $scope.item.TipoConversion};
-        var conversorCabeceras = conversorcabecerasModel.create();
-        conversorCabeceras.IdFormato = $scope.item.IdFormato;
-        conversorCabeceras.NombreFormato = $scope.item.NombreFormato;
-        conversorCabeceras.DescripcionFormato = $scope.item.DescripcionFormato;
-        conversorCabeceras.Cabecera = $scope.item.Cabecera;
-        conversorCabeceras.Pie = $scope.item.Pie;
-        conversorCabeceras.Separador = $scope.item.Separador;
-        conversorCabeceras.FormatoConversion = $scope.item.FormatoConversion;
-        conversorCabeceras.formato_destino = $scope.item.formato_destino;
-        conversorCabeceras.Tipo_Proceso = $scope.item.Tipo_Proceso;
-        conversorCabeceras.NombreObjeto = $scope.item.NombreObjeto;
-        conversorCabeceras.estado = $scope.item.estado;
-        conversorCabeceras.tipo_archivo_salida = $scope.item.tipo_archivo_salida;
-        conversorCabeceras.ORIENTACION = $scope.item.ORIENTACION;
-        conversorCabeceras.RutinaPrevalidacion = $scope.item.RutinaPrevalidacion;
-        conversorCabeceras.Unificador = $scope.item.Unificador;
-        conversorCabeceras.Check_Totales_Por = $scope.item.Check_Totales_Por;
-        conversorCabeceras.ValidaIdentificacion = $scope.item.ValidaIdentificacion;
-        conversorCabeceras.RutinaPreconversion = $scope.item.RutinaPreconversion;
-        conversorCabeceras.InfiereTipoIdCliente = $scope.item.InfiereTipoIdCliente;
-        conversorCabeceras.MuestraCabeceraColumna = $scope.item.MuestraCabeceraColumna;
-        conversorCabeceras.TipoConversion = $scope.item.TipoConversion;
-        console.log(conversorCabeceras);
-        conversorCabeceras.save().then(function(r){
-          $scope.saving = false;
-          $uibModalInstance.close(r);
-        });
-      }else{
-        conversorCabecerasModel.findById($scope.item.IdFormato);
-        conversorCabecerasModel.IdFormato = $scope.item.IdFormato;
-        conversorCabecerasModel.NombreFormato = $scope.item.NombreFormato;
-        conversorCabecerasModel.DescripcionFormato = $scope.item.DescripcionFormato;
-        conversorCabecerasModel.Cabecera = $scope.item.Cabecera;
-        conversorCabecerasModel.Pie = $scope.item.Pie;
-        conversorCabecerasModel.Separador = $scope.item.Separador;
-        conversorCabecerasModel.FormatoConversion = $scope.item.FormatoConversion;
-        conversorCabecerasModel.formato_destino = $scope.item.formato_destino;
-        conversorCabecerasModel.Tipo_Proceso = $scope.item.Tipo_Proceso;
-        conversorCabecerasModel.NombreObjeto = $scope.item.NombreObjeto;
-        conversorCabecerasModel.estado = $scope.item.estado;
-        conversorCabecerasModel.tipo_archivo_salida = $scope.item.tipo_archivo_salida;
-        conversorCabecerasModel.ORIENTACION = $scope.item.ORIENTACION;
-        conversorCabecerasModel.RutinaPrevalidacion = $scope.item.RutinaPrevalidacion;
-        conversorCabecerasModel.Unificador = $scope.item.Unificador;
-        conversorCabecerasModel.Check_Totales_Por = $scope.item.Check_Totales_Por;
-        conversorCabecerasModel.ValidaIdentificacion = $scope.item.ValidaIdentificacion;
-        conversorCabecerasModel.RutinaPreconversion = $scope.item.RutinaPreconversion;
-        conversorCabecerasModel.InfiereTipoIdCliente = $scope.item.InfiereTipoIdCliente;
-        conversorCabecerasModel.MuestraCabeceraColumna = $scope.item.MuestraCabeceraColumna;
-        conversorCabecerasModel.TipoConversion = $scope.item.TipoConversion;
-        conversorCabecerasModel.save().then(function(r){
-          $scope.saving = false;
-          $uibModalInstance.close(r);
-        });
-      }
-    };
-}])
-.controller('modalconversorcabecerasDeleteController',
-  ['$scope', '$uibModalInstance', 'item',
-  function ($scope, $uibModalInstance, item) {
-    $scope.item = item;
-    $scope.ok = function () {
-      $uibModalInstance.close($scope.item);
-    };
-    $scope.cancel = function () {
-       $uibModalInstance.dismiss('cancel');
-     };
-}])
-.config(function ($routeProvider) {
-  $routeProvider
-    .when('/conversorcabeceras', {
-      templateUrl: '/templates/conversorcabeceras/index.html',
-      controller: 'conversorcabecerasController',
-      access: {
-        restricted: false,
-       rol: 1
-      }
-    });
- })
-.controller('pacientesController',
-  ['$rootScope','$scope', '$location', 'pacientesModel','$uibModal',
-  function ($rootScope,$scope, $location, pacientesModel,$uibModal) {
-    $scope.titleController = 'MEAN-CASE SUPER HEROIC';
-    $rootScope.titleWeb = 'pacientes';
-    $scope.preloader = true;
-    $scope.msjAlert = false;
-    pacientesModel.getAll().then(function(data) {
-      $scope.pacientesList = data;
-      $scope.pacientesTemp = angular.copy($scope.pacientesList);
-      $scope.preloader = false;
-    });
-    /*  Modal */
-     $scope.open = function (item) {
-       var modalInstance = $uibModal.open({
-        animation: true,
-        templateUrl: 'templates/pacientes/modalCreate.html',
-        controller: 'modalpacientesCreateController',
-        size: 'lg',
-        resolve: {
-         item: function () {
-          return item;
-         }
-        }
-      });
-      modalInstance.result.then(function(data) {
-        if(!item) {
-           $scope.pacientesList.push(data);
-           $scope.pacientesTemp = angular.copy($scope.pacientesList);
-        }
-      },function(result){
-      $scope.pacientesList = $scope.pacientesTemp;
-      $scope.pacientesTemp = angular.copy($scope.pacientesList);
-    });
-  };
-  /*  Delete  */
-  $scope.openDelete = function (item) {
-    var modalInstance = $uibModal.open({
-      animation: true,
-      templateUrl: 'templates/pacientes/modalDelete.html',
-      controller: 'modalpacientesDeleteController',
-      size: 'lg',
-      resolve: {
-        item: function () {
-           return item;
-        }
-      }
-    });
-    modalInstance.result.then(function(data) {
-      var idx = $scope.pacientesList.indexOf(data);
-      $scope.pacientesList.splice(idx, 1);
-      pacientesModel
-        .destroy(data._id)
-        .then(function(result) {
-          $scope.msjAlert = true;
-          $scope.alert = 'success';
-          $scope.message = result.message;
-        })
-        .catch(function(err) {
-          $scope.msjAlert = true;
-          $scope.alert = 'danger';
-          $scope.message = 'Error '+err;
-        })
-      });
-    };
-}])
-.controller('modalpacientesCreateController',
-  ['$scope', '$uibModalInstance', 'item','pacientesModel','$filter',
-  function ($scope, $uibModalInstance, item,pacientesModel,$filter) {
-    $scope.item = item;
-    $scope.saving = false;
-    if(item){
-       //add optional code
-    }
-    $scope.save = function () {
-      if(!item){
-        $scope.saving = true;
-        item = {nombres: $scope.item.nombres,edad: $scope.item.edad};
-        var pacientes = pacientesModel.create();
-        pacientes.nombres = $scope.item.nombres;
-        pacientes.edad = $scope.item.edad;
-        pacientes.save().then(function(r){
-          $scope.saving = false;
-          $uibModalInstance.close(r);
-        });
-      }else{
-        pacientesModel.findById($scope.item._id);
-        pacientesModel.nombres = $scope.item.nombres;
-        pacientesModel.edad = $scope.item.edad;
-        pacientesModel.save().then(function(r){
-          $scope.saving = false;
-          $uibModalInstance.close(r);
-        });
-      }
-    };
-}])
-.controller('modalpacientesDeleteController',
-  ['$scope', '$uibModalInstance', 'item',
-  function ($scope, $uibModalInstance, item) {
-    $scope.item = item;
-    $scope.ok = function () {
-      $uibModalInstance.close($scope.item);
-    };
-    $scope.cancel = function () {
-       $uibModalInstance.dismiss('cancel');
-     };
-}])
-.config(function ($routeProvider) {
-  $routeProvider
-    .when('/pacientes', {
-      templateUrl: '/templates/pacientes/index.html',
-      controller: 'pacientesController',
-      access: {
-        restricted: false,
-       rol: 2
-      }
-    });
- })
-.controller('modalUserCreateController',
-  ['$scope', '$uibModalInstance', 'item','AuthService','userService',
-  function ($scope, $uibModalInstance, item,AuthService,userService) {
-  
-    $scope.item = item;
-    $scope.saving = false;
-    if(item){
-     $scope.tmpUsername = angular.copy(item.username);
-    }
-     
-    $scope.save = function () {
-
-      if(!item){
-        $scope.saving = true;
-        item = {username:$scope.item.username,rol:$scope.item.rol,flat:true};
-        AuthService.register($scope.item.username,$scope.item.password,$scope.item.rol).then(function(r){
-          $scope.saving = false;
-        });
-      }else{
-        userService.editUser($scope.tmpUsername,item.username,$scope.item.password,$scope.item.rol).then(function(r){
-          $scope.saving = false;
-        });
-      }
-      $uibModalInstance.close(item);
-    };
-
-}])
-
-.controller('modalUserDeleteController',
-  ['$scope', '$modalInstance', 'item',
-  function ($scope, $modalInstance, item) {
-    
-  $scope.item = item;
-  $scope.ok = function () {
-    $modalInstance.close($scope.item);
-  };
-
-  $scope.cancel = function () {
-    $modalInstance.dismiss('cancel');
-  };
-    
-
-}])
-.controller('userController',
-  ['$rootScope','$scope', '$location', 'userService','$timeout','$uibModal','UsersModel',
-  function ($rootScope,$scope, $location, userService,$timeout,$uibModal,UsersModel) {
-    $scope.titleLoginController = "MEAN-CASE SUPER HEROIC";
-    $rootScope.titleWeb = "Users";
-    $scope.preloader = true;
-    $scope.msjAlert = false;
-    UsersModel.getAll().then(function(data){
-            $scope.usersList = data; 
-            $scope.usersTemp = angular.copy($scope.usersList);
-            $scope.preloader = false;
-    })
-    /*  Modal*/
-
-    /*  Create    */
-     $scope.open = function (size,item) {
-        var modalInstance = $uibModal.open({
-          animation: true,
-          templateUrl: 'templates/users/modalUserCreate.html',
-          controller: 'modalUserCreateController',
-          size: size,
-          resolve: {
-            item: function () {
-              return item;
-            }
-          }
-        });
-
-        modalInstance.result.then(function(data) {
-          if(!data._id) {
-         
-                $scope.usersList.push(data); 
-                $scope.usersTemp = angular.copy($scope.usersList);
-            }      
-        },function(result){
-          $scope.usersList = $scope.usersTemp;
-          $scope.usersTemp = angular.copy($scope.usersList);  
-        });
-    };
-
-    /*  Create    */
-    /*  Delete    */
-    $scope.openDelete = function (size,item) {
-        var modalInstance = $uibModal.open({
-          animation: true,
-          templateUrl: 'templates/users/modalUserDelete.html',
-          controller: 'modalUserDeleteController',
-          size: size,
-          resolve: {
-            item: function () {
-              return item;
-            }
-          }
-        });
-
-        modalInstance.result.then(function(data) { 
-          var idx = $scope.usersList.indexOf(data); 
-          $scope.usersList.splice(idx, 1);
-          userService
-            .deleteUser(data._id)
-            .then(function(result) {
-                $scope.msjAlert = true;
-                $scope.alert = "success";
-                $scope.message = result.message;
-            })
-            .catch(function(err) {
-                //error
-                $scope.msjAlert = true;
-                $scope.alert = "danger";
-                $scope.message = "Error "+err;
-            })            
-        });
-    };
-
-    /*  Delete    */
-
-    /*  Modal*/
-
-    /*    Configuration Watch  Change Serch    */
-         /* $scope.filterText = '';
-          // Instantiate these variables outside the watch
-          var tempFilterText = '',
-          filterTextTimeout;
-          $scope.$watch('searchText', function (val) {
-              if (filterTextTimeout) $timeout.cancel(filterTextTimeout);
-              tempFilterText = val;
-              filterTextTimeout = $timeout(function() {
-                  $scope.filterText = tempFilterText;
-              }, 1500); // delay 250 ms
-          })*/
-    /*    Configuration Watch Change Serch     */
-        
-
-}])
