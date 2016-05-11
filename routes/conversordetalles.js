@@ -3,10 +3,17 @@ var express = require('express');
 var router = express.Router();
 var mongoose = require('mongoose');
 var conversordetalles = mongoose.model('conversordetalles');
+var conversorCabecera = require('../config/relationalModels/conversorCabecera.js');
+var conversorDetalle = require('../config/relationalModels/conversorDetalle.js');
+var connectionDb = require('../config/connectionDb.js');
+
+
 router.get('/conversordetalles/:id', function (req, res) {
-  conversordetalles.findById(req.params.id, function (err, data) {
-    res.json(data);
-  })
+ 
+  conversorDetalle.findAll({ where: { IdFormato: req.params.id } }).then(function(detalles) {
+        res.json(detalles);
+  });
+
 })
 /* GET conversordetalles listing. */
 router.get('/conversordetalles', function(req, res, next) {

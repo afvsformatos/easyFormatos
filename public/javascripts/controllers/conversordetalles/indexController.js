@@ -5,11 +5,19 @@
     $rootScope.titleWeb = 'conversordetalles';
     $scope.preloader = true;
     $scope.msjAlert = false;
-    conversordetallesModel.getAll().then(function(data) {
+    
+    /*conversordetallesModel.getAll().then(function(data) {
       $scope.conversordetallesList = data;
       $scope.conversordetallesTemp = angular.copy($scope.conversordetallesList);
       $scope.preloader = false;
-    });
+    });*/
+      conversordetallesModel.url = '/api/conversordetalles';
+      conversordetallesModel.findById($routeParams.idFormato).then(function(detalles){
+              console.log(detalles);
+              $scope.conversordetallesList = detalles;
+              $scope.conversordetallesTemp = angular.copy($scope.conversordetallesList);
+              $scope.preloader = false;
+      });
 
     console.log($routeParams.idFormato);
     /*  Modal */

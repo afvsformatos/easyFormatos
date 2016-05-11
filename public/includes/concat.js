@@ -1003,11 +1003,19 @@
     $rootScope.titleWeb = 'conversordetalles';
     $scope.preloader = true;
     $scope.msjAlert = false;
-    conversordetallesModel.getAll().then(function(data) {
+    
+    /*conversordetallesModel.getAll().then(function(data) {
       $scope.conversordetallesList = data;
       $scope.conversordetallesTemp = angular.copy($scope.conversordetallesList);
       $scope.preloader = false;
-    });
+    });*/
+      conversordetallesModel.url = '/api/conversordetalles';
+      conversordetallesModel.findById($routeParams.idFormato).then(function(detalles){
+              console.log(detalles);
+              $scope.conversordetallesList = detalles;
+              $scope.conversordetallesTemp = angular.copy($scope.conversordetallesList);
+              $scope.preloader = false;
+      });
 
     console.log($routeParams.idFormato);
     /*  Modal */
@@ -1158,6 +1166,124 @@
       }
     });
  })
+.controller('pacientesController',
+  ['$rootScope','$scope', '$location', 'pacientesModel','$uibModal',
+  function ($rootScope,$scope, $location, pacientesModel,$uibModal) {
+    $scope.titleController = 'MEAN-CASE SUPER HEROIC';
+    $rootScope.titleWeb = 'pacientes';
+    $scope.preloader = true;
+    $scope.msjAlert = false;
+    pacientesModel.getAll().then(function(data) {
+      $scope.pacientesList = data;
+      $scope.pacientesTemp = angular.copy($scope.pacientesList);
+      $scope.preloader = false;
+    });
+    /*  Modal */
+     $scope.open = function (item) {
+       var modalInstance = $uibModal.open({
+        animation: true,
+        templateUrl: 'templates/pacientes/modalCreate.html',
+        controller: 'modalpacientesCreateController',
+        size: 'lg',
+        resolve: {
+         item: function () {
+          return item;
+         }
+        }
+      });
+      modalInstance.result.then(function(data) {
+        if(!item) {
+           $scope.pacientesList.push(data);
+           $scope.pacientesTemp = angular.copy($scope.pacientesList);
+        }
+      },function(result){
+      $scope.pacientesList = $scope.pacientesTemp;
+      $scope.pacientesTemp = angular.copy($scope.pacientesList);
+    });
+  };
+  /*  Delete  */
+  $scope.openDelete = function (item) {
+    var modalInstance = $uibModal.open({
+      animation: true,
+      templateUrl: 'templates/pacientes/modalDelete.html',
+      controller: 'modalpacientesDeleteController',
+      size: 'lg',
+      resolve: {
+        item: function () {
+           return item;
+        }
+      }
+    });
+    modalInstance.result.then(function(data) {
+      var idx = $scope.pacientesList.indexOf(data);
+      $scope.pacientesList.splice(idx, 1);
+      pacientesModel
+        .destroy(data._id)
+        .then(function(result) {
+          $scope.msjAlert = true;
+          $scope.alert = 'success';
+          $scope.message = result.message;
+        })
+        .catch(function(err) {
+          $scope.msjAlert = true;
+          $scope.alert = 'danger';
+          $scope.message = 'Error '+err;
+        })
+      });
+    };
+}])
+.controller('modalpacientesCreateController',
+  ['$scope', '$uibModalInstance', 'item','pacientesModel','$filter',
+  function ($scope, $uibModalInstance, item,pacientesModel,$filter) {
+    $scope.item = item;
+    $scope.saving = false;
+    if(item){
+       //add optional code
+    }
+    $scope.save = function () {
+      if(!item){
+        $scope.saving = true;
+        item = {nombres: $scope.item.nombres,edad: $scope.item.edad};
+        var pacientes = pacientesModel.create();
+        pacientes.nombres = $scope.item.nombres;
+        pacientes.edad = $scope.item.edad;
+        pacientes.save().then(function(r){
+          $scope.saving = false;
+          $uibModalInstance.close(r);
+        });
+      }else{
+        pacientesModel.findById($scope.item._id);
+        pacientesModel.nombres = $scope.item.nombres;
+        pacientesModel.edad = $scope.item.edad;
+        pacientesModel.save().then(function(r){
+          $scope.saving = false;
+          $uibModalInstance.close(r);
+        });
+      }
+    };
+}])
+.controller('modalpacientesDeleteController',
+  ['$scope', '$uibModalInstance', 'item',
+  function ($scope, $uibModalInstance, item) {
+    $scope.item = item;
+    $scope.ok = function () {
+      $uibModalInstance.close($scope.item);
+    };
+    $scope.cancel = function () {
+       $uibModalInstance.dismiss('cancel');
+     };
+}])
+.config(function ($routeProvider) {
+  $routeProvider
+    .when('/pacientes', {
+      templateUrl: '/templates/pacientes/index.html',
+      controller: 'pacientesController',
+      access: {
+        restricted: false,
+       rol: 2
+      }
+    });
+ })
 .controller('modalUserCreateController',
   ['$scope', '$uibModalInstance', 'item','AuthService','userService',
   function ($scope, $uibModalInstance, item,AuthService,userService) {
@@ -1295,6 +1421,244 @@
         
 
 }])
+.controller('crudController',
+    ['$scope', 'crudService',
+        function ($scope, crudService) {
+            $scope.spinner = false;
+            $scope.disabledAccesRol = false;
+            $scope.fieldName = [];
+            $scope.showOnView = [];
+            var stringFields = "";
+            var stringDataTypes = "";
+            var stringShowOnView = "";
+            $scope.collection = [{
+                field: '',
+                dataType: '',
+                showOnView: ''
+            }];
+
+
+            $scope.validateAccessRol = function(){
+                if($scope.item.typeAccess.id == 2 )
+                    $scope.disabledAccesRol = true;
+                else
+                    $scope.disabledAccesRol = false;
+            }
+
+            // remove the "Remove" Header and Body when only left one document
+            $scope.firstRow = function () {
+                if ($scope.collection[1])
+                    return false;
+                else
+                    return true;
+            };
+
+            $scope.typesAccess = [
+                {
+                    id: 1,
+                    name: 'Restricted'
+                },
+                {
+                    id: 2,
+                    name: 'Public'
+                }
+
+            ]
+
+             $scope.rolsAccess = [
+                {
+                    id: 1,
+                    name: 'Reader'
+                },
+                {
+                    id: 2,
+                    name: 'Edit'
+                },
+                {
+                    id: 3,
+                    name: 'Coordinator'
+                },
+                {
+                    id: 4,
+                    name: 'Admin'
+                }
+
+            ]
+
+
+            $scope.dataTypes = [
+                {
+                    id: 1,
+                    name: 'String'
+                },
+                {
+                    id: 2,
+                    name: 'Number'
+                },
+
+                {
+                    id: 3,
+                    name: 'Boolean'
+                },
+                {
+                    id: 4,
+                    name: 'Date'
+                },
+                {
+                    id: 5,
+                    name: 'Time'
+                }
+
+            ];
+
+            // expose a function to add new (blank) rows to the model/table
+            $scope.addRow = function () {
+                // push a new object with some defaults
+                $scope.collection.push({
+                    field: $scope.fieldName[0],
+                    dataType: $scope.dataTypes[0],
+                    showOnView: $scope.showOnView[0]
+                });
+            }
+
+            $scope.removeRow = function (index) {
+                $scope.collection.splice(index, 1);
+            }
+
+            $scope.refresh = function(){
+                 location.reload();
+            }
+
+            $scope.validate = function () {
+                $scope.spinner = true;
+                var cont = 0,show,inputsTypes='',req;
+                var stringRequiered = '',fixType = '',stringHeaders = '';
+                angular.forEach($scope.collection, function (value, key) {
+                    if(value.showOnView){
+                        show = '';
+                    }else{
+                        show = 'hidden'; 
+                    }
+                    if(value.showOnView && value.dataType.id != 3){
+                        req = 'required';
+                    }else{
+                        req =  ''; 
+                    }
+                    switch (value.dataType.id) {
+                        case 1:
+                            inputsTypes += "text,";
+                            break;
+                        case 2:
+                            inputsTypes += "number,";
+                            break;
+                        case 3:
+                            inputsTypes += "checkbox,";
+                            break;
+                        case 4:
+                            inputsTypes += "date,";
+                            break;
+                        case 5:
+                            inputsTypes += "time,";
+                            break;
+                    }
+                    if(value.dataType.name == 'Time'){
+                        fixType = 'String';
+                    }else{
+                        fixType = value.dataType.name;
+                    }
+                    cont++;
+                    if (cont != $scope.collection.length) {
+
+                        stringFields += ((value.field).toLowerCase()).replace(/ /g, "_") + ",";
+                        stringDataTypes += fixType + ",";
+                        stringShowOnView += show + ",";
+                        stringRequiered  += req + ","; 
+                        stringHeaders    += (value.field).toUpperCase() + ",";
+                    } else {
+                        stringFields += ((value.field).toLowerCase()).replace(/ /g, "_");
+                        stringDataTypes += fixType;
+                        stringShowOnView += show;
+                        stringRequiered  += req;
+                        stringHeaders    += (value.field).toUpperCase();
+                    }
+                });
+                inputsTypes = inputsTypes.slice(0,-1)
+                var typeAcess;
+                if($scope.item.typeAccess.id == 1){
+                    typeAcess = false;
+                }else{
+                    typeAcess = true;  
+                }
+                var size = $scope.schemeName.length - 1;
+                var letter = $scope.schemeName.substr(size, 1);
+                if(letter != 's'){
+                    $scope.schemeName   += 's';
+                }
+                $scope.schemeName = $scope.schemeName.toLowerCase();
+                crudService.generar($scope.schemeName, stringFields, stringDataTypes, stringShowOnView,inputsTypes,typeAcess,stringRequiered,stringHeaders,$scope.item.rolAccess.id).then(function (result) {
+                    $scope.spinner = false;
+                    $scope.result = result;
+                    $scope.schemeName = '';
+                    $scope.collection = [];
+                });
+            }
+
+        }])
+
+.directive('alpha', function ()
+{
+return {
+require: 'ngModel',
+      restrict: 'A',
+      link: function(scope, elem, attr, ngModel) {
+
+        var validator = function(value) {
+          if (/^[a-zA-Z0-9 ]*$/.test(value)) {
+            ngModel.$setValidity('alphanumeric', true);
+            return value;
+          } else {
+            ngModel.$setValidity('alphanumeric', false);
+            return undefined;
+          }
+        };
+        ngModel.$parsers.unshift(validator);
+        ngModel.$formatters.unshift(validator);
+      }
+    };
+})
+
+.factory('crudService',
+  ['$q','$http',
+  function ($q,$http) {
+
+  	return ({
+      generar: generar
+    });
+
+  	function generar(schemeName,fields, dataTypes,showOnView,inputsTypes,typeAcess,stringRequiered,stringHeaders,rol) {
+      var defered = $q.defer();
+      var promise = defered.promise;
+      $http.post('/config/cruds', {schemeName: schemeName,fields: fields, dataTypes: dataTypes,showOnView:showOnView,inputsTypes: inputsTypes,typeAcess: typeAcess,stringRequiered: stringRequiered,stringHeaders : stringHeaders,rol : rol})
+        .success(function (data, status) {
+          defered.resolve(data);
+        })
+        .error(function (data) {
+          defered.reject();
+        });
+        return promise;
+    }
+}])
+.config(function ($routeProvider) {
+ 	$routeProvider
+ 		.when('/crud', {
+ 		    templateUrl: '/javascripts/setup/crud/templates/crud.html',
+ 			controller: 'crudController',
+ 			access: {
+ 				 restricted: false,
+ 				rol: 5
+ 			}
+ 		});
+ })
 .controller('exportProjectController',
     ['$rootScope','$scope','$uibModal','exportProjectService','$ngBootbox',
         function ($rootScope,$scope,$uibModal,exportProjectService,$ngBootbox) {
@@ -1414,124 +1778,6 @@
  			}
  		});
  })
-.controller('pacientesController',
-  ['$rootScope','$scope', '$location', 'pacientesModel','$uibModal',
-  function ($rootScope,$scope, $location, pacientesModel,$uibModal) {
-    $scope.titleController = 'MEAN-CASE SUPER HEROIC';
-    $rootScope.titleWeb = 'pacientes';
-    $scope.preloader = true;
-    $scope.msjAlert = false;
-    pacientesModel.getAll().then(function(data) {
-      $scope.pacientesList = data;
-      $scope.pacientesTemp = angular.copy($scope.pacientesList);
-      $scope.preloader = false;
-    });
-    /*  Modal */
-     $scope.open = function (item) {
-       var modalInstance = $uibModal.open({
-        animation: true,
-        templateUrl: 'templates/pacientes/modalCreate.html',
-        controller: 'modalpacientesCreateController',
-        size: 'lg',
-        resolve: {
-         item: function () {
-          return item;
-         }
-        }
-      });
-      modalInstance.result.then(function(data) {
-        if(!item) {
-           $scope.pacientesList.push(data);
-           $scope.pacientesTemp = angular.copy($scope.pacientesList);
-        }
-      },function(result){
-      $scope.pacientesList = $scope.pacientesTemp;
-      $scope.pacientesTemp = angular.copy($scope.pacientesList);
-    });
-  };
-  /*  Delete  */
-  $scope.openDelete = function (item) {
-    var modalInstance = $uibModal.open({
-      animation: true,
-      templateUrl: 'templates/pacientes/modalDelete.html',
-      controller: 'modalpacientesDeleteController',
-      size: 'lg',
-      resolve: {
-        item: function () {
-           return item;
-        }
-      }
-    });
-    modalInstance.result.then(function(data) {
-      var idx = $scope.pacientesList.indexOf(data);
-      $scope.pacientesList.splice(idx, 1);
-      pacientesModel
-        .destroy(data._id)
-        .then(function(result) {
-          $scope.msjAlert = true;
-          $scope.alert = 'success';
-          $scope.message = result.message;
-        })
-        .catch(function(err) {
-          $scope.msjAlert = true;
-          $scope.alert = 'danger';
-          $scope.message = 'Error '+err;
-        })
-      });
-    };
-}])
-.controller('modalpacientesCreateController',
-  ['$scope', '$uibModalInstance', 'item','pacientesModel','$filter',
-  function ($scope, $uibModalInstance, item,pacientesModel,$filter) {
-    $scope.item = item;
-    $scope.saving = false;
-    if(item){
-       //add optional code
-    }
-    $scope.save = function () {
-      if(!item){
-        $scope.saving = true;
-        item = {nombres: $scope.item.nombres,edad: $scope.item.edad};
-        var pacientes = pacientesModel.create();
-        pacientes.nombres = $scope.item.nombres;
-        pacientes.edad = $scope.item.edad;
-        pacientes.save().then(function(r){
-          $scope.saving = false;
-          $uibModalInstance.close(r);
-        });
-      }else{
-        pacientesModel.findById($scope.item._id);
-        pacientesModel.nombres = $scope.item.nombres;
-        pacientesModel.edad = $scope.item.edad;
-        pacientesModel.save().then(function(r){
-          $scope.saving = false;
-          $uibModalInstance.close(r);
-        });
-      }
-    };
-}])
-.controller('modalpacientesDeleteController',
-  ['$scope', '$uibModalInstance', 'item',
-  function ($scope, $uibModalInstance, item) {
-    $scope.item = item;
-    $scope.ok = function () {
-      $uibModalInstance.close($scope.item);
-    };
-    $scope.cancel = function () {
-       $uibModalInstance.dismiss('cancel');
-     };
-}])
-.config(function ($routeProvider) {
-  $routeProvider
-    .when('/pacientes', {
-      templateUrl: '/templates/pacientes/index.html',
-      controller: 'pacientesController',
-      access: {
-        restricted: false,
-       rol: 2
-      }
-    });
- })
 .controller('listSchemasController',
     ['$scope', 'schemaModel','$uibModal',
         function ($scope, schemaModel,$uibModal) {
@@ -1550,76 +1796,6 @@
  			access: {
  				 restricted: false,
  				 rol: 5
- 			}
- 		});
- })
-.controller('uploadTemplatesController',
-    ['$scope','uploadTemplatesService',
-        function ($scope,uploadTemplatesService) {
-            $scope.spinner = false;
-            $scope.save = function(){
-                $scope.spinner = true;
-                var edit = (($scope.file.name).toLowerCase()).replace(/ /g,"-");
-                edit = edit.replace(/.zip/g,"");
-                console.log(edit);
-                uploadTemplatesService.save($scope.file,edit).then(function(data){
-                    $scope.spinner = false;
-                    $scope.result = data;
-                });
-              
-            };
-
-}])
-.directive('uploaderModel', ["$parse", function ($parse) {
-    return {
-        restrict: 'A',
-        link: function (scope, iElement, iAttrs) 
-        {
-            iElement.on("change", function(e)
-            {
-                $parse(iAttrs.uploaderModel).assign(scope, iElement[0].files[0]);
-            });
-        }
-    };
-}])
-.factory('uploadTemplatesService',
-  ['$q','$http',
-  function ($q,$http) {
-
-  	return ({
-      save: save
-    });
-
-    
-  	function save(file,name) {
-      var defered = $q.defer();
-      var promise = defered.promise;
-      var formData = new FormData();
-      formData.append("file", file);
-      formData.append("name", name);
-      $http.post('/config/upload',formData, {
-      headers: {
-        "Content-type": undefined
-      },
-      transformRequest: angular.identity
-    })
-        .success(function (data, status) {
-          defered.resolve(data);
-        })
-        .error(function (data) {
-          defered.reject();
-        });
-        return promise;
-    }
-}])
-.config(function ($routeProvider) {
- 	$routeProvider
- 		.when('/uploadTemplates', {
- 			templateUrl: '/javascripts/setup/upload/templates/uploadTemplates.html',
- 			controller: 'uploadTemplatesController',
- 			access: {
- 				restricted: false,
- 				rol: 5
  			}
  		});
  })
@@ -2085,224 +2261,56 @@
  })
 
 
-.controller('crudController',
-    ['$scope', 'crudService',
-        function ($scope, crudService) {
+.controller('uploadTemplatesController',
+    ['$scope','uploadTemplatesService',
+        function ($scope,uploadTemplatesService) {
             $scope.spinner = false;
-            $scope.disabledAccesRol = false;
-            $scope.fieldName = [];
-            $scope.showOnView = [];
-            var stringFields = "";
-            var stringDataTypes = "";
-            var stringShowOnView = "";
-            $scope.collection = [{
-                field: '',
-                dataType: '',
-                showOnView: ''
-            }];
-
-
-            $scope.validateAccessRol = function(){
-                if($scope.item.typeAccess.id == 2 )
-                    $scope.disabledAccesRol = true;
-                else
-                    $scope.disabledAccesRol = false;
-            }
-
-            // remove the "Remove" Header and Body when only left one document
-            $scope.firstRow = function () {
-                if ($scope.collection[1])
-                    return false;
-                else
-                    return true;
+            $scope.save = function(){
+                $scope.spinner = true;
+                var edit = (($scope.file.name).toLowerCase()).replace(/ /g,"-");
+                edit = edit.replace(/.zip/g,"");
+                console.log(edit);
+                uploadTemplatesService.save($scope.file,edit).then(function(data){
+                    $scope.spinner = false;
+                    $scope.result = data;
+                });
+              
             };
 
-            $scope.typesAccess = [
-                {
-                    id: 1,
-                    name: 'Restricted'
-                },
-                {
-                    id: 2,
-                    name: 'Public'
-                }
-
-            ]
-
-             $scope.rolsAccess = [
-                {
-                    id: 1,
-                    name: 'Reader'
-                },
-                {
-                    id: 2,
-                    name: 'Edit'
-                },
-                {
-                    id: 3,
-                    name: 'Coordinator'
-                },
-                {
-                    id: 4,
-                    name: 'Admin'
-                }
-
-            ]
-
-
-            $scope.dataTypes = [
-                {
-                    id: 1,
-                    name: 'String'
-                },
-                {
-                    id: 2,
-                    name: 'Number'
-                },
-
-                {
-                    id: 3,
-                    name: 'Boolean'
-                },
-                {
-                    id: 4,
-                    name: 'Date'
-                },
-                {
-                    id: 5,
-                    name: 'Time'
-                }
-
-            ];
-
-            // expose a function to add new (blank) rows to the model/table
-            $scope.addRow = function () {
-                // push a new object with some defaults
-                $scope.collection.push({
-                    field: $scope.fieldName[0],
-                    dataType: $scope.dataTypes[0],
-                    showOnView: $scope.showOnView[0]
-                });
-            }
-
-            $scope.removeRow = function (index) {
-                $scope.collection.splice(index, 1);
-            }
-
-            $scope.refresh = function(){
-                 location.reload();
-            }
-
-            $scope.validate = function () {
-                $scope.spinner = true;
-                var cont = 0,show,inputsTypes='',req;
-                var stringRequiered = '',fixType = '',stringHeaders = '';
-                angular.forEach($scope.collection, function (value, key) {
-                    if(value.showOnView){
-                        show = '';
-                    }else{
-                        show = 'hidden'; 
-                    }
-                    if(value.showOnView && value.dataType.id != 3){
-                        req = 'required';
-                    }else{
-                        req =  ''; 
-                    }
-                    switch (value.dataType.id) {
-                        case 1:
-                            inputsTypes += "text,";
-                            break;
-                        case 2:
-                            inputsTypes += "number,";
-                            break;
-                        case 3:
-                            inputsTypes += "checkbox,";
-                            break;
-                        case 4:
-                            inputsTypes += "date,";
-                            break;
-                        case 5:
-                            inputsTypes += "time,";
-                            break;
-                    }
-                    if(value.dataType.name == 'Time'){
-                        fixType = 'String';
-                    }else{
-                        fixType = value.dataType.name;
-                    }
-                    cont++;
-                    if (cont != $scope.collection.length) {
-
-                        stringFields += ((value.field).toLowerCase()).replace(/ /g, "_") + ",";
-                        stringDataTypes += fixType + ",";
-                        stringShowOnView += show + ",";
-                        stringRequiered  += req + ","; 
-                        stringHeaders    += (value.field).toUpperCase() + ",";
-                    } else {
-                        stringFields += ((value.field).toLowerCase()).replace(/ /g, "_");
-                        stringDataTypes += fixType;
-                        stringShowOnView += show;
-                        stringRequiered  += req;
-                        stringHeaders    += (value.field).toUpperCase();
-                    }
-                });
-                inputsTypes = inputsTypes.slice(0,-1)
-                var typeAcess;
-                if($scope.item.typeAccess.id == 1){
-                    typeAcess = false;
-                }else{
-                    typeAcess = true;  
-                }
-                var size = $scope.schemeName.length - 1;
-                var letter = $scope.schemeName.substr(size, 1);
-                if(letter != 's'){
-                    $scope.schemeName   += 's';
-                }
-                $scope.schemeName = $scope.schemeName.toLowerCase();
-                crudService.generar($scope.schemeName, stringFields, stringDataTypes, stringShowOnView,inputsTypes,typeAcess,stringRequiered,stringHeaders,$scope.item.rolAccess.id).then(function (result) {
-                    $scope.spinner = false;
-                    $scope.result = result;
-                    $scope.schemeName = '';
-                    $scope.collection = [];
-                });
-            }
-
-        }])
-
-.directive('alpha', function ()
-{
-return {
-require: 'ngModel',
-      restrict: 'A',
-      link: function(scope, elem, attr, ngModel) {
-
-        var validator = function(value) {
-          if (/^[a-zA-Z0-9 ]*$/.test(value)) {
-            ngModel.$setValidity('alphanumeric', true);
-            return value;
-          } else {
-            ngModel.$setValidity('alphanumeric', false);
-            return undefined;
-          }
-        };
-        ngModel.$parsers.unshift(validator);
-        ngModel.$formatters.unshift(validator);
-      }
+}])
+.directive('uploaderModel', ["$parse", function ($parse) {
+    return {
+        restrict: 'A',
+        link: function (scope, iElement, iAttrs) 
+        {
+            iElement.on("change", function(e)
+            {
+                $parse(iAttrs.uploaderModel).assign(scope, iElement[0].files[0]);
+            });
+        }
     };
-})
-
-.factory('crudService',
+}])
+.factory('uploadTemplatesService',
   ['$q','$http',
   function ($q,$http) {
 
   	return ({
-      generar: generar
+      save: save
     });
 
-  	function generar(schemeName,fields, dataTypes,showOnView,inputsTypes,typeAcess,stringRequiered,stringHeaders,rol) {
+    
+  	function save(file,name) {
       var defered = $q.defer();
       var promise = defered.promise;
-      $http.post('/config/cruds', {schemeName: schemeName,fields: fields, dataTypes: dataTypes,showOnView:showOnView,inputsTypes: inputsTypes,typeAcess: typeAcess,stringRequiered: stringRequiered,stringHeaders : stringHeaders,rol : rol})
+      var formData = new FormData();
+      formData.append("file", file);
+      formData.append("name", name);
+      $http.post('/config/upload',formData, {
+      headers: {
+        "Content-type": undefined
+      },
+      transformRequest: angular.identity
+    })
         .success(function (data, status) {
           defered.resolve(data);
         })
@@ -2314,11 +2322,11 @@ require: 'ngModel',
 }])
 .config(function ($routeProvider) {
  	$routeProvider
- 		.when('/crud', {
- 		    templateUrl: '/javascripts/setup/crud/templates/crud.html',
- 			controller: 'crudController',
+ 		.when('/uploadTemplates', {
+ 			templateUrl: '/javascripts/setup/upload/templates/uploadTemplates.html',
+ 			controller: 'uploadTemplatesController',
  			access: {
- 				 restricted: false,
+ 				restricted: false,
  				rol: 5
  			}
  		});
