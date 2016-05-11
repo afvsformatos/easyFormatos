@@ -1,6 +1,6 @@
 .controller('conversordetallesController',
-  ['$rootScope','$scope', '$location', 'conversordetallesModel','$uibModal',
-  function ($rootScope,$scope, $location, conversordetallesModel,$uibModal) {
+  ['$rootScope','$scope', '$location', 'conversordetallesModel','$uibModal','$routeParams',
+  function ($rootScope,$scope, $location, conversordetallesModel,$uibModal,$routeParams) {
     $scope.titleController = 'MEAN-CASE SUPER HEROIC';
     $rootScope.titleWeb = 'conversordetalles';
     $scope.preloader = true;
@@ -10,6 +10,8 @@
       $scope.conversordetallesTemp = angular.copy($scope.conversordetallesList);
       $scope.preloader = false;
     });
+
+    console.log($routeParams.idFormato);
     /*  Modal */
      $scope.open = function (item) {
        var modalInstance = $uibModal.open({

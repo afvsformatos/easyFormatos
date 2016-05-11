@@ -16,13 +16,14 @@
     obtenerCabeceras();
 
     $scope.obtenerDetalles = function(idFormato){
-      conversorcabecerasModel.url = '/api/conversorcabeceras/detalles';
+      $location.url('/conversordetalles/'+idFormato);
+      /*conversorcabecerasModel.url = '/api/conversorcabeceras/detalles';
       conversorcabecerasModel.findById(idFormato).then(function(detalles){
         
         //$location.url('/conversorcabeceras/detalles');
         $scope.conversoDetalles = detalles;
         console.log($scope.conversoDetalles);
-      });
+      });*/
       
      
     }

@@ -1,6 +1,6 @@
 .config(function ($routeProvider) {
   $routeProvider
-    .when('/conversordetalles', {
+    .when('/conversordetalles/:idFormato', {
       templateUrl: '/templates/conversordetalles/index.html',
       controller: 'conversordetallesController',
       access: {
