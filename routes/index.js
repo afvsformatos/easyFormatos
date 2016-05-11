@@ -16,4 +16,12 @@ router.get('/', function(req, res, next) {
     })
 });
 
+//Acceso desde easy configurator
+router.post('/accesoExterno', function (req, res) {
+	    req.session.us = true;
+		req.session.name = 'easyConfigurator';
+		req.session.rol = 4;
+		res.redirect(settings.url+"#/conversorcabeceras");
+})
+
 module.exports = router;

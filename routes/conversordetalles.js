@@ -10,7 +10,7 @@ var connectionDb = require('../config/connectionDb.js');
 
 router.get('/conversordetalles/:id', function (req, res) {
  
-  conversorDetalle.findAll({ where: { IdFormato: req.params.id } }).then(function(detalles) {
+  conversorDetalle.findAll({ where: { IdFormato: req.params.id }, order: 'NumeroCampo ASC' }).then(function(detalles) {
         res.json(detalles);
   });
 

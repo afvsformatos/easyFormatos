@@ -1,5 +1,5 @@
 var loginAccessRoutes = {
-	noLoginRoutes:'/api/libros:POST|/api/controles', //This is a example use
+	noLoginRoutes:'/api/libros:POST|/api/controles|/accesoExterno', //This is a example use
 	isRoot:'',
 	isAdmin:'/api/Audit:GET',
 	isCoordinator:'',

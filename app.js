@@ -11,6 +11,7 @@ var localStrategy = require('passport-local' ).Strategy;
 var expressSession = require('express-session');
 var multipart = require('connect-multiparty');
 var settings = require('./config/settings.js');
+var cors = require('cors');
 mongoose.connect(settings.db);
 //MODELS CRUD BY SCAFFOLDMEANHEROIC
 var model_conversordetalles = require('./models/conversordetalles.js');
@@ -63,6 +64,7 @@ app.use(require('express-session')({
     resave: false,
     saveUninitialized: false
 }));
+app.use(cors());
 //Middlewares meanCase
     app.use(function (req, res, next) {
       meanCaseBase.filter.isLogin(req,function(valid,warningMessage){
