@@ -19,7 +19,7 @@
          <tbody>
            <tr>
              <!--<td  at-sortable  at-title='ID FORMATO' width='150'>{{item.IdFormato}}</td>-->
-             <td  at-sortable  at-title='Nombre Formato' width='150'><a ng-click="obtenerDetalles(item.IdFormato)">{{item.NombreFormato}}</a></td>
+             <td  at-sortable  at-title='Nombre Formato' width='150'><a ng-click="obtenerDetalles(item)">{{item.NombreFormato}}</a></td>
              <td  at-sortable  at-title='Descripción Formato' width='150'>{{item.DescripcionFormato}}</td>
              <td  at-sortable  at-title='Cabecera' width='150'>{{item.Cabecera}}</td>
              <td  at-sortable  at-title='Pie' width='150'>{{item.Pie}}</td>
@@ -40,7 +40,11 @@
              <td  at-sortable  at-title='Muestra Cabecera Columna' width='150'>{{item.MuestraCabeceraColumna}}</td>
              <td  at-sortable  at-title='Tipo Conversión' width='150'>{{item.TipoConversion}}</td>
              
-             <td  at-title="Acción" width="250"><button type="button" class="btn btn-default" ng-click="open(item)"><i class="fa fa-pencil-square-o"></i></button><button type="button" class="btn btn-default" ng-click="openDelete(item)"><i class="fa fa-trash-o"></i></button></td>
+             <td  at-title="Acción" width="250">
+               <button title="Editar" type="button" class="btn btn-default" ng-click="open(item)"><i class="fa fa-pencil-square-o"></i></button>
+               <button title="Eliminar" type="button" class="btn btn-default" ng-click="openDelete(item)"><i class="fa fa-trash-o"></i></button>
+               <button title="Plantilla" type="button" class="btn btn-default" ng-click="verPlantilla(item)"><i class="fa fa-search"></i></button>
+             </td>
            </tr>
          </tbody>
        </table>

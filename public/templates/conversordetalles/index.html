@@ -3,6 +3,7 @@
      <button ng-click="open()" class="btn btn-default "><i class="fa fa-plus"></i> Create New</button>
      <div class="alert alert-{{alert}}" ng-show="msjAlert">{{message}}</div>
    </div>
+   <a ng-click="regresarFormato()" href=""><h2>{{NombreFormato}}</h2></a>
    <div class="row">
    <div id="scrollTabla">
      <div class="input-group">
@@ -13,8 +14,8 @@
        <thead></thead>
        <tbody>
          <tr>
-           <td  at-sortable  at-title='Id Detalle' width='150'>{{item.IdDetalle}}</td>
-           <td  at-sortable  at-title='Id Formato' width='150'>{{item.IdFormato}}</td>
+           <!--<td  at-sortable  at-title='Id Detalle' width='150'>{{item.IdDetalle}}</td>
+           <td  at-sortable  at-title='Id Formato' width='150'>{{item.IdFormato}}</td>-->
            <td  at-sortable  at-title='Tipo Registro' width='150'>{{item.TipoRegistro}}</td>
            <td  at-sortable  at-title='Número Campo' width='150'>{{item.NumeroCampo}}</td>
            <td  at-sortable  at-title='Pisición Inicio' width='150'>{{item.PosicionInicio}}</td>

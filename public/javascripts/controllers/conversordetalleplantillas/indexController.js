@@ -1,15 +1,28 @@
 .controller('conversordetalleplantillasController',
-  ['$rootScope','$scope', '$location', 'conversordetalleplantillasModel','$uibModal',
-  function ($rootScope,$scope, $location, conversordetalleplantillasModel,$uibModal) {
+  ['$rootScope','$scope', '$location', 'conversordetalleplantillasModel','$uibModal','$routeParams',
+  function ($rootScope,$scope, $location, conversordetalleplantillasModel,$uibModal,$routeParams) {
     $scope.titleController = 'MEAN-CASE SUPER HEROIC';
     $rootScope.titleWeb = 'conversordetalleplantillas';
     $scope.preloader = true;
     $scope.msjAlert = false;
-    conversordetalleplantillasModel.getAll().then(function(data) {
-      $scope.conversordetalleplantillasList = data;
-      $scope.conversordetalleplantillasTemp = angular.copy($scope.conversordetalleplantillasList);
-      $scope.preloader = false;
-    });
+
+    if($routeParams.idFormato){
+          conversordetalleplantillasModel.url = '/api/conversordetalleplantillas';
+          conversordetalleplantillasModel.findById($routeParams.idFormato).then(function(plantillas){
+              console.log(plantillas);
+              $scope.conversordetalleplantillasList = plantillas;
+              $scope.conversordetalleplantillasTemp = angular.copy($scope.conversordetalleplantillasList);
+              $scope.preloader = false;
+          });
+      }else{
+            conversordetalleplantillasModel.getAll().then(function(data) {
+              $scope.conversordetalleplantillasList = data;
+              $scope.conversordetalleplantillasTemp = angular.copy($scope.conversordetalleplantillasList);
+              $scope.preloader = false;
+            });
+
+      }
+      
     /*  Modal */
      $scope.open = function (item) {
        var modalInstance = $uibModal.open({

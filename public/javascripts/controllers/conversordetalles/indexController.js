@@ -11,14 +11,18 @@
       $scope.conversordetallesTemp = angular.copy($scope.conversordetallesList);
       $scope.preloader = false;
     });*/
-      conversordetallesModel.url = '/api/conversordetalles';
-      conversordetallesModel.findById($routeParams.idFormato).then(function(detalles){
-              console.log(detalles);
-              $scope.conversordetallesList = detalles;
-              $scope.conversordetallesTemp = angular.copy($scope.conversordetallesList);
-              $scope.preloader = false;
-      });
 
+    $scope.regresarFormato = function(){
+      $location.url('/conversorcabeceras/'+$routeParams.idFormato);
+    }
+    conversordetallesModel.url = '/api/conversordetalles';
+    conversordetallesModel.findById($routeParams.idFormato).then(function(detalles){
+            console.log(detalles);
+            $scope.conversordetallesList = detalles;
+            $scope.conversordetallesTemp = angular.copy($scope.conversordetallesList);
+            $scope.preloader = false;
+    });
+    $scope.NombreFormato = $routeParams.NombreFormato;
     console.log($routeParams.idFormato);
     /*  Modal */
      $scope.open = function (item) {

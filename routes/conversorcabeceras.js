@@ -8,9 +8,9 @@ var conversorDetalle = require('../config/relationalModels/conversorDetalle.js')
 var connectionDb = require('../config/connectionDb.js');
 
 router.get('/conversorcabeceras/:id', function (req, res) {
-  conversorcabeceras.findById(req.params.id, function (err, data) {
-    res.json(data);
-  })
+  conversorCabecera.findAll({ where: { IdFormato: req.params.id }}).then(function(cabecera) {
+        res.json(cabecera);
+  });
 })
 /* GET conversorcabeceras listing. */
 router.get('/conversorcabeceras', function(req, res, next) {

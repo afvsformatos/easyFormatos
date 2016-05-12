@@ -3,18 +3,29 @@ var express = require('express');
 var router = express.Router();
 var mongoose = require('mongoose');
 var conversordetalleplantillas = mongoose.model('conversordetalleplantillas');
+var conversorCabecera = require('../config/relationalModels/conversorCabecera.js');
+var conversorDetallePlantilla = require('../config/relationalModels/conversorDetallePlantilla.js');
+var connectionDb = require('../config/connectionDb.js');
+
+
+
+
 router.get('/conversordetalleplantillas/:id', function (req, res) {
-  conversordetalleplantillas.findById(req.params.id, function (err, data) {
-    res.json(data);
-  })
+  conversorDetallePlantilla.findAll({ where: { IdFormato: req.params.id }}).then(function(plantillas) {
+        res.json(plantillas);
+  });
 })
 /* GET conversordetalleplantillas listing. */
 router.get('/conversordetalleplantillas', function(req, res, next) {
-   conversordetalleplantillas.find(function(err, models){
+   /*conversordetalleplantillas.find(function(err, models){
      if(err){return next(err)}
      res.json(models)
      meanCaseBase.auditSave(req,'Query all Registers','conversordetalleplantillas','Query all Registers');
-   })
+   })*/
+   conversorDetallePlantilla.findAll().then(function(plantillas) {
+         res.json(plantillas);
+         meanCaseBase.auditSave(req,'Query all Registers','conversordetalleplantillas','Query all Registers');
+    });
 });
 /* POST - Add conversordetalleplantillas. */
 router.post('/conversordetalleplantillas', function(req, res, next){

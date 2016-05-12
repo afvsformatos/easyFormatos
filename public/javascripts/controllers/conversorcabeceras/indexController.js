@@ -1,6 +1,6 @@
 .controller('conversorcabecerasController',
-  ['$rootScope','$scope', '$location', 'conversorcabecerasModel','$uibModal',
-  function ($rootScope,$scope, $location, conversorcabecerasModel,$uibModal) {
+  ['$rootScope','$scope', '$location', 'conversorcabecerasModel','$uibModal','$routeParams',
+  function ($rootScope,$scope, $location, conversorcabecerasModel,$uibModal,$routeParams) {
 
     $scope.titleController = 'MEAN-CASE SUPER HEROIC';
     $rootScope.titleWeb = 'conversorcabeceras';
@@ -13,10 +13,25 @@
         $scope.preloader = false;
       });
     }
-    obtenerCabeceras();
 
-    $scope.obtenerDetalles = function(idFormato){
-      $location.url('/conversordetalles/'+idFormato);
+    var unaCabecera = function(){
+      //conversorcabecerasModel.url = '/api/conversorcabeceras';
+      conversorcabecerasModel.findById($routeParams.idFormato).then(function(cabecera){
+              $scope.conversorcabecerasList = cabecera;
+              $scope.conversorcabecerasTemp = angular.copy($scope.conversorcabecerasList);
+              $scope.preloader = false;
+      });
+    }
+
+    if(!$routeParams.idFormato){
+      obtenerCabeceras();
+    }else{
+      unaCabecera();
+    }
+    
+
+    $scope.obtenerDetalles = function(item){
+      $location.url('/conversordetalles/'+item.IdFormato+'/'+item.NombreFormato);
       /*conversorcabecerasModel.url = '/api/conversorcabeceras/detalles';
       conversorcabecerasModel.findById(idFormato).then(function(detalles){
         
@@ -27,7 +42,9 @@
       
      
     }
-
+    $scope.verPlantilla = function(item){
+      $location.url('/conversordetalleplantillas/'+item.IdFormato);
+    }
 
     /*  Modal */
      $scope.open = function (item) {
