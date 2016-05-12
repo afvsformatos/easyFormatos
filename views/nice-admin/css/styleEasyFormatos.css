@@ -1,0 +1,41 @@
+#scrollTabla {
+     overflow:scroll;
+     height: auto;
+     width: auto;
+}
+
+table tr th {
+	color: #bfbfbf;
+	background-color: #222;
+	font-size: 13px;
+	font-weight: bold;
+	text-align: center;
+	width: 20px;
+	text-transform: capitalize;
+}
+
+table tr th:hover {
+ color: white;
+}
+
+a {
+    color: #337ab7;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.table td {
+    padding: 8px;
+    line-height: 1.42857143;
+    vertical-align: top;
+    border-top: 1px solid #ddd;
+    color: #222;
+    font-size: 12px;
+}
+
+.wait{
+	 width: 225px;
+	 
+ 	 margin: 0 auto;
+}
