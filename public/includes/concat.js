@@ -95,11 +95,11 @@
  			maxPages = 3;
  		} else if (windowWidth <= 992) {
  			//Tablet
- 			itemsPerPage = 10;
+ 			itemsPerPage = 5;
  			maxPages = 5;
  		} else {
  			//PC
- 			itemsPerPage = 20;
+ 			itemsPerPage = 5;
  			maxPages = 8;
  		}
  		$rootScope.configTable = {
@@ -161,6 +161,162 @@
  		});
  	});
  })
+.controller('bootstrapController',
+  ['$scope', '$location', 'AuthService','bootstrapService','$route',
+  function ($scope, $location, AuthService,bootstrapService,$route) {
+    $scope.test = "Menú 1";
+         /*  LOGOUT  */
+	    $scope.logout = function () {
+	      AuthService.logout()
+	        .then(function () {
+	          $location.path('/login');
+	        });
+
+	    };
+	    bootstrapService.getMenu().then(function(data) {
+	      $scope.menus = data;
+	    });	
+
+	    $scope.reloadRoute = function(menu){
+	    	if(menu.flat == 'cabecera')
+	    		location.reload();
+
+	    	
+	    	
+	    }
+	    
+}])
+.controller('homeController',
+  ['$rootScope','$scope', '$location', 'AuthService','$uibModal','mySocket',
+  function ($rootScope,$scope, $location, AuthService,$uibModal,mySocket) {
+    $scope.arrayMsg = [];
+    $scope.titleHomeController = "Welcome";
+    $scope.testSocket = function(){
+    	mySocket.emit('chat message',{user:$rootScope.user.username,input:$scope.msgInput});
+    	mySocket.emit('test', 'test test');
+      
+    }
+    $scope.$on('socket:chat message', function(event, data) {
+      
+      var size = $scope.arrayMsg.length;
+      console.log(size);
+      if(size > 0){
+        var oldUser = $scope.arrayMsg[size-1].user;
+        var newUser = data.user;
+        if(oldUser =! newUser){
+          data["class1"] = "amigo";
+          data["class2"] = "derecha";
+        }else{
+          data["class1"] = "autor";
+          data["class2"] = "izquierda";
+        }
+         
+       
+      }else{
+        data["class1"] = "autor";
+        data["class2"] = "izquierda";
+      }
+      $scope.arrayMsg.push(data);
+      $scope.msgInput = '';
+      window.setInterval(function() {
+        var elem = document.getElementById('mensajes');
+        elem.scrollTop = elem.scrollHeight;
+      }, 5000);
+        
+    });
+    $scope.$on('socket:test', function(event, data) {
+    	console.log(data);
+    });
+}])
+.controller('loginController', ['$rootScope', '$scope', '$location', 'AuthService','$uibModal',
+  function ($rootScope, $scope, $location, AuthService,$uibModal) {
+		$scope.titleLoginController = "MEAN_CASE HEROIC";
+		$rootScope.titleWeb = "Login";
+		$scope.registerSuccess = false;
+		$scope.login = function () {
+
+			// initial values
+			$scope.registerSuccess = false;
+			$scope.error = false;
+			$scope.disabled = true;
+			// call login from service
+			AuthService.login($scope.loginForm.username, $scope.loginForm.password, $scope.remember)
+				// handle success
+				.then(function () {
+					$location.path('/');
+					$scope.disabled = false;
+					$scope.loginForm = {};
+				})
+				// handle error
+				.catch(function () {
+					$scope.error = true;
+					$scope.errorMessage = "Invalid username and/or password";
+					$scope.disabled = false;
+					$scope.loginForm = {};
+				});
+
+		};
+
+	 /*  Open   Register */
+	     $scope.open = function (size) {
+	        var modalInstance = $uibModal.open({
+	          animation: true,
+	          templateUrl: 'templates/login/loginRegister.html',
+	          controller: 'registerLoginUserController',
+	          size: size
+	        });
+
+	        modalInstance.result.then(function(data) {
+	          $scope.error = false;
+	          $scope.registerSuccess = true;
+	          $scope.msjSuccess = "Register Successful";
+	        });
+	    };
+
+    /*  Open Register    */
+
+		/* REGISTRAR  */
+		$scope.register = function () {
+
+			// initial values
+			$scope.error = false;
+			$scope.disabled = true;
+
+			// call register from service
+			AuthService.register($scope.registerForm.username, $scope.registerForm.password, $scope.rol)
+				// handle success
+				.then(function () {
+					$location.path('/');
+					$scope.disabled = false;
+					$scope.registerForm = {};
+				})
+				// handle error
+				.catch(function (err) {
+					$scope.error = true;
+					$scope.errorMessage = "User already exists!";
+					$scope.disabled = false;
+					$scope.registerForm = {};
+					$scope.rol = "";
+				});
+
+		};
+
+}])
+.controller('registerLoginUserController',
+  ['$scope', '$uibModalInstance','AuthService','userService',
+  function ($scope, $uibModalInstance,AuthService,userService) {
+  
+    $scope.saving = false;
+     
+    $scope.save = function () {
+        $scope.saving = true;
+        AuthService.register($scope.item.username,$scope.item.password,1).then(function(r){
+          $scope.saving = false;
+        });
+        $uibModalInstance.close();
+    };
+
+}])
 .factory('AuditService',
   ['$q', '$http',
   function ($q, $http) {
@@ -428,162 +584,6 @@
 
 
     }])
-.controller('bootstrapController',
-  ['$scope', '$location', 'AuthService','bootstrapService','$route',
-  function ($scope, $location, AuthService,bootstrapService,$route) {
-    $scope.test = "Menú 1";
-         /*  LOGOUT  */
-	    $scope.logout = function () {
-	      AuthService.logout()
-	        .then(function () {
-	          $location.path('/login');
-	        });
-
-	    };
-	    bootstrapService.getMenu().then(function(data) {
-	      $scope.menus = data;
-	    });	
-
-	    $scope.reloadRoute = function(menu){
-	    	if(menu.flat == 'cabecera')
-	    		location.reload();
-
-	    	
-	    	
-	    }
-	    
-}])
-.controller('homeController',
-  ['$rootScope','$scope', '$location', 'AuthService','$uibModal','mySocket',
-  function ($rootScope,$scope, $location, AuthService,$uibModal,mySocket) {
-    $scope.arrayMsg = [];
-    $scope.titleHomeController = "Welcome";
-    $scope.testSocket = function(){
-    	mySocket.emit('chat message',{user:$rootScope.user.username,input:$scope.msgInput});
-    	mySocket.emit('test', 'test test');
-      
-    }
-    $scope.$on('socket:chat message', function(event, data) {
-      
-      var size = $scope.arrayMsg.length;
-      console.log(size);
-      if(size > 0){
-        var oldUser = $scope.arrayMsg[size-1].user;
-        var newUser = data.user;
-        if(oldUser =! newUser){
-          data["class1"] = "amigo";
-          data["class2"] = "derecha";
-        }else{
-          data["class1"] = "autor";
-          data["class2"] = "izquierda";
-        }
-         
-       
-      }else{
-        data["class1"] = "autor";
-        data["class2"] = "izquierda";
-      }
-      $scope.arrayMsg.push(data);
-      $scope.msgInput = '';
-      window.setInterval(function() {
-        var elem = document.getElementById('mensajes');
-        elem.scrollTop = elem.scrollHeight;
-      }, 5000);
-        
-    });
-    $scope.$on('socket:test', function(event, data) {
-    	console.log(data);
-    });
-}])
-.controller('loginController', ['$rootScope', '$scope', '$location', 'AuthService','$uibModal',
-  function ($rootScope, $scope, $location, AuthService,$uibModal) {
-		$scope.titleLoginController = "MEAN_CASE HEROIC";
-		$rootScope.titleWeb = "Login";
-		$scope.registerSuccess = false;
-		$scope.login = function () {
-
-			// initial values
-			$scope.registerSuccess = false;
-			$scope.error = false;
-			$scope.disabled = true;
-			// call login from service
-			AuthService.login($scope.loginForm.username, $scope.loginForm.password, $scope.remember)
-				// handle success
-				.then(function () {
-					$location.path('/');
-					$scope.disabled = false;
-					$scope.loginForm = {};
-				})
-				// handle error
-				.catch(function () {
-					$scope.error = true;
-					$scope.errorMessage = "Invalid username and/or password";
-					$scope.disabled = false;
-					$scope.loginForm = {};
-				});
-
-		};
-
-	 /*  Open   Register */
-	     $scope.open = function (size) {
-	        var modalInstance = $uibModal.open({
-	          animation: true,
-	          templateUrl: 'templates/login/loginRegister.html',
-	          controller: 'registerLoginUserController',
-	          size: size
-	        });
-
-	        modalInstance.result.then(function(data) {
-	          $scope.error = false;
-	          $scope.registerSuccess = true;
-	          $scope.msjSuccess = "Register Successful";
-	        });
-	    };
-
-    /*  Open Register    */
-
-		/* REGISTRAR  */
-		$scope.register = function () {
-
-			// initial values
-			$scope.error = false;
-			$scope.disabled = true;
-
-			// call register from service
-			AuthService.register($scope.registerForm.username, $scope.registerForm.password, $scope.rol)
-				// handle success
-				.then(function () {
-					$location.path('/');
-					$scope.disabled = false;
-					$scope.registerForm = {};
-				})
-				// handle error
-				.catch(function (err) {
-					$scope.error = true;
-					$scope.errorMessage = "User already exists!";
-					$scope.disabled = false;
-					$scope.registerForm = {};
-					$scope.rol = "";
-				});
-
-		};
-
-}])
-.controller('registerLoginUserController',
-  ['$scope', '$uibModalInstance','AuthService','userService',
-  function ($scope, $uibModalInstance,AuthService,userService) {
-  
-    $scope.saving = false;
-     
-    $scope.save = function () {
-        $scope.saving = true;
-        AuthService.register($scope.item.username,$scope.item.password,1).then(function(r){
-          $scope.saving = false;
-        });
-        $uibModalInstance.close();
-    };
-
-}])
 .service('controlesModel', function ($optimumModel,pacientesModel) {
   var model = new $optimumModel();
   model.url = '/api/controles';
@@ -856,8 +856,29 @@
     }else{
       unaCabecera();
     }
-    
+    $scope.options = [
+        {
+          name: '5',
+          value: '5'
+        }, 
+        {
+          name: '10',
+          value: '10'
+        }, 
+        {
+          name: '15',
+          value: '15'
+        }, 
+        {
+          name: '20',
+          value: '20'
+        }
+    ];
 
+    $scope.valorPaginacion = $scope.options[0];
+    $scope.cambioPaginacion = function(dato){
+      $rootScope.configTable.itemsPerPage =  dato.value;
+    }
     $scope.obtenerDetalles = function(item){
       $location.url('/conversordetalles/'+item.IdFormato+'/'+item.NombreFormato);
       /*conversorcabecerasModel.url = '/api/conversorcabeceras/detalles';
@@ -871,7 +892,7 @@
      
     }
     $scope.verPlantilla = function(item){
-      $location.url('/conversordetalleplantillas/'+item.IdFormato);
+      $location.url('/conversordetalleplantillas/'+item.IdFormato+'/'+item.NombreFormato);
     }
 
     /*  Modal */
@@ -1051,9 +1072,16 @@
             });
 
       }
+
+     $scope.regresarFormato = function(){
+      $location.url('/conversorcabeceras/'+$routeParams.idFormato);
+    }
       
+    $scope.NombreFormato = $routeParams.NombreFormato;
     /*  Modal */
      $scope.open = function (item) {
+      if($routeParams.idFormato)
+        var IdFormato = $routeParams.idFormato;
        var modalInstance = $uibModal.open({
         animation: true,
         templateUrl: 'templates/conversordetalleplantillas/modalCreate.html',
@@ -1062,6 +1090,9 @@
         resolve: {
          item: function () {
           return item;
+         },
+         IdFormato: function(){
+          return IdFormato;
          }
         }
       });
@@ -1107,20 +1138,21 @@
     };
 }])
 .controller('modalconversordetalleplantillasCreateController',
-  ['$scope', '$uibModalInstance', 'item','conversordetalleplantillasModel','$filter',
-  function ($scope, $uibModalInstance, item,conversordetalleplantillasModel,$filter) {
+  ['$scope', '$uibModalInstance', 'item','conversordetalleplantillasModel','$filter','IdFormato',
+  function ($scope, $uibModalInstance, item,conversordetalleplantillasModel,$filter,IdFormato) {
     $scope.item = item;
     $scope.saving = false;
     if(item){
        //add optional code
     }
+    console.log(IdFormato);
     $scope.save = function () {
       if(!item){
         $scope.saving = true;
-        item = {IdPlantilla: $scope.item.IdPlantilla,IdFormato: $scope.item.IdFormato,Plantilla: $scope.item.Plantilla,Tipo: $scope.item.Tipo,Orden: $scope.item.Orden,Nivel: $scope.item.Nivel,Origen: $scope.item.Origen};
+        item = {IdPlantilla: $scope.item.IdPlantilla,IdFormato: IdFormato,Plantilla: $scope.item.Plantilla,Tipo: $scope.item.Tipo,Orden: $scope.item.Orden,Nivel: $scope.item.Nivel,Origen: $scope.item.Origen};
         var conversordetalleplantillas = conversordetalleplantillasModel.create();
         conversordetalleplantillas.IdPlantilla = $scope.item.IdPlantilla;
-        conversordetalleplantillas.IdFormato = $scope.item.IdFormato;
+        conversordetalleplantillas.IdFormato = IdFormato;
         conversordetalleplantillas.Plantilla = $scope.item.Plantilla;
         conversordetalleplantillas.Tipo = $scope.item.Tipo;
         conversordetalleplantillas.Orden = $scope.item.Orden;
@@ -1159,7 +1191,7 @@
 }])
 .config(function ($routeProvider) {
   $routeProvider
-    .when('/conversordetalleplantillas/:idFormato', {
+    .when('/conversordetalleplantillas/:idFormato/:NombreFormato', {
       templateUrl: '/templates/conversordetalleplantillas/index.html',
       controller: 'conversordetalleplantillasController',
       access: {
@@ -1201,9 +1233,34 @@
             $scope.preloader = false;
     });
     $scope.NombreFormato = $routeParams.NombreFormato;
-    console.log($routeParams.idFormato);
+  
+     $scope.options = [
+        {
+          name: '5',
+          value: '5'
+        }, 
+        {
+          name: '10',
+          value: '10'
+        }, 
+        {
+          name: '15',
+          value: '15'
+        }, 
+        {
+          name: '20',
+          value: '20'
+        }
+    ];
+
+    $scope.valorPaginacion = $scope.options[0];
+    $scope.cambioPaginacion = function(dato){
+      $rootScope.configTable.itemsPerPage =  dato.value;
+    }
     /*  Modal */
      $scope.open = function (item) {
+      if($routeParams.idFormato)
+        var IdFormato = $routeParams.idFormato;
        var modalInstance = $uibModal.open({
         animation: true,
         templateUrl: 'templates/conversordetalles/modalCreate.html',
@@ -1212,7 +1269,11 @@
         resolve: {
          item: function () {
           return item;
+         },
+         IdFormato: function(){
+          return IdFormato;
          }
+
         }
       });
       modalInstance.result.then(function(data) {
@@ -1257,20 +1318,21 @@
     };
 }])
 .controller('modalconversordetallesCreateController',
-  ['$scope', '$uibModalInstance', 'item','conversordetallesModel','$filter',
-  function ($scope, $uibModalInstance, item,conversordetallesModel,$filter) {
+  ['$scope', '$uibModalInstance', 'item','conversordetallesModel','$filter','IdFormato',
+  function ($scope, $uibModalInstance, item,conversordetallesModel,$filter,IdFormato) {
     $scope.item = item;
     $scope.saving = false;
     if(item){
        //add optional code
     }
+    console.log(IdFormato);
     $scope.save = function () {
       if(!item){
         $scope.saving = true;
-        item = {IdDetalle: $scope.item.IdDetalle,IdFormato: $scope.item.IdFormato,TipoRegistro: $scope.item.TipoRegistro,NumeroCampo: $scope.item.NumeroCampo,PosicionInicio: $scope.item.PosicionInicio,LongitudCampo: $scope.item.LongitudCampo,TipoCampo: $scope.item.TipoCampo,SeparadorDecimales: $scope.item.SeparadorDecimales,NumeroDecimales: $scope.item.NumeroDecimales,DescripcionCampo: $scope.item.DescripcionCampo,IdCampoEquivalente: $scope.item.IdCampoEquivalente,CampoEquivalente: $scope.item.CampoEquivalente,Obligatorio: $scope.item.Obligatorio,Validaciones: $scope.item.Validaciones,Tipo_Registro: $scope.item.Tipo_Registro,Default_Value: $scope.item.Default_Value,observacion: $scope.item.observacion,Rutina_Validacion: $scope.item.Rutina_Validacion,Rutina_Transformacion: $scope.item.Rutina_Transformacion,CaracterConcatenacion: $scope.item.CaracterConcatenacion,OrdenCampo: $scope.item.OrdenCampo,Rutina_Conversion: $scope.item.Rutina_Conversion,ValidaEnMasivas: $scope.item.ValidaEnMasivas};
+        item = {IdDetalle: $scope.item.IdDetalle,IdFormato:IdFormato,TipoRegistro: $scope.item.TipoRegistro,NumeroCampo: $scope.item.NumeroCampo,PosicionInicio: $scope.item.PosicionInicio,LongitudCampo: $scope.item.LongitudCampo,TipoCampo: $scope.item.TipoCampo,SeparadorDecimales: $scope.item.SeparadorDecimales,NumeroDecimales: $scope.item.NumeroDecimales,DescripcionCampo: $scope.item.DescripcionCampo,IdCampoEquivalente: $scope.item.IdCampoEquivalente,CampoEquivalente: $scope.item.CampoEquivalente,Obligatorio: $scope.item.Obligatorio,Validaciones: $scope.item.Validaciones,Tipo_Registro: $scope.item.Tipo_Registro,Default_Value: $scope.item.Default_Value,observacion: $scope.item.observacion,Rutina_Validacion: $scope.item.Rutina_Validacion,Rutina_Transformacion: $scope.item.Rutina_Transformacion,CaracterConcatenacion: $scope.item.CaracterConcatenacion,OrdenCampo: $scope.item.OrdenCampo,Rutina_Conversion: $scope.item.Rutina_Conversion,ValidaEnMasivas: $scope.item.ValidaEnMasivas};
         var conversordetalles = conversordetallesModel.create();
         conversordetalles.IdDetalle = $scope.item.IdDetalle;
-        conversordetalles.IdFormato = $scope.item.IdFormato;
+        conversordetalles.IdFormato = IdFormato;
         conversordetalles.TipoRegistro = $scope.item.TipoRegistro;
         conversordetalles.NumeroCampo = $scope.item.NumeroCampo;
         conversordetalles.PosicionInicio = $scope.item.PosicionInicio;
@@ -1347,6 +1409,124 @@
       access: {
         restricted: false,
        rol: 1
+      }
+    });
+ })
+.controller('pacientesController',
+  ['$rootScope','$scope', '$location', 'pacientesModel','$uibModal',
+  function ($rootScope,$scope, $location, pacientesModel,$uibModal) {
+    $scope.titleController = 'MEAN-CASE SUPER HEROIC';
+    $rootScope.titleWeb = 'pacientes';
+    $scope.preloader = true;
+    $scope.msjAlert = false;
+    pacientesModel.getAll().then(function(data) {
+      $scope.pacientesList = data;
+      $scope.pacientesTemp = angular.copy($scope.pacientesList);
+      $scope.preloader = false;
+    });
+    /*  Modal */
+     $scope.open = function (item) {
+       var modalInstance = $uibModal.open({
+        animation: true,
+        templateUrl: 'templates/pacientes/modalCreate.html',
+        controller: 'modalpacientesCreateController',
+        size: 'lg',
+        resolve: {
+         item: function () {
+          return item;
+         }
+        }
+      });
+      modalInstance.result.then(function(data) {
+        if(!item) {
+           $scope.pacientesList.push(data);
+           $scope.pacientesTemp = angular.copy($scope.pacientesList);
+        }
+      },function(result){
+      $scope.pacientesList = $scope.pacientesTemp;
+      $scope.pacientesTemp = angular.copy($scope.pacientesList);
+    });
+  };
+  /*  Delete  */
+  $scope.openDelete = function (item) {
+    var modalInstance = $uibModal.open({
+      animation: true,
+      templateUrl: 'templates/pacientes/modalDelete.html',
+      controller: 'modalpacientesDeleteController',
+      size: 'lg',
+      resolve: {
+        item: function () {
+           return item;
+        }
+      }
+    });
+    modalInstance.result.then(function(data) {
+      var idx = $scope.pacientesList.indexOf(data);
+      $scope.pacientesList.splice(idx, 1);
+      pacientesModel
+        .destroy(data._id)
+        .then(function(result) {
+          $scope.msjAlert = true;
+          $scope.alert = 'success';
+          $scope.message = result.message;
+        })
+        .catch(function(err) {
+          $scope.msjAlert = true;
+          $scope.alert = 'danger';
+          $scope.message = 'Error '+err;
+        })
+      });
+    };
+}])
+.controller('modalpacientesCreateController',
+  ['$scope', '$uibModalInstance', 'item','pacientesModel','$filter',
+  function ($scope, $uibModalInstance, item,pacientesModel,$filter) {
+    $scope.item = item;
+    $scope.saving = false;
+    if(item){
+       //add optional code
+    }
+    $scope.save = function () {
+      if(!item){
+        $scope.saving = true;
+        item = {nombres: $scope.item.nombres,edad: $scope.item.edad};
+        var pacientes = pacientesModel.create();
+        pacientes.nombres = $scope.item.nombres;
+        pacientes.edad = $scope.item.edad;
+        pacientes.save().then(function(r){
+          $scope.saving = false;
+          $uibModalInstance.close(r);
+        });
+      }else{
+        pacientesModel.findById($scope.item._id);
+        pacientesModel.nombres = $scope.item.nombres;
+        pacientesModel.edad = $scope.item.edad;
+        pacientesModel.save().then(function(r){
+          $scope.saving = false;
+          $uibModalInstance.close(r);
+        });
+      }
+    };
+}])
+.controller('modalpacientesDeleteController',
+  ['$scope', '$uibModalInstance', 'item',
+  function ($scope, $uibModalInstance, item) {
+    $scope.item = item;
+    $scope.ok = function () {
+      $uibModalInstance.close($scope.item);
+    };
+    $scope.cancel = function () {
+       $uibModalInstance.dismiss('cancel');
+     };
+}])
+.config(function ($routeProvider) {
+  $routeProvider
+    .when('/pacientes', {
+      templateUrl: '/templates/pacientes/index.html',
+      controller: 'pacientesController',
+      access: {
+        restricted: false,
+       rol: 2
       }
     });
  })
@@ -1487,123 +1667,124 @@
         
 
 }])
-.controller('pacientesController',
-  ['$rootScope','$scope', '$location', 'pacientesModel','$uibModal',
-  function ($rootScope,$scope, $location, pacientesModel,$uibModal) {
-    $scope.titleController = 'MEAN-CASE SUPER HEROIC';
-    $rootScope.titleWeb = 'pacientes';
-    $scope.preloader = true;
-    $scope.msjAlert = false;
-    pacientesModel.getAll().then(function(data) {
-      $scope.pacientesList = data;
-      $scope.pacientesTemp = angular.copy($scope.pacientesList);
-      $scope.preloader = false;
-    });
-    /*  Modal */
-     $scope.open = function (item) {
-       var modalInstance = $uibModal.open({
-        animation: true,
-        templateUrl: 'templates/pacientes/modalCreate.html',
-        controller: 'modalpacientesCreateController',
-        size: 'lg',
-        resolve: {
-         item: function () {
-          return item;
-         }
-        }
-      });
-      modalInstance.result.then(function(data) {
-        if(!item) {
-           $scope.pacientesList.push(data);
-           $scope.pacientesTemp = angular.copy($scope.pacientesList);
-        }
-      },function(result){
-      $scope.pacientesList = $scope.pacientesTemp;
-      $scope.pacientesTemp = angular.copy($scope.pacientesList);
-    });
-  };
-  /*  Delete  */
-  $scope.openDelete = function (item) {
-    var modalInstance = $uibModal.open({
-      animation: true,
-      templateUrl: 'templates/pacientes/modalDelete.html',
-      controller: 'modalpacientesDeleteController',
-      size: 'lg',
-      resolve: {
-        item: function () {
-           return item;
-        }
-      }
-    });
-    modalInstance.result.then(function(data) {
-      var idx = $scope.pacientesList.indexOf(data);
-      $scope.pacientesList.splice(idx, 1);
-      pacientesModel
-        .destroy(data._id)
-        .then(function(result) {
-          $scope.msjAlert = true;
-          $scope.alert = 'success';
-          $scope.message = result.message;
-        })
-        .catch(function(err) {
-          $scope.msjAlert = true;
-          $scope.alert = 'danger';
-          $scope.message = 'Error '+err;
-        })
-      });
+.controller('exportProjectController',
+    ['$rootScope','$scope','$uibModal','exportProjectService','$ngBootbox',
+        function ($rootScope,$scope,$uibModal,exportProjectService,$ngBootbox) {
+        $scope.preloader 	    = true;
+        $scope.projectName    = $rootScope.project.name;
+        $scope.authorName  	  = $rootScope.project.authorName;
+        $scope.email 		      = $rootScope.project.email;
+        $scope.license 		    = 'MIT';
+        $scope.template 	    = $rootScope.project.template;
+        $scope.models         = $rootScope.project.schemas;
+        $scope.models         = String($scope.models);
+
+        exportProjectService.allLayouts().then(function (data) {
+	        $scope.layouts = data;
+	    });
+
+	    $scope.setTemplate = function(arg){
+	    	 $scope.template = arg;
+	    }
+
+      $scope.validate = function () {
+          if(!$scope.projectName || !$scope.authorName || !$scope.email  || !$scope.template || !$scope.license || !$scope.models){
+              $scope.submitBtn = true;
+          }else{
+              $scope.submitBtn = false;
+          }
+      };
+      $scope.validate();
+     /*  Create    */
+     $scope.open = function () {
+        var modalInstance = $uibModal.open({
+          animation: true,
+          templateUrl: '/javascripts/setup/exportProject/templates/preview.html',
+          controller: 'previewExportProjectController',
+          size: 'lg',
+          resolve: {
+            layout: function () {
+              return $scope.template;
+            }
+          }
+        });
     };
-}])
-.controller('modalpacientesCreateController',
-  ['$scope', '$uibModalInstance', 'item','pacientesModel','$filter',
-  function ($scope, $uibModalInstance, item,pacientesModel,$filter) {
-    $scope.item = item;
-    $scope.saving = false;
-    if(item){
-       //add optional code
+    
+    /*  Create    */
+    var exportProject = function(){
+      exportProjectService.setValues($scope.projectName,$scope.authorName,$scope.email,$scope.license,$scope.models,$scope.template).then(function(r){
+          if(r.valid){
+            $scope.preloader  = false;
+            $ngBootbox.alert('The project was successful generecion please constructs the project from the console. * gulp exportProject!');
+          }else{
+            $scope.preloader  = true;
+            $ngBootbox.alert('Ups Something went wrong Please check your modules and rebuilds!');
+          }
+      });
     }
-    $scope.save = function () {
-      if(!item){
-        $scope.saving = true;
-        item = {nombres: $scope.item.nombres,edad: $scope.item.edad};
-        var pacientes = pacientesModel.create();
-        pacientes.nombres = $scope.item.nombres;
-        pacientes.edad = $scope.item.edad;
-        pacientes.save().then(function(r){
-          $scope.saving = false;
-          $uibModalInstance.close(r);
-        });
-      }else{
-        pacientesModel.findById($scope.item._id);
-        pacientesModel.nombres = $scope.item.nombres;
-        pacientesModel.edad = $scope.item.edad;
-        pacientesModel.save().then(function(r){
-          $scope.saving = false;
-          $uibModalInstance.close(r);
-        });
-      }
-    };
+
+    $scope.submit = function(){
+      $scope.projectName = $scope.projectName.replace(/\s+/g, '-');
+      $ngBootbox.alert('Please Stop the service gulp watch-front and continue!').then(function() {
+        exportProject();
+      });
+    }
+
 }])
-.controller('modalpacientesDeleteController',
-  ['$scope', '$uibModalInstance', 'item',
-  function ($scope, $uibModalInstance, item) {
-    $scope.item = item;
-    $scope.ok = function () {
-      $uibModalInstance.close($scope.item);
-    };
-    $scope.cancel = function () {
-       $uibModalInstance.dismiss('cancel');
-     };
+.factory('exportProjectService',
+    ['$q', '$http',
+        function ($q, $http) {
+            return ({
+                allLayouts: allLayouts,
+                setValues : setValues
+            });
+
+            function allLayouts() {
+                var defered = $q.defer();
+                var promise = defered.promise;
+
+                $http.get('/setup/layouts')
+                    .success(function (data) {
+                        defered.resolve(data);
+                    })
+                    .error(function (err) {
+                        defered.reject(err)
+                    });
+
+                return promise;
+            }
+
+            function setValues(projectName,authorName,email,license,models,template) {
+              var deferred = $q.defer();
+              $http.post('/exportProject/projectProduction', {projectName: projectName,authorName: authorName, email: email,license:license,models:models,template:template})
+                .success(function (data, status) {
+                    deferred.resolve(data);
+                })
+                .error(function (data) {
+                  deferred.reject();
+                });
+                return deferred.promise;
+            }
+
+}])
+.controller('previewExportProjectController',
+  ['$scope', '$uibModalInstance', 'layout',
+  function ($scope, $uibModalInstance, layout) {
+  
+    $scope.layout = layout;
+
+
 }])
 .config(function ($routeProvider) {
-  $routeProvider
-    .when('/pacientes', {
-      templateUrl: '/templates/pacientes/index.html',
-      controller: 'pacientesController',
-      access: {
-        restricted: false,
-       rol: 2
-      }
-    });
+ 	$routeProvider
+ 		.when('/exportProject', {
+ 		    templateUrl: '/javascripts/setup/exportProject/templates/exportProject.html',
+ 			controller: 'exportProjectController',
+ 			access: {
+ 				 restricted: false,
+ 				 rol: 5
+ 			}
+ 		});
  })
 .controller('crudController',
     ['$scope', 'crudService',
@@ -1843,125 +2024,6 @@ require: 'ngModel',
  			}
  		});
  })
-.controller('exportProjectController',
-    ['$rootScope','$scope','$uibModal','exportProjectService','$ngBootbox',
-        function ($rootScope,$scope,$uibModal,exportProjectService,$ngBootbox) {
-        $scope.preloader 	    = true;
-        $scope.projectName    = $rootScope.project.name;
-        $scope.authorName  	  = $rootScope.project.authorName;
-        $scope.email 		      = $rootScope.project.email;
-        $scope.license 		    = 'MIT';
-        $scope.template 	    = $rootScope.project.template;
-        $scope.models         = $rootScope.project.schemas;
-        $scope.models         = String($scope.models);
-
-        exportProjectService.allLayouts().then(function (data) {
-	        $scope.layouts = data;
-	    });
-
-	    $scope.setTemplate = function(arg){
-	    	 $scope.template = arg;
-	    }
-
-      $scope.validate = function () {
-          if(!$scope.projectName || !$scope.authorName || !$scope.email  || !$scope.template || !$scope.license || !$scope.models){
-              $scope.submitBtn = true;
-          }else{
-              $scope.submitBtn = false;
-          }
-      };
-      $scope.validate();
-     /*  Create    */
-     $scope.open = function () {
-        var modalInstance = $uibModal.open({
-          animation: true,
-          templateUrl: '/javascripts/setup/exportProject/templates/preview.html',
-          controller: 'previewExportProjectController',
-          size: 'lg',
-          resolve: {
-            layout: function () {
-              return $scope.template;
-            }
-          }
-        });
-    };
-    
-    /*  Create    */
-    var exportProject = function(){
-      exportProjectService.setValues($scope.projectName,$scope.authorName,$scope.email,$scope.license,$scope.models,$scope.template).then(function(r){
-          if(r.valid){
-            $scope.preloader  = false;
-            $ngBootbox.alert('The project was successful generecion please constructs the project from the console. * gulp exportProject!');
-          }else{
-            $scope.preloader  = true;
-            $ngBootbox.alert('Ups Something went wrong Please check your modules and rebuilds!');
-          }
-      });
-    }
-
-    $scope.submit = function(){
-      $scope.projectName = $scope.projectName.replace(/\s+/g, '-');
-      $ngBootbox.alert('Please Stop the service gulp watch-front and continue!').then(function() {
-        exportProject();
-      });
-    }
-
-}])
-.factory('exportProjectService',
-    ['$q', '$http',
-        function ($q, $http) {
-            return ({
-                allLayouts: allLayouts,
-                setValues : setValues
-            });
-
-            function allLayouts() {
-                var defered = $q.defer();
-                var promise = defered.promise;
-
-                $http.get('/setup/layouts')
-                    .success(function (data) {
-                        defered.resolve(data);
-                    })
-                    .error(function (err) {
-                        defered.reject(err)
-                    });
-
-                return promise;
-            }
-
-            function setValues(projectName,authorName,email,license,models,template) {
-              var deferred = $q.defer();
-              $http.post('/exportProject/projectProduction', {projectName: projectName,authorName: authorName, email: email,license:license,models:models,template:template})
-                .success(function (data, status) {
-                    deferred.resolve(data);
-                })
-                .error(function (data) {
-                  deferred.reject();
-                });
-                return deferred.promise;
-            }
-
-}])
-.controller('previewExportProjectController',
-  ['$scope', '$uibModalInstance', 'layout',
-  function ($scope, $uibModalInstance, layout) {
-  
-    $scope.layout = layout;
-
-
-}])
-.config(function ($routeProvider) {
- 	$routeProvider
- 		.when('/exportProject', {
- 		    templateUrl: '/javascripts/setup/exportProject/templates/exportProject.html',
- 			controller: 'exportProjectController',
- 			access: {
- 				 restricted: false,
- 				 rol: 5
- 			}
- 		});
- })
 .controller('listSchemasController',
     ['$scope', 'schemaModel','$uibModal',
         function ($scope, schemaModel,$uibModal) {
@@ -1983,69 +2045,6 @@ require: 'ngModel',
  			}
  		});
  })
-.controller('selectTemplatesController', ['$scope', 'templateFactory','$ngBootbox','$location','$route', function ($scope, templateFactory,$location,$route) {
-    templateFactory.allLayouts().then(function (data) {
-        $scope.layouts = data;
-    });
-    $scope.selectTemplate = function (layout, index) {
-        $scope.template = layout;
-        $scope.index = index;
-        templateFactory.setValue(layout.label).then(function(result){
-            if(result == true){
-                location.reload();
-            }
-        });
-    };
-}])
-    .factory('templateFactory', ['$q', '$http', function ($q, $http) {
-        return ({
-            allLayouts: allLayouts,
-            setValue: setValue
-        });
-
-        function allLayouts() {
-            var defered = $q.defer();
-            var promise = defered.promise;
-
-            $http.get('/setup/layouts')
-                .success(function (data) {
-                    defered.resolve(data);
-                })
-                .error(function (err) {
-                    defered.reject(err)
-                });
-
-            return promise;
-        }
-
-        function setValue(template) {
-            var deferred = $q.defer();
-            $http.put('/config/updateTemplate', {
-                template: template
-            })
-                .success(function (data, status) {
-                    deferred.resolve(data);
-                })
-                .error(function (data) {
-                    deferred.reject();
-                });
-            return deferred.promise;
-
-        }
-    }])
-.config(function ($routeProvider) {
- 	$routeProvider
- 		.when('/selectTemplates', {
- 			templateUrl: '/javascripts/setup/selectTemplates/templates/selectTemplates.html',
- 			controller: 'selectTemplatesController',
- 			access: {
- 				restricted: false,
- 				rol: 5
- 			}
- 		});
- })
-
-
 .controller('modalRelationshipDeleteController',
   ['$scope', '$uibModalInstance', 'item',
   function ($scope, $uibModalInstance, item) {
@@ -2445,6 +2444,69 @@ require: 'ngModel',
  			}
  		});
  })
+.controller('selectTemplatesController', ['$scope', 'templateFactory','$ngBootbox','$location','$route', function ($scope, templateFactory,$location,$route) {
+    templateFactory.allLayouts().then(function (data) {
+        $scope.layouts = data;
+    });
+    $scope.selectTemplate = function (layout, index) {
+        $scope.template = layout;
+        $scope.index = index;
+        templateFactory.setValue(layout.label).then(function(result){
+            if(result == true){
+                location.reload();
+            }
+        });
+    };
+}])
+    .factory('templateFactory', ['$q', '$http', function ($q, $http) {
+        return ({
+            allLayouts: allLayouts,
+            setValue: setValue
+        });
+
+        function allLayouts() {
+            var defered = $q.defer();
+            var promise = defered.promise;
+
+            $http.get('/setup/layouts')
+                .success(function (data) {
+                    defered.resolve(data);
+                })
+                .error(function (err) {
+                    defered.reject(err)
+                });
+
+            return promise;
+        }
+
+        function setValue(template) {
+            var deferred = $q.defer();
+            $http.put('/config/updateTemplate', {
+                template: template
+            })
+                .success(function (data, status) {
+                    deferred.resolve(data);
+                })
+                .error(function (data) {
+                    deferred.reject();
+                });
+            return deferred.promise;
+
+        }
+    }])
+.config(function ($routeProvider) {
+ 	$routeProvider
+ 		.when('/selectTemplates', {
+ 			templateUrl: '/javascripts/setup/selectTemplates/templates/selectTemplates.html',
+ 			controller: 'selectTemplatesController',
+ 			access: {
+ 				restricted: false,
+ 				rol: 5
+ 			}
+ 		});
+ })
+
+
 .controller('uploadTemplatesController',
     ['$scope','uploadTemplatesService',
         function ($scope,uploadTemplatesService) {

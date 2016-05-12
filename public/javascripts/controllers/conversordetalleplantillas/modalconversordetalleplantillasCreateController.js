@@ -1,18 +1,19 @@
 .controller('modalconversordetalleplantillasCreateController',
-  ['$scope', '$uibModalInstance', 'item','conversordetalleplantillasModel','$filter',
-  function ($scope, $uibModalInstance, item,conversordetalleplantillasModel,$filter) {
+  ['$scope', '$uibModalInstance', 'item','conversordetalleplantillasModel','$filter','IdFormato',
+  function ($scope, $uibModalInstance, item,conversordetalleplantillasModel,$filter,IdFormato) {
     $scope.item = item;
     $scope.saving = false;
     if(item){
        //add optional code
     }
+    console.log(IdFormato);
     $scope.save = function () {
       if(!item){
         $scope.saving = true;
-        item = {IdPlantilla: $scope.item.IdPlantilla,IdFormato: $scope.item.IdFormato,Plantilla: $scope.item.Plantilla,Tipo: $scope.item.Tipo,Orden: $scope.item.Orden,Nivel: $scope.item.Nivel,Origen: $scope.item.Origen};
+        item = {IdPlantilla: $scope.item.IdPlantilla,IdFormato: IdFormato,Plantilla: $scope.item.Plantilla,Tipo: $scope.item.Tipo,Orden: $scope.item.Orden,Nivel: $scope.item.Nivel,Origen: $scope.item.Origen};
         var conversordetalleplantillas = conversordetalleplantillasModel.create();
         conversordetalleplantillas.IdPlantilla = $scope.item.IdPlantilla;
-        conversordetalleplantillas.IdFormato = $scope.item.IdFormato;
+        conversordetalleplantillas.IdFormato = IdFormato;
         conversordetalleplantillas.Plantilla = $scope.item.Plantilla;
         conversordetalleplantillas.Tipo = $scope.item.Tipo;
         conversordetalleplantillas.Orden = $scope.item.Orden;

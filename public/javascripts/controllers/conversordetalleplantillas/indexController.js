@@ -22,9 +22,16 @@
             });
 
       }
+
+     $scope.regresarFormato = function(){
+      $location.url('/conversorcabeceras/'+$routeParams.idFormato);
+    }
       
+    $scope.NombreFormato = $routeParams.NombreFormato;
     /*  Modal */
      $scope.open = function (item) {
+      if($routeParams.idFormato)
+        var IdFormato = $routeParams.idFormato;
        var modalInstance = $uibModal.open({
         animation: true,
         templateUrl: 'templates/conversordetalleplantillas/modalCreate.html',
@@ -33,6 +40,9 @@
         resolve: {
          item: function () {
           return item;
+         },
+         IdFormato: function(){
+          return IdFormato;
          }
         }
       });

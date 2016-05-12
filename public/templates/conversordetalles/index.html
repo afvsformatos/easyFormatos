@@ -1,6 +1,6 @@
 <div class="container-fluid">
    <div class="row div-padding">
-     <button ng-click="open()" class="btn btn-default "><i class="fa fa-plus"></i> Create New</button>
+     <button ng-click="open()" class="btn btn-default "><i class="fa fa-plus"></i> Nuevo</button>
      <div class="alert alert-{{alert}}" ng-show="msjAlert">{{message}}</div>
    </div>
    <a ng-click="regresarFormato()" href=""><h2>{{NombreFormato}}</h2></a>
@@ -9,6 +9,13 @@
      <div class="input-group">
        <span class="input-group-addon" id="basic-addon1"><i class="fa fa-search"></i></span>
        <input ng-model="searchText" type="text" class="form-control" placeholder="Search" aria-describedby="basic-addon1">
+     </div>
+     <div class="input-group">
+       <span class="input-group-addon" id="basic-addon1"><i class="fa fa-th"></i></span>
+        <select 
+            ng-model="valorPaginacion" 
+            ng-options="option.name for option in options" ng-change="cambioPaginacion(valorPaginacion)" class="form-control" >
+        </select>
      </div>
      <table ng-hide="preloader" class="table table-bordered table-hover table-striped" at-table at-paginated at-list="conversordetallesList | filter:searchText" at-config="configTable">
        <thead></thead>

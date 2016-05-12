@@ -95,11 +95,11 @@
  			maxPages = 3;
  		} else if (windowWidth <= 992) {
  			//Tablet
- 			itemsPerPage = 10;
+ 			itemsPerPage = 5;
  			maxPages = 5;
  		} else {
  			//PC
- 			itemsPerPage = 20;
+ 			itemsPerPage = 5;
  			maxPages = 8;
  		}
  		$rootScope.configTable = {

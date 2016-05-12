@@ -1,8 +1,9 @@
 <div class="container-fluid">
    <div class="row div-padding">
-     <button ng-click="open()" class="btn btn-default "><i class="fa fa-plus"></i> Create New</button>
+     <button ng-click="open()" class="btn btn-default "><i class="fa fa-plus"></i> Nuevo</button>
      <div class="alert alert-{{alert}}" ng-show="msjAlert">{{message}}</div>
    </div>
+   <a ng-click="regresarFormato()" href=""><h2>{{NombreFormato}}</h2></a>
    <div class="row">
      <div class="input-group" ng-show="conversordetalleplantillasList.length > 0">
        <span class="input-group-addon" id="basic-addon1"><i class="fa fa-search"></i></span>

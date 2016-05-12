@@ -13,6 +13,13 @@
        <span class="input-group-addon" id="basic-addon1"><i class="fa fa-search"></i></span>
        <input ng-model="searchText.NombreFormato" type="text" class="form-control" placeholder="Search" aria-describedby="basic-addon1">
      </div>
+     <div class="input-group">
+       <span class="input-group-addon" id="basic-addon1"><i class="fa fa-th"></i></span>
+        <select 
+            ng-model="valorPaginacion" 
+            ng-options="option.name for option in options" ng-change="cambioPaginacion(valorPaginacion)" class="form-control" >
+        </select>
+     </div>
      <div id="scrollTabla">
        <table id="scrollTabla" ng-hide="preloader" class="table table-bordered table-hover table-striped" at-table at-paginated at-list="conversorcabecerasList | filter:searchText" at-config="configTable">
          <thead></thead>

@@ -1,6 +1,6 @@
 .config(function ($routeProvider) {
   $routeProvider
-    .when('/conversordetalleplantillas/:idFormato', {
+    .when('/conversordetalleplantillas/:idFormato/:NombreFormato', {
       templateUrl: '/templates/conversordetalleplantillas/index.html',
       controller: 'conversordetalleplantillasController',
       access: {

@@ -1,18 +1,19 @@
 .controller('modalconversordetallesCreateController',
-  ['$scope', '$uibModalInstance', 'item','conversordetallesModel','$filter',
-  function ($scope, $uibModalInstance, item,conversordetallesModel,$filter) {
+  ['$scope', '$uibModalInstance', 'item','conversordetallesModel','$filter','IdFormato',
+  function ($scope, $uibModalInstance, item,conversordetallesModel,$filter,IdFormato) {
     $scope.item = item;
     $scope.saving = false;
     if(item){
        //add optional code
     }
+    console.log(IdFormato);
     $scope.save = function () {
       if(!item){
         $scope.saving = true;
-        item = {IdDetalle: $scope.item.IdDetalle,IdFormato: $scope.item.IdFormato,TipoRegistro: $scope.item.TipoRegistro,NumeroCampo: $scope.item.NumeroCampo,PosicionInicio: $scope.item.PosicionInicio,LongitudCampo: $scope.item.LongitudCampo,TipoCampo: $scope.item.TipoCampo,SeparadorDecimales: $scope.item.SeparadorDecimales,NumeroDecimales: $scope.item.NumeroDecimales,DescripcionCampo: $scope.item.DescripcionCampo,IdCampoEquivalente: $scope.item.IdCampoEquivalente,CampoEquivalente: $scope.item.CampoEquivalente,Obligatorio: $scope.item.Obligatorio,Validaciones: $scope.item.Validaciones,Tipo_Registro: $scope.item.Tipo_Registro,Default_Value: $scope.item.Default_Value,observacion: $scope.item.observacion,Rutina_Validacion: $scope.item.Rutina_Validacion,Rutina_Transformacion: $scope.item.Rutina_Transformacion,CaracterConcatenacion: $scope.item.CaracterConcatenacion,OrdenCampo: $scope.item.OrdenCampo,Rutina_Conversion: $scope.item.Rutina_Conversion,ValidaEnMasivas: $scope.item.ValidaEnMasivas};
+        item = {IdDetalle: $scope.item.IdDetalle,IdFormato:IdFormato,TipoRegistro: $scope.item.TipoRegistro,NumeroCampo: $scope.item.NumeroCampo,PosicionInicio: $scope.item.PosicionInicio,LongitudCampo: $scope.item.LongitudCampo,TipoCampo: $scope.item.TipoCampo,SeparadorDecimales: $scope.item.SeparadorDecimales,NumeroDecimales: $scope.item.NumeroDecimales,DescripcionCampo: $scope.item.DescripcionCampo,IdCampoEquivalente: $scope.item.IdCampoEquivalente,CampoEquivalente: $scope.item.CampoEquivalente,Obligatorio: $scope.item.Obligatorio,Validaciones: $scope.item.Validaciones,Tipo_Registro: $scope.item.Tipo_Registro,Default_Value: $scope.item.Default_Value,observacion: $scope.item.observacion,Rutina_Validacion: $scope.item.Rutina_Validacion,Rutina_Transformacion: $scope.item.Rutina_Transformacion,CaracterConcatenacion: $scope.item.CaracterConcatenacion,OrdenCampo: $scope.item.OrdenCampo,Rutina_Conversion: $scope.item.Rutina_Conversion,ValidaEnMasivas: $scope.item.ValidaEnMasivas};
         var conversordetalles = conversordetallesModel.create();
         conversordetalles.IdDetalle = $scope.item.IdDetalle;
-        conversordetalles.IdFormato = $scope.item.IdFormato;
+        conversordetalles.IdFormato = IdFormato;
         conversordetalles.TipoRegistro = $scope.item.TipoRegistro;
         conversordetalles.NumeroCampo = $scope.item.NumeroCampo;
         conversordetalles.PosicionInicio = $scope.item.PosicionInicio;

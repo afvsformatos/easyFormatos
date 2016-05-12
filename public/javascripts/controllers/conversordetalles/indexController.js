@@ -23,9 +23,34 @@
             $scope.preloader = false;
     });
     $scope.NombreFormato = $routeParams.NombreFormato;
-    console.log($routeParams.idFormato);
+  
+     $scope.options = [
+        {
+          name: '5',
+          value: '5'
+        }, 
+        {
+          name: '10',
+          value: '10'
+        }, 
+        {
+          name: '15',
+          value: '15'
+        }, 
+        {
+          name: '20',
+          value: '20'
+        }
+    ];
+
+    $scope.valorPaginacion = $scope.options[0];
+    $scope.cambioPaginacion = function(dato){
+      $rootScope.configTable.itemsPerPage =  dato.value;
+    }
     /*  Modal */
      $scope.open = function (item) {
+      if($routeParams.idFormato)
+        var IdFormato = $routeParams.idFormato;
        var modalInstance = $uibModal.open({
         animation: true,
         templateUrl: 'templates/conversordetalles/modalCreate.html',
@@ -34,7 +59,11 @@
         resolve: {
          item: function () {
           return item;
+         },
+         IdFormato: function(){
+          return IdFormato;
          }
+
         }
       });
       modalInstance.result.then(function(data) {
