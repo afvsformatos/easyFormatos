@@ -1,0 +1,40 @@
+.controller('modalconversordetalleplantillasCreateController',
+  ['$scope', '$uibModalInstance', 'item','conversordetalleplantillasModel','$filter',
+  function ($scope, $uibModalInstance, item,conversordetalleplantillasModel,$filter) {
+    $scope.item = item;
+    $scope.saving = false;
+    if(item){
+       //add optional code
+    }
+    $scope.save = function () {
+      if(!item){
+        $scope.saving = true;
+        item = {idplantilla: $scope.item.idplantilla,idformato: $scope.item.idformato,plantilla: $scope.item.plantilla,tipo: $scope.item.tipo,orden: $scope.item.orden,nivel: $scope.item.nivel,origen: $scope.item.origen};
+        var conversordetalleplantillas = conversordetalleplantillasModel.create();
+        conversordetalleplantillas.idplantilla = $scope.item.idplantilla;
+        conversordetalleplantillas.idformato = $scope.item.idformato;
+        conversordetalleplantillas.plantilla = $scope.item.plantilla;
+        conversordetalleplantillas.tipo = $scope.item.tipo;
+        conversordetalleplantillas.orden = $scope.item.orden;
+        conversordetalleplantillas.nivel = $scope.item.nivel;
+        conversordetalleplantillas.origen = $scope.item.origen;
+        conversordetalleplantillas.save().then(function(r){
+          $scope.saving = false;
+          $uibModalInstance.close(r);
+        });
+      }else{
+        conversordetalleplantillasModel.findById($scope.item._id);
+        conversordetalleplantillasModel.idplantilla = $scope.item.idplantilla;
+        conversordetalleplantillasModel.idformato = $scope.item.idformato;
+        conversordetalleplantillasModel.plantilla = $scope.item.plantilla;
+        conversordetalleplantillasModel.tipo = $scope.item.tipo;
+        conversordetalleplantillasModel.orden = $scope.item.orden;
+        conversordetalleplantillasModel.nivel = $scope.item.nivel;
+        conversordetalleplantillasModel.origen = $scope.item.origen;
+        conversordetalleplantillasModel.save().then(function(r){
+          $scope.saving = false;
+          $uibModalInstance.close(r);
+        });
+      }
+    };
+}])

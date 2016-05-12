@@ -597,6 +597,12 @@
   model.constructorModel = ["IdFormato","NombreFormato","DescripcionFormato","Cabecera","Pie","Separador","FormatoConversion","Formato_destino","Tipo_Proceso","NombreObjeto","estado","tipo_archivo_salida","ORIENTACION","RutinaPrevalidacion","Unificador","Check_Totales_Por","ValidaIdentificacion","RutinaPreconversion","InfiereTipoIdCliente","MuestraCabeceraColumna","TipoConversion"];
   return model;
 })
+.service('conversordetalleplantillasModel', function ($optimumModel) {
+  var model = new $optimumModel();
+  model.url = '/api/conversordetalleplantillas';
+  model.constructorModel = ["IdPlantilla","IdFormato","Plantilla","Tipo","Orden","Nivel","Origen"];
+  return model;
+})
 .service('conversordetallesModel', function ($optimumModel) {
   var model = new $optimumModel();
   model.url = '/api/conversordetalles';
@@ -990,6 +996,134 @@
     .when('/conversorcabeceras', {
       templateUrl: '/templates/conversorcabeceras/index.html',
       controller: 'conversorcabecerasController',
+      access: {
+        restricted: false,
+       rol: 1
+      }
+    });
+ })
+.controller('conversordetalleplantillasController',
+  ['$rootScope','$scope', '$location', 'conversordetalleplantillasModel','$uibModal',
+  function ($rootScope,$scope, $location, conversordetalleplantillasModel,$uibModal) {
+    $scope.titleController = 'MEAN-CASE SUPER HEROIC';
+    $rootScope.titleWeb = 'conversordetalleplantillas';
+    $scope.preloader = true;
+    $scope.msjAlert = false;
+    conversordetalleplantillasModel.getAll().then(function(data) {
+      $scope.conversordetalleplantillasList = data;
+      $scope.conversordetalleplantillasTemp = angular.copy($scope.conversordetalleplantillasList);
+      $scope.preloader = false;
+    });
+    /*  Modal */
+     $scope.open = function (item) {
+       var modalInstance = $uibModal.open({
+        animation: true,
+        templateUrl: 'templates/conversordetalleplantillas/modalCreate.html',
+        controller: 'modalconversordetalleplantillasCreateController',
+        size: 'lg',
+        resolve: {
+         item: function () {
+          return item;
+         }
+        }
+      });
+      modalInstance.result.then(function(data) {
+        if(!item) {
+           $scope.conversordetalleplantillasList.push(data);
+           $scope.conversordetalleplantillasTemp = angular.copy($scope.conversordetalleplantillasList);
+        }
+      },function(result){
+      $scope.conversordetalleplantillasList = $scope.conversordetalleplantillasTemp;
+      $scope.conversordetalleplantillasTemp = angular.copy($scope.conversordetalleplantillasList);
+    });
+  };
+  /*  Delete  */
+  $scope.openDelete = function (item) {
+    var modalInstance = $uibModal.open({
+      animation: true,
+      templateUrl: 'templates/conversordetalleplantillas/modalDelete.html',
+      controller: 'modalconversordetalleplantillasDeleteController',
+      size: 'lg',
+      resolve: {
+        item: function () {
+           return item;
+        }
+      }
+    });
+    modalInstance.result.then(function(data) {
+      var idx = $scope.conversordetalleplantillasList.indexOf(data);
+      $scope.conversordetalleplantillasList.splice(idx, 1);
+      conversordetalleplantillasModel
+        .destroy(data._id)
+        .then(function(result) {
+          $scope.msjAlert = true;
+          $scope.alert = 'success';
+          $scope.message = result.message;
+        })
+        .catch(function(err) {
+          $scope.msjAlert = true;
+          $scope.alert = 'danger';
+          $scope.message = 'Error '+err;
+        })
+      });
+    };
+}])
+.controller('modalconversordetalleplantillasCreateController',
+  ['$scope', '$uibModalInstance', 'item','conversordetalleplantillasModel','$filter',
+  function ($scope, $uibModalInstance, item,conversordetalleplantillasModel,$filter) {
+    $scope.item = item;
+    $scope.saving = false;
+    if(item){
+       //add optional code
+    }
+    $scope.save = function () {
+      if(!item){
+        $scope.saving = true;
+        item = {IdPlantilla: $scope.item.IdPlantilla,IdFormato: $scope.item.IdFormato,Plantilla: $scope.item.Plantilla,Tipo: $scope.item.Tipo,Orden: $scope.item.Orden,Nivel: $scope.item.Nivel,Origen: $scope.item.Origen};
+        var conversordetalleplantillas = conversordetalleplantillasModel.create();
+        conversordetalleplantillas.IdPlantilla = $scope.item.IdPlantilla;
+        conversordetalleplantillas.IdFormato = $scope.item.IdFormato;
+        conversordetalleplantillas.Plantilla = $scope.item.Plantilla;
+        conversordetalleplantillas.Tipo = $scope.item.Tipo;
+        conversordetalleplantillas.Orden = $scope.item.Orden;
+        conversordetalleplantillas.Nivel = $scope.item.Nivel;
+        conversordetalleplantillas.Origen = $scope.item.Origen;
+        conversordetalleplantillas.save().then(function(r){
+          $scope.saving = false;
+          $uibModalInstance.close(r);
+        });
+      }else{
+        conversordetalleplantillasModel.findById($scope.item._id);
+        conversordetalleplantillasModel.IdPlantilla = $scope.item.IdPlantilla;
+        conversordetalleplantillasModel.IdFormato = $scope.item.IdFormato;
+        conversordetalleplantillasModel.Plantilla = $scope.item.Plantilla;
+        conversordetalleplantillasModel.Tipo = $scope.item.Tipo;
+        conversordetalleplantillasModel.Orden = $scope.item.Orden;
+        conversordetalleplantillasModel.Nivel = $scope.item.Nivel;
+        conversordetalleplantillasModel.Origen = $scope.item.Origen;
+        conversordetalleplantillasModel.save().then(function(r){
+          $scope.saving = false;
+          $uibModalInstance.close(r);
+        });
+      }
+    };
+}])
+.controller('modalconversordetalleplantillasDeleteController',
+  ['$scope', '$uibModalInstance', 'item',
+  function ($scope, $uibModalInstance, item) {
+    $scope.item = item;
+    $scope.ok = function () {
+      $uibModalInstance.close($scope.item);
+    };
+    $scope.cancel = function () {
+       $uibModalInstance.dismiss('cancel');
+     };
+}])
+.config(function ($routeProvider) {
+  $routeProvider
+    .when('/conversordetalleplantillas', {
+      templateUrl: '/templates/conversordetalleplantillas/index.html',
+      controller: 'conversordetalleplantillasController',
       access: {
         restricted: false,
        rol: 1
