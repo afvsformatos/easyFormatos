@@ -14,6 +14,7 @@ var settings = require('./config/settings.js');
 var cors = require('cors');
 mongoose.connect(settings.db);
 //MODELS CRUD BY SCAFFOLDMEANHEROIC
+var model_conversordetalleplantillas = require('./models/conversordetalleplantillas.js');
 var model_conversordetalles = require('./models/conversordetalles.js');
 var model_conversorcabeceras = require('./models/conversorcabeceras.js');
 var model_controles = require('./models/controles.js');
@@ -27,6 +28,7 @@ var ModelRelationship = require('./config/setup/models/modelRelationship.js');
 var ModelSchema = require('./config/setup/models/modelSchema.js');
 var ModelGeneralConfig = require('./config/setup/models/modelGeneralConfig.js');
 //ROUTES CRUD BY SCAFFOLDMEANHEROIC
+var route_conversordetalleplantillas = require('./routes/conversordetalleplantillas');
 var route_conversordetalles = require('./routes/conversordetalles');
 var route_conversorcabeceras = require('./routes/conversorcabeceras');
 var route_controles = require('./routes/controles');
@@ -106,6 +108,7 @@ passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
 //API ROUTES CRUD BY SCAFFOLDMEANHEROIC
+app.use('/api',route_conversordetalleplantillas);
 app.use('/api',route_conversordetalles);
 app.use('/api',route_conversorcabeceras);
 app.use('/api',route_controles);

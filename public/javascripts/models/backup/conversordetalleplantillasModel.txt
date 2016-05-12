@@ -1,0 +1,6 @@
+.service('conversordetalleplantillasModel', function ($optimumModel) {
+  var model = new $optimumModel();
+  model.url = '/api/conversordetalleplantillas';
+  model.constructorModel = ["idplantilla","idformato","plantilla","tipo","orden","nivel","origen"];
+  return model;
+})

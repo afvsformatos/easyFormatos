@@ -1,0 +1,28 @@
+<div class="modal-header">
+   <div class="pull-right">
+     <button type="button" class="close pull-right" ng-click="$dismiss()">&times;</button>
+   </div>
+<div>
+   <h3 class="modal-title" ng-if="!item._id">Create</h3>
+   <h3 class="modal-title" ng-if="item._id">Edit</h3>
+</div>
+</div>
+<div>
+<form name="myForm" ng-submit="save()" method="POST">
+   <div class="modal-body">
+     <fieldset>
+       <div class="row" ><div class="form-group col-md-12"><label for="IdPlantilla" class="bold">IDPLANTILLA</label><input  autofocus required name="IdPlantilla" type="number" class="form-control"  ng-model="item.IdPlantilla" ></div></div>
+       <div class="row" ><div class="form-group col-md-12"><label for="IdFormato" class="bold">IDFORMATO</label><input  autofocus required name="IdFormato" type="number" class="form-control"  ng-model="item.IdFormato" ></div></div>
+       <div class="row" ><div class="form-group col-md-12"><label for="Plantilla" class="bold">PLANTILLA</label><input  autofocus required name="Plantilla" type="text" class="form-control"  ng-model="item.Plantilla" ></div></div>
+       <div class="row" ><div class="form-group col-md-12"><label for="Tipo" class="bold">TIPO</label><input  autofocus required name="Tipo" type="text" class="form-control"  ng-model="item.Tipo" ></div></div>
+       <div class="row" ><div class="form-group col-md-12"><label for="Orden" class="bold">ORDEN</label><input  autofocus required name="Orden" type="number" class="form-control"  ng-model="item.Orden" ></div></div>
+       <div class="row" ><div class="form-group col-md-12"><label for="Nivel" class="bold">NIVEL</label><input  autofocus required name="Nivel" type="text" class="form-control"  ng-model="item.Nivel" ></div></div>
+       <div class="row" ><div class="form-group col-md-12"><label for="Origen" class="bold">ORIGEN</label><input  autofocus required name="Origen" type="text" class="form-control"  ng-model="item.Origen" ></div></div>
+       
+     </fieldset>
+</div>
+<div class="modal-footer">
+   <button ng-disabled="myForm.$invalid || myForm.$pristine" class="btn btn-primary pull-right" type="submit" title="Save"><span ng-if="saving"><i class="fa fa-spinner fa fa-spin"></i>&nbsp;</span><span>Save</span></button>
+</div>
+</form>
+</div>
