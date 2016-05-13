@@ -10,6 +10,7 @@ var connectionDb = require('../config/connectionDb.js');
 router.get('/conversorcabeceras/:id', function (req, res) {
   conversorCabecera.findAll({ where: { IdFormato: req.params.id }}).then(function(cabecera) {
         res.json(cabecera);
+        meanCaseBase.auditSave(req,'Query one item','conversorcabeceras','Query one item');
   });
 })
 /* GET conversorcabeceras listing. */
@@ -19,17 +20,14 @@ router.get('/conversorcabeceras', function(req, res, next) {
          meanCaseBase.auditSave(req,'Query all Registers','conversorcabeceras','Query all Registers');
     });
 
-   /*conversorcabeceras.find(function(err, models){
-     if(err){return next(err)}
-     res.json(models)
-     meanCaseBase.auditSave(req,'Query all Registers','conversorcabeceras','Query all Registers');
-   })*/
 });
+
 /* Obtener detalles de conversor cabecera*/
 
 router.get('/conversorcabeceras/detalles/:id', function (req, res) {
   conversorDetalle.findAll({ where: { IdFormato: req.params.id } }).then(function(detalles) {
         res.json(detalles);
+        meanCaseBase.auditSave(req,'Query all Detalles','conversordetalles','Query all Detalles');
   });
 
 });
@@ -39,31 +37,6 @@ router.get('/conversorcabeceras/detalles/:id', function (req, res) {
 router.post('/conversorcabeceras', function(req, res, next){
    delete req.body.url;
    delete req.body.IdFormato;
-   /*req.body.IdFormato = 3187;
-   res.json(req.body);*/
-   /*var tramaPrueba = {
-                        "NombreFormato": "seco de chivo",
-                        "DescripcionFormato": "a",
-                        "Cabecera": 0,
-                        "Pie": 0,
-                        "Separador": "a",
-                        "FormatoConversion": 1,
-                        "Formato_destino": 0,
-                        "Tipo_Proceso": "a",
-                        "NombreObjeto": "a",
-                        "estado": "a",
-                        "tipo_archivo_salida": "a",
-                        "ORIENTACION": "a",
-                        "RutinaPrevalidacion": "a",
-                        "Unificador": "a",
-                        "Check_Totales_Por": 0,
-                        "ValidaIdentificacion": "1",
-                        "RutinaPreconversion": "a",
-                        "InfiereTipoIdCliente": 0,
-                        "MuestraCabeceraColumna": 0,
-                        "TipoConversion": "a",
-                        //"IdFormato": 457885545
-                    }*/
    conversorCabecera.create(req.body).then(function(data) {
       data.dataValues['message'] = "Registro Exitoso";
       res.json(data);
@@ -72,42 +45,43 @@ router.post('/conversorcabeceras', function(req, res, next){
 });
 /* PUT - Update conversorcabeceras. */
 router.put('/conversorcabeceras/:id', function(req, res){
-   conversorcabeceras.findById(req.params.id, function(err, data){
-     if(typeof req.body.id_formato  != "undefined"){data.id_formato = req.body.id_formato;}
-     if(typeof req.body.nombre_formato  != "undefined"){data.nombre_formato = req.body.nombre_formato;}
-     if(typeof req.body.descripcion_formato  != "undefined"){data.descripcion_formato = req.body.descripcion_formato;}
-     if(typeof req.body.cabecera  != "undefined"){data.cabecera = req.body.cabecera;}
-     if(typeof req.body.pie  != "undefined"){data.pie = req.body.pie;}
-     if(typeof req.body.separador  != "undefined"){data.separador = req.body.separador;}
-     if(typeof req.body.formato_conversion  != "undefined"){data.formato_conversion = req.body.formato_conversion;}
-     if(typeof req.body.formato_destino  != "undefined"){data.formato_destino = req.body.formato_destino;}
-     if(typeof req.body.tipo_proceso  != "undefined"){data.tipo_proceso = req.body.tipo_proceso;}
-     if(typeof req.body.nombre_objeto  != "undefined"){data.nombre_objeto = req.body.nombre_objeto;}
-     if(typeof req.body.estado  != "undefined"){data.estado = req.body.estado;}
-     if(typeof req.body.tipo_archivo_salida  != "undefined"){data.tipo_archivo_salida = req.body.tipo_archivo_salida;}
-     if(typeof req.body.orientacion  != "undefined"){data.orientacion = req.body.orientacion;}
-     if(typeof req.body.rutina_prevalidacion  != "undefined"){data.rutina_prevalidacion = req.body.rutina_prevalidacion;}
-     if(typeof req.body.unificador  != "undefined"){data.unificador = req.body.unificador;}
-     if(typeof req.body.check_totales_por  != "undefined"){data.check_totales_por = req.body.check_totales_por;}
-     if(typeof req.body.validaidentificacion  != "undefined"){data.validaidentificacion = req.body.validaidentificacion;}
-     if(typeof req.body.rutina_preconversion  != "undefined"){data.rutina_preconversion = req.body.rutina_preconversion;}
-     if(typeof req.body.infiere_tipo_id_cliente  != "undefined"){data.infiere_tipo_id_cliente = req.body.infiere_tipo_id_cliente;}
-     if(typeof req.body.muestra_cabecera_columna  != "undefined"){data.muestra_cabecera_columna = req.body.muestra_cabecera_columna;}
-     if(typeof req.body.tipo_conversion  != "undefined"){data.tipo_conversion = req.body.tipo_conversion;}
-     data.save(function(err){
-       if(err){res.send(err)}
-       res.json(data);
-       meanCaseBase.auditSave(req,'Update Register','conversorcabeceras',data);
-     })
-   })
+   var datosActualizar = {};
+   if(typeof req.body.NombreFormato  != "undefined"){datosActualizar.NombreFormato = req.body.NombreFormato;}
+   if(typeof req.body.DescripcionFormato  != "undefined"){datosActualizar.DescripcionFormato = req.body.DescripcionFormato;}
+   if(typeof req.body.Cabecera  != "undefined"){datosActualizar.Cabecera = req.body.Cabecera;}
+   if(typeof req.body.Pie  != "undefined"){datosActualizar.Pie = req.body.Pie;}
+   if(typeof req.body.Separador  != "undefined"){datosActualizar.Separador = req.body.Separador;}
+   if(typeof req.body.FormatoConversion  != "undefined"){datosActualizar.FormatoConversion = req.body.FormatoConversion;}
+   if(typeof req.body.Formato_destino  != "undefined"){datosActualizar.Formato_destino = req.body.Formato_destino;}
+   if(typeof req.body.Tipo_Proceso  != "undefined"){datosActualizar.Tipo_Proceso = req.body.Tipo_Proceso;}
+   if(typeof req.body.NombreObjeto  != "undefined"){datosActualizar.NombreObjeto = req.body.NombreObjeto;}
+   if(typeof req.body.estado  != "undefined"){datosActualizar.estado = req.body.estado;}
+   if(typeof req.body.tipo_archivo_salida  != "undefined"){datosActualizar.tipo_archivo_salida = req.body.tipo_archivo_salida;}
+   if(typeof req.body.ORIENTACION  != "undefined"){datosActualizar.ORIENTACION = req.body.ORIENTACION;}
+   if(typeof req.body.RutinaPrevalidacion  != "undefined"){datosActualizar.RutinaPrevalidacion = req.body.RutinaPrevalidacion;}
+   if(typeof req.body.Unificador  != "undefined"){datosActualizar.Unificador = req.body.Unificador;}
+   if(typeof req.body.Check_Totales_Por  != "undefined"){datosActualizar.Check_Totales_Por = req.body.Check_Totales_Por;}
+   if(typeof req.body.ValidaIdentificacion  != "undefined"){datosActualizar.ValidaIdentificacion = req.body.ValidaIdentificacion;}
+   if(typeof req.body.RutinaPreconversion  != "undefined"){datosActualizar.RutinaPreconversion = req.body.RutinaPreconversion;}
+   if(typeof req.body.InfiereTipoIdCliente  != "undefined"){datosActualizar.InfiereTipoIdCliente = req.body.InfiereTipoIdCliente;}
+   if(typeof req.body.MuestraCabeceraColumna  != "undefined"){datosActualizar.MuestraCabeceraColumna = req.body.MuestraCabeceraColumna;}
+   if(typeof req.body.TipoConversion  != "undefined"){datosActualizar.TipoConversion = req.body.TipoConversion;}
+
+  conversorCabecera.update(datosActualizar,
+      {
+        where: {IdFormato: req.params.id}
+      })
+      .then(function (result) { 
+          res.json(result);
+          meanCaseBase.auditSave(req,'Update Register','conversocabeceras',data);
+      }, function(rejectedPromiseError){
+          res.json(rejectedPromiseError);
+      });
+  
+   
 });
 /* DELETE - conversorcabeceras. */
 router.delete('/conversorcabeceras/:id', function(req, res){
-   /*conversorcabeceras.findByIdAndRemove(req.params.id, function(err){
-     if(err){res.send(err)}
-     res.json({message: 'conversorcabeceras delete successful!'});
-     meanCaseBase.auditSave(req,'Delete Register','conversorcabeceras','Id: '+req.params.id);
-   })*/
    conversorCabecera.destroy({
     where: {
       IdFormato: req.params.id

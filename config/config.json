@@ -19,5 +19,13 @@
     "database": "pruebas",
     "host": "10.0.1.34",
     "dialect": "mssql"
+  },
+  "bancoFomento": {
+    "username": "sa",
+    "password": "E@sysoft",
+    "database": "pruebas",
+    "host": "10.0.2.161",
+    "dialect": "mssql"
   }
+
 }
