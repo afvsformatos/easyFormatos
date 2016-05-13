@@ -3,6 +3,7 @@ var conversorCabecera = require('../../config/relationalModels/conversorCabecera
 var conversorDetalle = connectionDb.sequelize.define('Conversor_Detalle', {
   IdDetalle: {
     type: connectionDb.Sequelize.INTEGER,
+     autoIncrement: true,
     primaryKey: true
   },
   IdFormato: {

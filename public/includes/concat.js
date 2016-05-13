@@ -699,133 +699,6 @@
       }
     });
  })
-.controller('controlesController',
-  ['$rootScope','$scope', '$location', 'controlesModel','$uibModal',
-  function ($rootScope,$scope, $location, controlesModel,$uibModal) {
-    $scope.titleController = 'MEAN-CASE SUPER HEROIC';
-    $rootScope.titleWeb = 'controles';
-    $scope.preloader = true;
-    $scope.msjAlert = false;
-    controlesModel.getAll().then(function(data) {
-      $scope.controlesList = data;
-      $scope.controlesTemp = angular.copy($scope.controlesList);
-      $scope.preloader = false;
-    });
-    /*  Modal */
-     $scope.open = function (item) {
-       var modalInstance = $uibModal.open({
-        animation: true,
-        templateUrl: 'templates/controles/modalCreate.html',
-        controller: 'modalcontrolesCreateController',
-        size: 'lg',
-        resolve: {
-         item: function () {
-          return item;
-         }
-        }
-      });
-      modalInstance.result.then(function(data) {
-           controlesModel.getAll().then(function(d) {
-             $scope.controlesList = d;
-             $scope.controlesTemp = angular.copy($scope.controlesList);
-           });
-      },function(result){
-      $scope.controlesList = $scope.controlesTemp;
-      $scope.controlesTemp = angular.copy($scope.controlesList);
-    });
-  };
-  /*  Delete  */
-  $scope.openDelete = function (item) {
-    var modalInstance = $uibModal.open({
-      animation: true,
-      templateUrl: 'templates/controles/modalDelete.html',
-      controller: 'modalcontrolesDeleteController',
-      size: 'lg',
-      resolve: {
-        item: function () {
-           return item;
-        }
-      }
-    });
-    modalInstance.result.then(function(data) {
-      var idx = $scope.controlesList.indexOf(data);
-      $scope.controlesList.splice(idx, 1);
-      controlesModel
-        .destroy(data.IdFormato)
-        .then(function(result) {
-          $scope.msjAlert = true;
-          $scope.alert = 'success';
-          $scope.message = result.message;
-        })
-        .catch(function(err) {
-          $scope.msjAlert = true;
-          $scope.alert = 'danger';
-          $scope.message = 'Error '+err;
-        })
-      });
-    };
-}])
-.controller('modalcontrolesCreateController',
-  ['$scope', '$uibModalInstance', 'item','controlesModel','$filter',"pacientesModel",
-  function ($scope, $uibModalInstance, item,controlesModel,$filter,pacientesModel) {
-    $scope.item = item;
-    $scope.saving = false;
-    if(item){
-      item.dateAsString1 = $filter("date")(item.fecha, "yyyy-MM-dd");
-       //add optional code
-    }
-    $scope.save = function () {
-      if(!item){
-        $scope.saving = true;
-        item = {fecha: $scope.item.fecha};
-        var controles = controlesModel.create();
-        controles.pacientes = $scope.item.pacientes;
-        controles.fecha = $scope.item.fecha;
-        controles.save().then(function(r){
-          $scope.saving = false;
-          $uibModalInstance.close(r);
-        });
-      }else{
-        if($scope.item.fecha === undefined){
-          $scope.item.fecha = Date.parse(item.dateAsString1);
-          $scope.item.fecha = new Date($scope.item.fecha);
-          $scope.item.fecha = $scope.item.fecha.setDate($scope.item.fecha.getDate() + 1);
-        }
-        controlesModel.findById($scope.item._id);
-        controlesModel.pacientes =  $scope.item.pacientes;
-        controlesModel.fecha = $scope.item.fecha;
-        controlesModel.save().then(function(r){
-          $scope.saving = false;
-          $uibModalInstance.close(r);
-        });
-      }
-    };
-    pacientesModel.getAll().then(function(data) {
-      $scope.pacientes = data;
-    });
-}])
-.controller('modalcontrolesDeleteController',
-  ['$scope', '$uibModalInstance', 'item',
-  function ($scope, $uibModalInstance, item) {
-    $scope.item = item;
-    $scope.ok = function () {
-      $uibModalInstance.close($scope.item);
-    };
-    $scope.cancel = function () {
-       $uibModalInstance.dismiss('cancel');
-     };
-}])
-.config(function ($routeProvider) {
-  $routeProvider
-    .when('/controles', {
-      templateUrl: '/templates/controles/index.html',
-      controller: 'controlesController',
-      access: {
-        restricted: false,
-       rol: 1
-      }
-    });
- })
 .controller('conversorcabecerasController',
   ['$rootScope','$scope', '$location', 'conversorcabecerasModel','$uibModal','$routeParams',
   function ($rootScope,$scope, $location, conversorcabecerasModel,$uibModal,$routeParams) {
@@ -1111,10 +984,22 @@
         if(!item) {
            $scope.conversordetalleplantillasList.push(data);
            $scope.conversordetalleplantillasTemp = angular.copy($scope.conversordetalleplantillasList);
+
+        }
+        if(data.message){
+          $scope.alert = 'success';
+          $scope.message = data.message;
+          $scope.msjAlert = true;
         }
       },function(result){
-      $scope.conversordetalleplantillasList = $scope.conversordetalleplantillasTemp;
-      $scope.conversordetalleplantillasTemp = angular.copy($scope.conversordetalleplantillasList);
+          $scope.conversordetalleplantillasList = $scope.conversordetalleplantillasTemp;
+          $scope.conversordetalleplantillasTemp = angular.copy($scope.conversordetalleplantillasList);
+        })
+      .catch(function(err) {
+          $scope.msjAlert = true;
+          $scope.alert = 'danger';
+          $scope.message = 'Error '+err;
+          $scope.msjAlert = true;
     });
   };
   /*  Delete  */
@@ -1134,7 +1019,7 @@
       var idx = $scope.conversordetalleplantillasList.indexOf(data);
       $scope.conversordetalleplantillasList.splice(idx, 1);
       conversordetalleplantillasModel
-        .destroy(data._id)
+        .destroy(data.IdPlantilla)
         .then(function(result) {
           $scope.msjAlert = true;
           $scope.alert = 'success';
@@ -1301,9 +1186,20 @@
            $scope.conversordetallesList.push(data);
            $scope.conversordetallesTemp = angular.copy($scope.conversordetallesList);
         }
+        if(data.message){
+          $scope.alert = 'success';
+          $scope.message = data.message;
+          $scope.msjAlert = true;
+        }
       },function(result){
-      $scope.conversordetallesList = $scope.conversordetallesTemp;
-      $scope.conversordetallesTemp = angular.copy($scope.conversordetallesList);
+          $scope.conversordetallesList = $scope.conversordetallesTemp;
+          $scope.conversordetallesTemp = angular.copy($scope.conversordetallesList);
+      })
+      .catch(function(err) {
+          $scope.msjAlert = true;
+          $scope.alert = 'danger';
+          $scope.message = 'Error '+err;
+          $scope.msjAlert = true;
     });
   };
   /*  Delete  */
@@ -1430,14 +1326,6 @@
         restricted: false,
        rol: 1
       }
-    })
-    .when('/conversordetalles', {
-      templateUrl: '/templates/conversordetalles/index.html',
-      controller: 'conversordetallesController',
-      access: {
-        restricted: false,
-       rol: 1
-      }
     });
  })
 .controller('pacientesController',
@@ -1555,6 +1443,133 @@
       access: {
         restricted: false,
        rol: 2
+      }
+    });
+ })
+.controller('controlesController',
+  ['$rootScope','$scope', '$location', 'controlesModel','$uibModal',
+  function ($rootScope,$scope, $location, controlesModel,$uibModal) {
+    $scope.titleController = 'MEAN-CASE SUPER HEROIC';
+    $rootScope.titleWeb = 'controles';
+    $scope.preloader = true;
+    $scope.msjAlert = false;
+    controlesModel.getAll().then(function(data) {
+      $scope.controlesList = data;
+      $scope.controlesTemp = angular.copy($scope.controlesList);
+      $scope.preloader = false;
+    });
+    /*  Modal */
+     $scope.open = function (item) {
+       var modalInstance = $uibModal.open({
+        animation: true,
+        templateUrl: 'templates/controles/modalCreate.html',
+        controller: 'modalcontrolesCreateController',
+        size: 'lg',
+        resolve: {
+         item: function () {
+          return item;
+         }
+        }
+      });
+      modalInstance.result.then(function(data) {
+           controlesModel.getAll().then(function(d) {
+             $scope.controlesList = d;
+             $scope.controlesTemp = angular.copy($scope.controlesList);
+           });
+      },function(result){
+      $scope.controlesList = $scope.controlesTemp;
+      $scope.controlesTemp = angular.copy($scope.controlesList);
+    });
+  };
+  /*  Delete  */
+  $scope.openDelete = function (item) {
+    var modalInstance = $uibModal.open({
+      animation: true,
+      templateUrl: 'templates/controles/modalDelete.html',
+      controller: 'modalcontrolesDeleteController',
+      size: 'lg',
+      resolve: {
+        item: function () {
+           return item;
+        }
+      }
+    });
+    modalInstance.result.then(function(data) {
+      var idx = $scope.controlesList.indexOf(data);
+      $scope.controlesList.splice(idx, 1);
+      controlesModel
+        .destroy(data.IdFormato)
+        .then(function(result) {
+          $scope.msjAlert = true;
+          $scope.alert = 'success';
+          $scope.message = result.message;
+        })
+        .catch(function(err) {
+          $scope.msjAlert = true;
+          $scope.alert = 'danger';
+          $scope.message = 'Error '+err;
+        })
+      });
+    };
+}])
+.controller('modalcontrolesCreateController',
+  ['$scope', '$uibModalInstance', 'item','controlesModel','$filter',"pacientesModel",
+  function ($scope, $uibModalInstance, item,controlesModel,$filter,pacientesModel) {
+    $scope.item = item;
+    $scope.saving = false;
+    if(item){
+      item.dateAsString1 = $filter("date")(item.fecha, "yyyy-MM-dd");
+       //add optional code
+    }
+    $scope.save = function () {
+      if(!item){
+        $scope.saving = true;
+        item = {fecha: $scope.item.fecha};
+        var controles = controlesModel.create();
+        controles.pacientes = $scope.item.pacientes;
+        controles.fecha = $scope.item.fecha;
+        controles.save().then(function(r){
+          $scope.saving = false;
+          $uibModalInstance.close(r);
+        });
+      }else{
+        if($scope.item.fecha === undefined){
+          $scope.item.fecha = Date.parse(item.dateAsString1);
+          $scope.item.fecha = new Date($scope.item.fecha);
+          $scope.item.fecha = $scope.item.fecha.setDate($scope.item.fecha.getDate() + 1);
+        }
+        controlesModel.findById($scope.item._id);
+        controlesModel.pacientes =  $scope.item.pacientes;
+        controlesModel.fecha = $scope.item.fecha;
+        controlesModel.save().then(function(r){
+          $scope.saving = false;
+          $uibModalInstance.close(r);
+        });
+      }
+    };
+    pacientesModel.getAll().then(function(data) {
+      $scope.pacientes = data;
+    });
+}])
+.controller('modalcontrolesDeleteController',
+  ['$scope', '$uibModalInstance', 'item',
+  function ($scope, $uibModalInstance, item) {
+    $scope.item = item;
+    $scope.ok = function () {
+      $uibModalInstance.close($scope.item);
+    };
+    $scope.cancel = function () {
+       $uibModalInstance.dismiss('cancel');
+     };
+}])
+.config(function ($routeProvider) {
+  $routeProvider
+    .when('/controles', {
+      templateUrl: '/templates/controles/index.html',
+      controller: 'controlesController',
+      access: {
+        restricted: false,
+       rol: 1
       }
     });
  })

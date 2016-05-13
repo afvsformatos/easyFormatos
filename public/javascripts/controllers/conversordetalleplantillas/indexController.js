@@ -50,10 +50,22 @@
         if(!item) {
            $scope.conversordetalleplantillasList.push(data);
            $scope.conversordetalleplantillasTemp = angular.copy($scope.conversordetalleplantillasList);
+
+        }
+        if(data.message){
+          $scope.alert = 'success';
+          $scope.message = data.message;
+          $scope.msjAlert = true;
         }
       },function(result){
-      $scope.conversordetalleplantillasList = $scope.conversordetalleplantillasTemp;
-      $scope.conversordetalleplantillasTemp = angular.copy($scope.conversordetalleplantillasList);
+          $scope.conversordetalleplantillasList = $scope.conversordetalleplantillasTemp;
+          $scope.conversordetalleplantillasTemp = angular.copy($scope.conversordetalleplantillasList);
+        })
+      .catch(function(err) {
+          $scope.msjAlert = true;
+          $scope.alert = 'danger';
+          $scope.message = 'Error '+err;
+          $scope.msjAlert = true;
     });
   };
   /*  Delete  */
@@ -73,7 +85,7 @@
       var idx = $scope.conversordetalleplantillasList.indexOf(data);
       $scope.conversordetalleplantillasList.splice(idx, 1);
       conversordetalleplantillasModel
-        .destroy(data._id)
+        .destroy(data.IdPlantilla)
         .then(function(result) {
           $scope.msjAlert = true;
           $scope.alert = 'success';

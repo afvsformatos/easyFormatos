@@ -29,12 +29,12 @@ router.get('/conversordetalleplantillas', function(req, res, next) {
 });
 /* POST - Add conversordetalleplantillas. */
 router.post('/conversordetalleplantillas', function(req, res, next){
-   var model = new conversordetalleplantillas(req.body);
-   model.save(function(err, data){
-     if(err){return next(err)}
-     res.json(data);
-     meanCaseBase.auditSave(req,'Insert Register','conversordetalleplantillas',data);
-   })
+      delete req.body.url;
+      conversorDetallePlantilla.create(req.body).then(function(data) {
+        data.dataValues['message'] = "Registro Exitoso";
+        res.json(data);
+        meanCaseBase.auditSave(req,'Insert Register','conversordetalleplantillas',data);
+      });
 });
 /* PUT - Update conversordetalleplantillas. */
 router.put('/conversordetalleplantillas/:id', function(req, res){
@@ -55,10 +55,13 @@ router.put('/conversordetalleplantillas/:id', function(req, res){
 });
 /* DELETE - conversordetalleplantillas. */
 router.delete('/conversordetalleplantillas/:id', function(req, res){
-   conversordetalleplantillas.findByIdAndRemove(req.params.id, function(err){
-     if(err){res.send(err)}
-     res.json({message: 'conversordetalleplantillas delete successful!'});
-     meanCaseBase.auditSave(req,'Delete Register','conversordetalleplantillas','Id: '+req.params.id);
-   })
+   conversorDetallePlantilla.destroy({
+    where: {
+      IdPlantilla: req.params.id
+    }
+    }).then(function() {
+        res.json({message: 'conversordetalleplantillas delete successful!'});
+        meanCaseBase.auditSave(req,'Delete Register','conversordetalleplantillas','Id: '+req.params.id);
+    });
 });
 module.exports = router;

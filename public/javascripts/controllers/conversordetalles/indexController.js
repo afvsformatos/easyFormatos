@@ -80,9 +80,20 @@
            $scope.conversordetallesList.push(data);
            $scope.conversordetallesTemp = angular.copy($scope.conversordetallesList);
         }
+        if(data.message){
+          $scope.alert = 'success';
+          $scope.message = data.message;
+          $scope.msjAlert = true;
+        }
       },function(result){
-      $scope.conversordetallesList = $scope.conversordetallesTemp;
-      $scope.conversordetallesTemp = angular.copy($scope.conversordetallesList);
+          $scope.conversordetallesList = $scope.conversordetallesTemp;
+          $scope.conversordetallesTemp = angular.copy($scope.conversordetallesList);
+      })
+      .catch(function(err) {
+          $scope.msjAlert = true;
+          $scope.alert = 'danger';
+          $scope.message = 'Error '+err;
+          $scope.msjAlert = true;
     });
   };
   /*  Delete  */

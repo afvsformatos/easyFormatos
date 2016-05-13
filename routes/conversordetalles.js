@@ -17,20 +17,21 @@ router.get('/conversordetalles/:id', function (req, res) {
 })
 /* GET conversordetalles listing. */
 router.get('/conversordetalles', function(req, res, next) {
-   conversordetalles.find(function(err, models){
-     if(err){return next(err)}
-     res.json(models)
-     meanCaseBase.auditSave(req,'Query all Registers','conversordetalles','Query all Registers');
-   })
+   conversorDetalle.findAll().then(function(detalles) {
+        res.json(detalles);
+         meanCaseBase.auditSave(req,'Query all Registers','conversordetalles','Query all Registers');
+    });
+
 });
 /* POST - Add conversordetalles. */
 router.post('/conversordetalles', function(req, res, next){
-   var model = new conversordetalles(req.body);
-   model.save(function(err, data){
-     if(err){return next(err)}
-     res.json(data);
-     meanCaseBase.auditSave(req,'Insert Register','conversordetalles',data);
-   })
+      delete req.body.url;
+      delete req.body.IdDetalle;
+      conversorDetalle.create(req.body).then(function(data) {
+        data.dataValues['message'] = "Registro Exitoso";
+        res.json(data);
+        meanCaseBase.auditSave(req,'Insert Register','conversordetalles',data);
+      });
 });
 /* PUT - Update conversordetalles. */
 router.put('/conversordetalles/:id', function(req, res){
@@ -67,10 +68,13 @@ router.put('/conversordetalles/:id', function(req, res){
 });
 /* DELETE - conversordetalles. */
 router.delete('/conversordetalles/:id', function(req, res){
-   conversordetalles.findByIdAndRemove(req.params.id, function(err){
-     if(err){res.send(err)}
-     res.json({message: 'conversordetalles delete successful!'});
-     meanCaseBase.auditSave(req,'Delete Register','conversordetalles','Id: '+req.params.id);
-   })
+     conversorDetalle.destroy({
+      where: {
+        IdDetalle: req.params.id
+      }
+    }).then(function() {
+        res.json({message: 'conversordetalles delete successful!'});
+        meanCaseBase.auditSave(req,'Delete Register','conversordetalles','Id: '+req.params.id);
+    });
 });
 module.exports = router;
