@@ -85,9 +85,21 @@
            $scope.conversorcabecerasList.push(data);
            $scope.conversorcabecerasTemp = angular.copy($scope.conversorcabecerasList);
         }
+        if(data.message){
+          $scope.alert = 'success';
+          $scope.message = data.message;
+          $scope.msjAlert = true;
+        }
+ 
       },function(result){
-      $scope.conversorcabecerasList = $scope.conversorcabecerasTemp;
-      $scope.conversorcabecerasTemp = angular.copy($scope.conversorcabecerasList);
+          $scope.conversorcabecerasList = $scope.conversorcabecerasTemp;
+          $scope.conversorcabecerasTemp = angular.copy($scope.conversorcabecerasList);
+    })
+    .catch(function(err) {
+          $scope.msjAlert = true;
+          $scope.alert = 'danger';
+          $scope.message = 'Error '+err;
+          $scope.msjAlert = true;
     });
   };
   /*  Delete  */

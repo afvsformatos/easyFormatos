@@ -37,18 +37,38 @@ router.get('/conversorcabeceras/detalles/:id', function (req, res) {
 
 /* POST - Add conversorcabeceras. */
 router.post('/conversorcabeceras', function(req, res, next){
-   /*var model = new conversorcabeceras(req.body);
-   model.save(function(err, data){
-     if(err){return next(err)}
-     res.json(data);
-     meanCaseBase.auditSave(req,'Insert Register','conversorcabeceras',data);
-   })*/
-   req.body.IdFormato = 9998;
-   res.json(req.body);
-   /*conversorCabecera.create(req.body).then(function() {
+   delete req.body.url;
+   delete req.body.IdFormato;
+   /*req.body.IdFormato = 3187;
+   res.json(req.body);*/
+   /*var tramaPrueba = {
+                        "NombreFormato": "seco de chivo",
+                        "DescripcionFormato": "a",
+                        "Cabecera": 0,
+                        "Pie": 0,
+                        "Separador": "a",
+                        "FormatoConversion": 1,
+                        "Formato_destino": 0,
+                        "Tipo_Proceso": "a",
+                        "NombreObjeto": "a",
+                        "estado": "a",
+                        "tipo_archivo_salida": "a",
+                        "ORIENTACION": "a",
+                        "RutinaPrevalidacion": "a",
+                        "Unificador": "a",
+                        "Check_Totales_Por": 0,
+                        "ValidaIdentificacion": "1",
+                        "RutinaPreconversion": "a",
+                        "InfiereTipoIdCliente": 0,
+                        "MuestraCabeceraColumna": 0,
+                        "TipoConversion": "a",
+                        //"IdFormato": 457885545
+                    }*/
+   conversorCabecera.create(req.body).then(function(data) {
+      data.dataValues['message'] = "Registro Exitoso";
       res.json(data);
       meanCaseBase.auditSave(req,'Insert Register','conversorcabeceras',data);
-    });*/
+    });
 });
 /* PUT - Update conversorcabeceras. */
 router.put('/conversorcabeceras/:id', function(req, res){

@@ -161,162 +161,6 @@
  		});
  	});
  })
-.controller('bootstrapController',
-  ['$scope', '$location', 'AuthService','bootstrapService','$route',
-  function ($scope, $location, AuthService,bootstrapService,$route) {
-    $scope.test = "Menú 1";
-         /*  LOGOUT  */
-	    $scope.logout = function () {
-	      AuthService.logout()
-	        .then(function () {
-	          $location.path('/login');
-	        });
-
-	    };
-	    bootstrapService.getMenu().then(function(data) {
-	      $scope.menus = data;
-	    });	
-
-	    $scope.reloadRoute = function(menu){
-	    	if(menu.flat == 'cabecera')
-	    		location.reload();
-
-	    	
-	    	
-	    }
-	    
-}])
-.controller('homeController',
-  ['$rootScope','$scope', '$location', 'AuthService','$uibModal','mySocket',
-  function ($rootScope,$scope, $location, AuthService,$uibModal,mySocket) {
-    $scope.arrayMsg = [];
-    $scope.titleHomeController = "Welcome";
-    $scope.testSocket = function(){
-    	mySocket.emit('chat message',{user:$rootScope.user.username,input:$scope.msgInput});
-    	mySocket.emit('test', 'test test');
-      
-    }
-    $scope.$on('socket:chat message', function(event, data) {
-      
-      var size = $scope.arrayMsg.length;
-      console.log(size);
-      if(size > 0){
-        var oldUser = $scope.arrayMsg[size-1].user;
-        var newUser = data.user;
-        if(oldUser =! newUser){
-          data["class1"] = "amigo";
-          data["class2"] = "derecha";
-        }else{
-          data["class1"] = "autor";
-          data["class2"] = "izquierda";
-        }
-         
-       
-      }else{
-        data["class1"] = "autor";
-        data["class2"] = "izquierda";
-      }
-      $scope.arrayMsg.push(data);
-      $scope.msgInput = '';
-      window.setInterval(function() {
-        var elem = document.getElementById('mensajes');
-        elem.scrollTop = elem.scrollHeight;
-      }, 5000);
-        
-    });
-    $scope.$on('socket:test', function(event, data) {
-    	console.log(data);
-    });
-}])
-.controller('loginController', ['$rootScope', '$scope', '$location', 'AuthService','$uibModal',
-  function ($rootScope, $scope, $location, AuthService,$uibModal) {
-		$scope.titleLoginController = "MEAN_CASE HEROIC";
-		$rootScope.titleWeb = "Login";
-		$scope.registerSuccess = false;
-		$scope.login = function () {
-
-			// initial values
-			$scope.registerSuccess = false;
-			$scope.error = false;
-			$scope.disabled = true;
-			// call login from service
-			AuthService.login($scope.loginForm.username, $scope.loginForm.password, $scope.remember)
-				// handle success
-				.then(function () {
-					$location.path('/');
-					$scope.disabled = false;
-					$scope.loginForm = {};
-				})
-				// handle error
-				.catch(function () {
-					$scope.error = true;
-					$scope.errorMessage = "Invalid username and/or password";
-					$scope.disabled = false;
-					$scope.loginForm = {};
-				});
-
-		};
-
-	 /*  Open   Register */
-	     $scope.open = function (size) {
-	        var modalInstance = $uibModal.open({
-	          animation: true,
-	          templateUrl: 'templates/login/loginRegister.html',
-	          controller: 'registerLoginUserController',
-	          size: size
-	        });
-
-	        modalInstance.result.then(function(data) {
-	          $scope.error = false;
-	          $scope.registerSuccess = true;
-	          $scope.msjSuccess = "Register Successful";
-	        });
-	    };
-
-    /*  Open Register    */
-
-		/* REGISTRAR  */
-		$scope.register = function () {
-
-			// initial values
-			$scope.error = false;
-			$scope.disabled = true;
-
-			// call register from service
-			AuthService.register($scope.registerForm.username, $scope.registerForm.password, $scope.rol)
-				// handle success
-				.then(function () {
-					$location.path('/');
-					$scope.disabled = false;
-					$scope.registerForm = {};
-				})
-				// handle error
-				.catch(function (err) {
-					$scope.error = true;
-					$scope.errorMessage = "User already exists!";
-					$scope.disabled = false;
-					$scope.registerForm = {};
-					$scope.rol = "";
-				});
-
-		};
-
-}])
-.controller('registerLoginUserController',
-  ['$scope', '$uibModalInstance','AuthService','userService',
-  function ($scope, $uibModalInstance,AuthService,userService) {
-  
-    $scope.saving = false;
-     
-    $scope.save = function () {
-        $scope.saving = true;
-        AuthService.register($scope.item.username,$scope.item.password,1).then(function(r){
-          $scope.saving = false;
-        });
-        $uibModalInstance.close();
-    };
-
-}])
 .factory('AuditService',
   ['$q', '$http',
   function ($q, $http) {
@@ -584,6 +428,162 @@
 
 
     }])
+.controller('bootstrapController',
+  ['$scope', '$location', 'AuthService','bootstrapService','$route',
+  function ($scope, $location, AuthService,bootstrapService,$route) {
+    $scope.test = "Menú 1";
+         /*  LOGOUT  */
+	    $scope.logout = function () {
+	      AuthService.logout()
+	        .then(function () {
+	          $location.path('/login');
+	        });
+
+	    };
+	    bootstrapService.getMenu().then(function(data) {
+	      $scope.menus = data;
+	    });	
+
+	    $scope.reloadRoute = function(menu){
+	    	if(menu.flat == 'cabecera')
+	    		location.reload();
+
+	    	
+	    	
+	    }
+	    
+}])
+.controller('homeController',
+  ['$rootScope','$scope', '$location', 'AuthService','$uibModal','mySocket',
+  function ($rootScope,$scope, $location, AuthService,$uibModal,mySocket) {
+    $scope.arrayMsg = [];
+    $scope.titleHomeController = "Welcome";
+    $scope.testSocket = function(){
+    	mySocket.emit('chat message',{user:$rootScope.user.username,input:$scope.msgInput});
+    	mySocket.emit('test', 'test test');
+      
+    }
+    $scope.$on('socket:chat message', function(event, data) {
+      
+      var size = $scope.arrayMsg.length;
+      console.log(size);
+      if(size > 0){
+        var oldUser = $scope.arrayMsg[size-1].user;
+        var newUser = data.user;
+        if(oldUser =! newUser){
+          data["class1"] = "amigo";
+          data["class2"] = "derecha";
+        }else{
+          data["class1"] = "autor";
+          data["class2"] = "izquierda";
+        }
+         
+       
+      }else{
+        data["class1"] = "autor";
+        data["class2"] = "izquierda";
+      }
+      $scope.arrayMsg.push(data);
+      $scope.msgInput = '';
+      window.setInterval(function() {
+        var elem = document.getElementById('mensajes');
+        elem.scrollTop = elem.scrollHeight;
+      }, 5000);
+        
+    });
+    $scope.$on('socket:test', function(event, data) {
+    	console.log(data);
+    });
+}])
+.controller('loginController', ['$rootScope', '$scope', '$location', 'AuthService','$uibModal',
+  function ($rootScope, $scope, $location, AuthService,$uibModal) {
+		$scope.titleLoginController = "MEAN_CASE HEROIC";
+		$rootScope.titleWeb = "Login";
+		$scope.registerSuccess = false;
+		$scope.login = function () {
+
+			// initial values
+			$scope.registerSuccess = false;
+			$scope.error = false;
+			$scope.disabled = true;
+			// call login from service
+			AuthService.login($scope.loginForm.username, $scope.loginForm.password, $scope.remember)
+				// handle success
+				.then(function () {
+					$location.path('/');
+					$scope.disabled = false;
+					$scope.loginForm = {};
+				})
+				// handle error
+				.catch(function () {
+					$scope.error = true;
+					$scope.errorMessage = "Invalid username and/or password";
+					$scope.disabled = false;
+					$scope.loginForm = {};
+				});
+
+		};
+
+	 /*  Open   Register */
+	     $scope.open = function (size) {
+	        var modalInstance = $uibModal.open({
+	          animation: true,
+	          templateUrl: 'templates/login/loginRegister.html',
+	          controller: 'registerLoginUserController',
+	          size: size
+	        });
+
+	        modalInstance.result.then(function(data) {
+	          $scope.error = false;
+	          $scope.registerSuccess = true;
+	          $scope.msjSuccess = "Register Successful";
+	        });
+	    };
+
+    /*  Open Register    */
+
+		/* REGISTRAR  */
+		$scope.register = function () {
+
+			// initial values
+			$scope.error = false;
+			$scope.disabled = true;
+
+			// call register from service
+			AuthService.register($scope.registerForm.username, $scope.registerForm.password, $scope.rol)
+				// handle success
+				.then(function () {
+					$location.path('/');
+					$scope.disabled = false;
+					$scope.registerForm = {};
+				})
+				// handle error
+				.catch(function (err) {
+					$scope.error = true;
+					$scope.errorMessage = "User already exists!";
+					$scope.disabled = false;
+					$scope.registerForm = {};
+					$scope.rol = "";
+				});
+
+		};
+
+}])
+.controller('registerLoginUserController',
+  ['$scope', '$uibModalInstance','AuthService','userService',
+  function ($scope, $uibModalInstance,AuthService,userService) {
+  
+    $scope.saving = false;
+     
+    $scope.save = function () {
+        $scope.saving = true;
+        AuthService.register($scope.item.username,$scope.item.password,1).then(function(r){
+          $scope.saving = false;
+        });
+        $uibModalInstance.close();
+    };
+
+}])
 .service('controlesModel', function ($optimumModel,pacientesModel) {
   var model = new $optimumModel();
   model.url = '/api/controles';
@@ -913,9 +913,21 @@
            $scope.conversorcabecerasList.push(data);
            $scope.conversorcabecerasTemp = angular.copy($scope.conversorcabecerasList);
         }
+        if(data.message){
+          $scope.alert = 'success';
+          $scope.message = data.message;
+          $scope.msjAlert = true;
+        }
+ 
       },function(result){
-      $scope.conversorcabecerasList = $scope.conversorcabecerasTemp;
-      $scope.conversorcabecerasTemp = angular.copy($scope.conversorcabecerasList);
+          $scope.conversorcabecerasList = $scope.conversorcabecerasTemp;
+          $scope.conversorcabecerasTemp = angular.copy($scope.conversorcabecerasList);
+    })
+    .catch(function(err) {
+          $scope.msjAlert = true;
+          $scope.alert = 'danger';
+          $scope.message = 'Error '+err;
+          $scope.msjAlert = true;
     });
   };
   /*  Delete  */
@@ -960,7 +972,7 @@
     $scope.save = function () {
       if(!item){
         $scope.saving = true;
-        item = {IdFormato: $scope.item.IdFormato,NombreFormato: $scope.item.NombreFormato,DescripcionFormato: $scope.item.DescripcionFormato,Cabecera: $scope.item.Cabecera,Pie: $scope.item.Pie,Separador: $scope.item.Separador,FormatoConversion: $scope.item.FormatoConversion,formato_destino: $scope.item.formato_destino,Tipo_Proceso: $scope.item.Tipo_Proceso,NombreObjeto: $scope.item.NombreObjeto,estado: $scope.item.estado,tipo_archivo_salida: $scope.item.tipo_archivo_salida,ORIENTACION: $scope.item.ORIENTACION,RutinaPrevalidacion: $scope.item.RutinaPrevalidacion,Unificador: $scope.item.Unificador,Check_Totales_Por: $scope.item.Check_Totales_Por,ValidaIdentificacion: $scope.item.ValidaIdentificacion,RutinaPreconversion: $scope.item.RutinaPreconversion,InfiereTipoIdCliente: $scope.item.InfiereTipoIdCliente,MuestraCabeceraColumna: $scope.item.MuestraCabeceraColumna,TipoConversion: $scope.item.TipoConversion};
+        item = {IdFormato: $scope.item.IdFormato,NombreFormato: $scope.item.NombreFormato,DescripcionFormato: $scope.item.DescripcionFormato,Cabecera: $scope.item.Cabecera,Pie: $scope.item.Pie,Separador: $scope.item.Separador,FormatoConversion: $scope.item.FormatoConversion,Formato_destino: $scope.item.Formato_destino,Tipo_Proceso: $scope.item.Tipo_Proceso,NombreObjeto: $scope.item.NombreObjeto,estado: $scope.item.estado,tipo_archivo_salida: $scope.item.tipo_archivo_salida,ORIENTACION: $scope.item.ORIENTACION,RutinaPrevalidacion: $scope.item.RutinaPrevalidacion,Unificador: $scope.item.Unificador,Check_Totales_Por: $scope.item.Check_Totales_Por,ValidaIdentificacion: $scope.item.ValidaIdentificacion,RutinaPreconversion: $scope.item.RutinaPreconversion,InfiereTipoIdCliente: $scope.item.InfiereTipoIdCliente,MuestraCabeceraColumna: $scope.item.MuestraCabeceraColumna,TipoConversion: $scope.item.TipoConversion};
         var conversorCabeceras = conversorcabecerasModel.create();
         conversorCabeceras.IdFormato = $scope.item.IdFormato;
         conversorCabeceras.NombreFormato = $scope.item.NombreFormato;
@@ -969,7 +981,7 @@
         conversorCabeceras.Pie = $scope.item.Pie;
         conversorCabeceras.Separador = $scope.item.Separador;
         conversorCabeceras.FormatoConversion = $scope.item.FormatoConversion;
-        conversorCabeceras.formato_destino = $scope.item.formato_destino;
+        conversorCabeceras.Formato_destino = $scope.item.Formato_destino;
         conversorCabeceras.Tipo_Proceso = $scope.item.Tipo_Proceso;
         conversorCabeceras.NombreObjeto = $scope.item.NombreObjeto;
         conversorCabeceras.estado = $scope.item.estado;
@@ -983,7 +995,6 @@
         conversorCabeceras.InfiereTipoIdCliente = $scope.item.InfiereTipoIdCliente;
         conversorCabeceras.MuestraCabeceraColumna = $scope.item.MuestraCabeceraColumna;
         conversorCabeceras.TipoConversion = $scope.item.TipoConversion;
-        console.log(conversorCabeceras);
         conversorCabeceras.save().then(function(r){
           $scope.saving = false;
           $uibModalInstance.close(r);
@@ -997,7 +1008,7 @@
         conversorCabecerasModel.Pie = $scope.item.Pie;
         conversorCabecerasModel.Separador = $scope.item.Separador;
         conversorCabecerasModel.FormatoConversion = $scope.item.FormatoConversion;
-        conversorCabecerasModel.formato_destino = $scope.item.formato_destino;
+        conversorCabecerasModel.Formato_destino = $scope.item.Formato_destino;
         conversorCabecerasModel.Tipo_Proceso = $scope.item.Tipo_Proceso;
         conversorCabecerasModel.NombreObjeto = $scope.item.NombreObjeto;
         conversorCabecerasModel.estado = $scope.item.estado;
@@ -1667,125 +1678,6 @@
         
 
 }])
-.controller('exportProjectController',
-    ['$rootScope','$scope','$uibModal','exportProjectService','$ngBootbox',
-        function ($rootScope,$scope,$uibModal,exportProjectService,$ngBootbox) {
-        $scope.preloader 	    = true;
-        $scope.projectName    = $rootScope.project.name;
-        $scope.authorName  	  = $rootScope.project.authorName;
-        $scope.email 		      = $rootScope.project.email;
-        $scope.license 		    = 'MIT';
-        $scope.template 	    = $rootScope.project.template;
-        $scope.models         = $rootScope.project.schemas;
-        $scope.models         = String($scope.models);
-
-        exportProjectService.allLayouts().then(function (data) {
-	        $scope.layouts = data;
-	    });
-
-	    $scope.setTemplate = function(arg){
-	    	 $scope.template = arg;
-	    }
-
-      $scope.validate = function () {
-          if(!$scope.projectName || !$scope.authorName || !$scope.email  || !$scope.template || !$scope.license || !$scope.models){
-              $scope.submitBtn = true;
-          }else{
-              $scope.submitBtn = false;
-          }
-      };
-      $scope.validate();
-     /*  Create    */
-     $scope.open = function () {
-        var modalInstance = $uibModal.open({
-          animation: true,
-          templateUrl: '/javascripts/setup/exportProject/templates/preview.html',
-          controller: 'previewExportProjectController',
-          size: 'lg',
-          resolve: {
-            layout: function () {
-              return $scope.template;
-            }
-          }
-        });
-    };
-    
-    /*  Create    */
-    var exportProject = function(){
-      exportProjectService.setValues($scope.projectName,$scope.authorName,$scope.email,$scope.license,$scope.models,$scope.template).then(function(r){
-          if(r.valid){
-            $scope.preloader  = false;
-            $ngBootbox.alert('The project was successful generecion please constructs the project from the console. * gulp exportProject!');
-          }else{
-            $scope.preloader  = true;
-            $ngBootbox.alert('Ups Something went wrong Please check your modules and rebuilds!');
-          }
-      });
-    }
-
-    $scope.submit = function(){
-      $scope.projectName = $scope.projectName.replace(/\s+/g, '-');
-      $ngBootbox.alert('Please Stop the service gulp watch-front and continue!').then(function() {
-        exportProject();
-      });
-    }
-
-}])
-.factory('exportProjectService',
-    ['$q', '$http',
-        function ($q, $http) {
-            return ({
-                allLayouts: allLayouts,
-                setValues : setValues
-            });
-
-            function allLayouts() {
-                var defered = $q.defer();
-                var promise = defered.promise;
-
-                $http.get('/setup/layouts')
-                    .success(function (data) {
-                        defered.resolve(data);
-                    })
-                    .error(function (err) {
-                        defered.reject(err)
-                    });
-
-                return promise;
-            }
-
-            function setValues(projectName,authorName,email,license,models,template) {
-              var deferred = $q.defer();
-              $http.post('/exportProject/projectProduction', {projectName: projectName,authorName: authorName, email: email,license:license,models:models,template:template})
-                .success(function (data, status) {
-                    deferred.resolve(data);
-                })
-                .error(function (data) {
-                  deferred.reject();
-                });
-                return deferred.promise;
-            }
-
-}])
-.controller('previewExportProjectController',
-  ['$scope', '$uibModalInstance', 'layout',
-  function ($scope, $uibModalInstance, layout) {
-  
-    $scope.layout = layout;
-
-
-}])
-.config(function ($routeProvider) {
- 	$routeProvider
- 		.when('/exportProject', {
- 		    templateUrl: '/javascripts/setup/exportProject/templates/exportProject.html',
- 			controller: 'exportProjectController',
- 			access: {
- 				 restricted: false,
- 				 rol: 5
- 			}
- 		});
- })
 .controller('crudController',
     ['$scope', 'crudService',
         function ($scope, crudService) {
@@ -2021,6 +1913,125 @@ require: 'ngModel',
  			access: {
  				 restricted: false,
  				rol: 5
+ 			}
+ 		});
+ })
+.controller('exportProjectController',
+    ['$rootScope','$scope','$uibModal','exportProjectService','$ngBootbox',
+        function ($rootScope,$scope,$uibModal,exportProjectService,$ngBootbox) {
+        $scope.preloader 	    = true;
+        $scope.projectName    = $rootScope.project.name;
+        $scope.authorName  	  = $rootScope.project.authorName;
+        $scope.email 		      = $rootScope.project.email;
+        $scope.license 		    = 'MIT';
+        $scope.template 	    = $rootScope.project.template;
+        $scope.models         = $rootScope.project.schemas;
+        $scope.models         = String($scope.models);
+
+        exportProjectService.allLayouts().then(function (data) {
+	        $scope.layouts = data;
+	    });
+
+	    $scope.setTemplate = function(arg){
+	    	 $scope.template = arg;
+	    }
+
+      $scope.validate = function () {
+          if(!$scope.projectName || !$scope.authorName || !$scope.email  || !$scope.template || !$scope.license || !$scope.models){
+              $scope.submitBtn = true;
+          }else{
+              $scope.submitBtn = false;
+          }
+      };
+      $scope.validate();
+     /*  Create    */
+     $scope.open = function () {
+        var modalInstance = $uibModal.open({
+          animation: true,
+          templateUrl: '/javascripts/setup/exportProject/templates/preview.html',
+          controller: 'previewExportProjectController',
+          size: 'lg',
+          resolve: {
+            layout: function () {
+              return $scope.template;
+            }
+          }
+        });
+    };
+    
+    /*  Create    */
+    var exportProject = function(){
+      exportProjectService.setValues($scope.projectName,$scope.authorName,$scope.email,$scope.license,$scope.models,$scope.template).then(function(r){
+          if(r.valid){
+            $scope.preloader  = false;
+            $ngBootbox.alert('The project was successful generecion please constructs the project from the console. * gulp exportProject!');
+          }else{
+            $scope.preloader  = true;
+            $ngBootbox.alert('Ups Something went wrong Please check your modules and rebuilds!');
+          }
+      });
+    }
+
+    $scope.submit = function(){
+      $scope.projectName = $scope.projectName.replace(/\s+/g, '-');
+      $ngBootbox.alert('Please Stop the service gulp watch-front and continue!').then(function() {
+        exportProject();
+      });
+    }
+
+}])
+.factory('exportProjectService',
+    ['$q', '$http',
+        function ($q, $http) {
+            return ({
+                allLayouts: allLayouts,
+                setValues : setValues
+            });
+
+            function allLayouts() {
+                var defered = $q.defer();
+                var promise = defered.promise;
+
+                $http.get('/setup/layouts')
+                    .success(function (data) {
+                        defered.resolve(data);
+                    })
+                    .error(function (err) {
+                        defered.reject(err)
+                    });
+
+                return promise;
+            }
+
+            function setValues(projectName,authorName,email,license,models,template) {
+              var deferred = $q.defer();
+              $http.post('/exportProject/projectProduction', {projectName: projectName,authorName: authorName, email: email,license:license,models:models,template:template})
+                .success(function (data, status) {
+                    deferred.resolve(data);
+                })
+                .error(function (data) {
+                  deferred.reject();
+                });
+                return deferred.promise;
+            }
+
+}])
+.controller('previewExportProjectController',
+  ['$scope', '$uibModalInstance', 'layout',
+  function ($scope, $uibModalInstance, layout) {
+  
+    $scope.layout = layout;
+
+
+}])
+.config(function ($routeProvider) {
+ 	$routeProvider
+ 		.when('/exportProject', {
+ 		    templateUrl: '/javascripts/setup/exportProject/templates/exportProject.html',
+ 			controller: 'exportProjectController',
+ 			access: {
+ 				 restricted: false,
+ 				 rol: 5
  			}
  		});
  })
