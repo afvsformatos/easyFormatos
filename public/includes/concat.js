@@ -1329,7 +1329,7 @@
           $uibModalInstance.close(r);
         });
       }else{
-        conversordetalleplantillasModel.findById($scope.item._id);
+        conversordetalleplantillasModel.findById($scope.item.IdPlantilla);
         conversordetalleplantillasModel.IdPlantilla = $scope.item.IdPlantilla;
         conversordetalleplantillasModel.IdFormato = $scope.item.IdFormato;
         conversordetalleplantillasModel.Plantilla = $scope.item.Plantilla;
@@ -1545,7 +1545,7 @@
           $uibModalInstance.close(r);
         });
       }else{
-        conversordetallesModel.findById($scope.item._id);
+        conversordetallesModel.findById($scope.item.IdDetalle);
         conversordetallesModel.IdDetalle = $scope.item.IdDetalle;
         conversordetallesModel.IdFormato = $scope.item.IdFormato;
         conversordetallesModel.TipoRegistro = $scope.item.TipoRegistro;

@@ -43,3 +43,18 @@ a {
 	 
  	 margin: 0 auto;
 }
+
+.iconorojo { 
+  color: red; 
+}
+
+.formatoSubtitulos{
+    color: #337ab7;
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.formatoSubtitulos:hover{
+    color: black;
+}
