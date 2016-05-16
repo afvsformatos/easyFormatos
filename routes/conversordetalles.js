@@ -35,36 +35,41 @@ router.post('/conversordetalles', function(req, res, next){
 });
 /* PUT - Update conversordetalles. */
 router.put('/conversordetalles/:id', function(req, res){
-   conversordetalles.findById(req.params.id, function(err, data){
-     if(typeof req.body.iddetalle  != "undefined"){data.iddetalle = req.body.iddetalle;}
-     if(typeof req.body.idformato  != "undefined"){data.idformato = req.body.idformato;}
-     if(typeof req.body.tiporegistro  != "undefined"){data.tiporegistro = req.body.tiporegistro;}
-     if(typeof req.body.numerocampo  != "undefined"){data.numerocampo = req.body.numerocampo;}
-     if(typeof req.body.posicioninicio  != "undefined"){data.posicioninicio = req.body.posicioninicio;}
-     if(typeof req.body.longitudcampo  != "undefined"){data.longitudcampo = req.body.longitudcampo;}
-     if(typeof req.body.tipocampo  != "undefined"){data.tipocampo = req.body.tipocampo;}
-     if(typeof req.body.separadordecimales  != "undefined"){data.separadordecimales = req.body.separadordecimales;}
-     if(typeof req.body.numerodecimales  != "undefined"){data.numerodecimales = req.body.numerodecimales;}
-     if(typeof req.body.descripcioncampo  != "undefined"){data.descripcioncampo = req.body.descripcioncampo;}
-     if(typeof req.body.idcampoequivalente  != "undefined"){data.idcampoequivalente = req.body.idcampoequivalente;}
-     if(typeof req.body.campoequivalente  != "undefined"){data.campoequivalente = req.body.campoequivalente;}
-     if(typeof req.body.obligatorio  != "undefined"){data.obligatorio = req.body.obligatorio;}
-     if(typeof req.body.validaciones  != "undefined"){data.validaciones = req.body.validaciones;}
-     if(typeof req.body.tipo_registro  != "undefined"){data.tipo_registro = req.body.tipo_registro;}
-     if(typeof req.body.default_value  != "undefined"){data.default_value = req.body.default_value;}
-     if(typeof req.body.observacion  != "undefined"){data.observacion = req.body.observacion;}
-     if(typeof req.body.rutina_validacion  != "undefined"){data.rutina_validacion = req.body.rutina_validacion;}
-     if(typeof req.body.rutina_transformacion  != "undefined"){data.rutina_transformacion = req.body.rutina_transformacion;}
-     if(typeof req.body.caracterconcatenacion  != "undefined"){data.caracterconcatenacion = req.body.caracterconcatenacion;}
-     if(typeof req.body.ordencampo  != "undefined"){data.ordencampo = req.body.ordencampo;}
-     if(typeof req.body.rutina_conversion  != "undefined"){data.rutina_conversion = req.body.rutina_conversion;}
-     if(typeof req.body.validaenmasivas  != "undefined"){data.validaenmasivas = req.body.validaenmasivas;}
-     data.save(function(err){
-       if(err){res.send(err)}
-       res.json(data);
-       meanCaseBase.auditSave(req,'Update Register','conversordetalles',data);
-     })
-   })
+     var datosActualizar = {};
+     //if(typeof req.body.IdDetalle  != "undefined"){datosActualizar.IdDetalle = req.body.IdDetalle;}
+     if(typeof req.body.IdFormato  != "undefined"){datosActualizar.IdFormato = req.body.IdFormato;}
+     if(typeof req.body.TipoRegistro  != "undefined"){datosActualizar.TipoRegistro = req.body.TipoRegistro;}
+     if(typeof req.body.NumeroCampo  != "undefined"){datosActualizar.NumeroCampo = req.body.NumeroCampo;}
+     if(typeof req.body.PosicionInicio  != "undefined"){datosActualizar.PosicionInicio = req.body.PosicionInicio;}
+     if(typeof req.body.LongitudCampo  != "undefined"){datosActualizar.LongitudCampo = req.body.LongitudCampo;}
+     if(typeof req.body.TipoCampo  != "undefined"){datosActualizar.TipoCampo = req.body.TipoCampo;}
+     if(typeof req.body.SeparadorDecimales  != "undefined"){datosActualizar.SeparadorDecimales = req.body.SeparadorDecimales;}
+     if(typeof req.body.NumeroDecimales  != "undefined"){datosActualizar.NumeroDecimales = req.body.NumeroDecimales;}
+     if(typeof req.body.DescripcionCampo  != "undefined"){datosActualizar.DescripcionCampo = req.body.DescripcionCampo;}
+     if(typeof req.body.IdCampoEquivalente  != "undefined"){datosActualizar.IdCampoEquivalente = req.body.IdCampoEquivalente;}
+     if(typeof req.body.CampoEquivalente  != "undefined"){datosActualizar.CampoEquivalente = req.body.CampoEquivalente;}
+     if(typeof req.body.Obligatorio  != "undefined"){datosActualizar.Obligatorio = req.body.Obligatorio;}
+     if(typeof req.body.Validaciones  != "undefined"){datosActualizar.Validaciones = req.body.Validaciones;}
+     if(typeof req.body.Tipo_Registro  != "undefined"){datosActualizar.Tipo_Registro = req.body.Tipo_Registro;}
+     if(typeof req.body.Default_Value  != "undefined"){datosActualizar.Default_Value = req.body.Default_Value;}
+     if(typeof req.body.observacion  != "undefined"){datosActualizar.observacion = req.body.observacion;}
+     if(typeof req.body.Rutina_Validacion  != "undefined"){datosActualizar.Rutina_Validacion = req.body.Rutina_Validacion;}
+     if(typeof req.body.Rutina_Transformacion  != "undefined"){datosActualizar.Rutina_Transformacion = req.body.Rutina_Transformacion;}
+     if(typeof req.body.CaracterConcatenacion  != "undefined"){datosActualizar.CaracterConcatenacion = req.body.CaracterConcatenacion;}
+     if(typeof req.body.OrdenCampo  != "undefined"){datosActualizar.OrdenCampo = req.body.OrdenCampo;}
+     if(typeof req.body.Rutina_Conversion  != "undefined"){datosActualizar.Rutina_Conversion = req.body.Rutina_Conversion;}
+     if(typeof req.body.ValidaEnMasivas  != "undefined"){datosActualizar.ValidaEnMasivas = req.body.ValidaEnMasivas;}
+     
+     conversorDetalle.update(datosActualizar,
+      {
+        where: {IdDetalle: req.params.id}
+      })
+      .then(function (result) { 
+          res.json(result);
+          meanCaseBase.auditSave(req,'Update Register','conversordetalles',datosActualizar);
+      }, function(rejectedPromiseError){
+          res.json(rejectedPromiseError);
+      });
 });
 /* DELETE - conversordetalles. */
 router.delete('/conversordetalles/:id', function(req, res){

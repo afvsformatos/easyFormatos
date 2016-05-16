@@ -40,7 +40,7 @@
           $uibModalInstance.close(r);
         });
       }else{
-        conversordetallesModel.findById($scope.item._id);
+        conversordetallesModel.findById($scope.item.IdDetalle);
         conversordetallesModel.IdDetalle = $scope.item.IdDetalle;
         conversordetallesModel.IdFormato = $scope.item.IdFormato;
         conversordetallesModel.TipoRegistro = $scope.item.TipoRegistro;
