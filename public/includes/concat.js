@@ -699,6 +699,133 @@
       }
     });
  })
+.controller('controlesController',
+  ['$rootScope','$scope', '$location', 'controlesModel','$uibModal',
+  function ($rootScope,$scope, $location, controlesModel,$uibModal) {
+    $scope.titleController = 'MEAN-CASE SUPER HEROIC';
+    $rootScope.titleWeb = 'controles';
+    $scope.preloader = true;
+    $scope.msjAlert = false;
+    controlesModel.getAll().then(function(data) {
+      $scope.controlesList = data;
+      $scope.controlesTemp = angular.copy($scope.controlesList);
+      $scope.preloader = false;
+    });
+    /*  Modal */
+     $scope.open = function (item) {
+       var modalInstance = $uibModal.open({
+        animation: true,
+        templateUrl: 'templates/controles/modalCreate.html',
+        controller: 'modalcontrolesCreateController',
+        size: 'lg',
+        resolve: {
+         item: function () {
+          return item;
+         }
+        }
+      });
+      modalInstance.result.then(function(data) {
+           controlesModel.getAll().then(function(d) {
+             $scope.controlesList = d;
+             $scope.controlesTemp = angular.copy($scope.controlesList);
+           });
+      },function(result){
+      $scope.controlesList = $scope.controlesTemp;
+      $scope.controlesTemp = angular.copy($scope.controlesList);
+    });
+  };
+  /*  Delete  */
+  $scope.openDelete = function (item) {
+    var modalInstance = $uibModal.open({
+      animation: true,
+      templateUrl: 'templates/controles/modalDelete.html',
+      controller: 'modalcontrolesDeleteController',
+      size: 'lg',
+      resolve: {
+        item: function () {
+           return item;
+        }
+      }
+    });
+    modalInstance.result.then(function(data) {
+      var idx = $scope.controlesList.indexOf(data);
+      $scope.controlesList.splice(idx, 1);
+      controlesModel
+        .destroy(data.IdFormato)
+        .then(function(result) {
+          $scope.msjAlert = true;
+          $scope.alert = 'success';
+          $scope.message = result.message;
+        })
+        .catch(function(err) {
+          $scope.msjAlert = true;
+          $scope.alert = 'danger';
+          $scope.message = 'Error '+err;
+        })
+      });
+    };
+}])
+.controller('modalcontrolesCreateController',
+  ['$scope', '$uibModalInstance', 'item','controlesModel','$filter',"pacientesModel",
+  function ($scope, $uibModalInstance, item,controlesModel,$filter,pacientesModel) {
+    $scope.item = item;
+    $scope.saving = false;
+    if(item){
+      item.dateAsString1 = $filter("date")(item.fecha, "yyyy-MM-dd");
+       //add optional code
+    }
+    $scope.save = function () {
+      if(!item){
+        $scope.saving = true;
+        item = {fecha: $scope.item.fecha};
+        var controles = controlesModel.create();
+        controles.pacientes = $scope.item.pacientes;
+        controles.fecha = $scope.item.fecha;
+        controles.save().then(function(r){
+          $scope.saving = false;
+          $uibModalInstance.close(r);
+        });
+      }else{
+        if($scope.item.fecha === undefined){
+          $scope.item.fecha = Date.parse(item.dateAsString1);
+          $scope.item.fecha = new Date($scope.item.fecha);
+          $scope.item.fecha = $scope.item.fecha.setDate($scope.item.fecha.getDate() + 1);
+        }
+        controlesModel.findById($scope.item._id);
+        controlesModel.pacientes =  $scope.item.pacientes;
+        controlesModel.fecha = $scope.item.fecha;
+        controlesModel.save().then(function(r){
+          $scope.saving = false;
+          $uibModalInstance.close(r);
+        });
+      }
+    };
+    pacientesModel.getAll().then(function(data) {
+      $scope.pacientes = data;
+    });
+}])
+.controller('modalcontrolesDeleteController',
+  ['$scope', '$uibModalInstance', 'item',
+  function ($scope, $uibModalInstance, item) {
+    $scope.item = item;
+    $scope.ok = function () {
+      $uibModalInstance.close($scope.item);
+    };
+    $scope.cancel = function () {
+       $uibModalInstance.dismiss('cancel');
+     };
+}])
+.config(function ($routeProvider) {
+  $routeProvider
+    .when('/controles', {
+      templateUrl: '/templates/controles/index.html',
+      controller: 'controlesController',
+      access: {
+        restricted: false,
+       rol: 1
+      }
+    });
+ })
 .controller('conversorcabecerasController',
   ['$rootScope','$scope', '$location', 'conversorcabecerasModel','$uibModal','$routeParams',
   function ($rootScope,$scope, $location, conversorcabecerasModel,$uibModal,$routeParams) {
@@ -1219,7 +1346,7 @@
       var idx = $scope.conversordetallesList.indexOf(data);
       $scope.conversordetallesList.splice(idx, 1);
       conversordetallesModel
-        .destroy(data._id)
+        .destroy(data.IdDetalle)
         .then(function(result) {
           $scope.msjAlert = true;
           $scope.alert = 'success';
@@ -1322,251 +1449,6 @@
     .when('/conversordetalles/:idFormato/:NombreFormato', {
       templateUrl: '/templates/conversordetalles/index.html',
       controller: 'conversordetallesController',
-      access: {
-        restricted: false,
-       rol: 1
-      }
-    });
- })
-.controller('pacientesController',
-  ['$rootScope','$scope', '$location', 'pacientesModel','$uibModal',
-  function ($rootScope,$scope, $location, pacientesModel,$uibModal) {
-    $scope.titleController = 'MEAN-CASE SUPER HEROIC';
-    $rootScope.titleWeb = 'pacientes';
-    $scope.preloader = true;
-    $scope.msjAlert = false;
-    pacientesModel.getAll().then(function(data) {
-      $scope.pacientesList = data;
-      $scope.pacientesTemp = angular.copy($scope.pacientesList);
-      $scope.preloader = false;
-    });
-    /*  Modal */
-     $scope.open = function (item) {
-       var modalInstance = $uibModal.open({
-        animation: true,
-        templateUrl: 'templates/pacientes/modalCreate.html',
-        controller: 'modalpacientesCreateController',
-        size: 'lg',
-        resolve: {
-         item: function () {
-          return item;
-         }
-        }
-      });
-      modalInstance.result.then(function(data) {
-        if(!item) {
-           $scope.pacientesList.push(data);
-           $scope.pacientesTemp = angular.copy($scope.pacientesList);
-        }
-      },function(result){
-      $scope.pacientesList = $scope.pacientesTemp;
-      $scope.pacientesTemp = angular.copy($scope.pacientesList);
-    });
-  };
-  /*  Delete  */
-  $scope.openDelete = function (item) {
-    var modalInstance = $uibModal.open({
-      animation: true,
-      templateUrl: 'templates/pacientes/modalDelete.html',
-      controller: 'modalpacientesDeleteController',
-      size: 'lg',
-      resolve: {
-        item: function () {
-           return item;
-        }
-      }
-    });
-    modalInstance.result.then(function(data) {
-      var idx = $scope.pacientesList.indexOf(data);
-      $scope.pacientesList.splice(idx, 1);
-      pacientesModel
-        .destroy(data._id)
-        .then(function(result) {
-          $scope.msjAlert = true;
-          $scope.alert = 'success';
-          $scope.message = result.message;
-        })
-        .catch(function(err) {
-          $scope.msjAlert = true;
-          $scope.alert = 'danger';
-          $scope.message = 'Error '+err;
-        })
-      });
-    };
-}])
-.controller('modalpacientesCreateController',
-  ['$scope', '$uibModalInstance', 'item','pacientesModel','$filter',
-  function ($scope, $uibModalInstance, item,pacientesModel,$filter) {
-    $scope.item = item;
-    $scope.saving = false;
-    if(item){
-       //add optional code
-    }
-    $scope.save = function () {
-      if(!item){
-        $scope.saving = true;
-        item = {nombres: $scope.item.nombres,edad: $scope.item.edad};
-        var pacientes = pacientesModel.create();
-        pacientes.nombres = $scope.item.nombres;
-        pacientes.edad = $scope.item.edad;
-        pacientes.save().then(function(r){
-          $scope.saving = false;
-          $uibModalInstance.close(r);
-        });
-      }else{
-        pacientesModel.findById($scope.item._id);
-        pacientesModel.nombres = $scope.item.nombres;
-        pacientesModel.edad = $scope.item.edad;
-        pacientesModel.save().then(function(r){
-          $scope.saving = false;
-          $uibModalInstance.close(r);
-        });
-      }
-    };
-}])
-.controller('modalpacientesDeleteController',
-  ['$scope', '$uibModalInstance', 'item',
-  function ($scope, $uibModalInstance, item) {
-    $scope.item = item;
-    $scope.ok = function () {
-      $uibModalInstance.close($scope.item);
-    };
-    $scope.cancel = function () {
-       $uibModalInstance.dismiss('cancel');
-     };
-}])
-.config(function ($routeProvider) {
-  $routeProvider
-    .when('/pacientes', {
-      templateUrl: '/templates/pacientes/index.html',
-      controller: 'pacientesController',
-      access: {
-        restricted: false,
-       rol: 2
-      }
-    });
- })
-.controller('controlesController',
-  ['$rootScope','$scope', '$location', 'controlesModel','$uibModal',
-  function ($rootScope,$scope, $location, controlesModel,$uibModal) {
-    $scope.titleController = 'MEAN-CASE SUPER HEROIC';
-    $rootScope.titleWeb = 'controles';
-    $scope.preloader = true;
-    $scope.msjAlert = false;
-    controlesModel.getAll().then(function(data) {
-      $scope.controlesList = data;
-      $scope.controlesTemp = angular.copy($scope.controlesList);
-      $scope.preloader = false;
-    });
-    /*  Modal */
-     $scope.open = function (item) {
-       var modalInstance = $uibModal.open({
-        animation: true,
-        templateUrl: 'templates/controles/modalCreate.html',
-        controller: 'modalcontrolesCreateController',
-        size: 'lg',
-        resolve: {
-         item: function () {
-          return item;
-         }
-        }
-      });
-      modalInstance.result.then(function(data) {
-           controlesModel.getAll().then(function(d) {
-             $scope.controlesList = d;
-             $scope.controlesTemp = angular.copy($scope.controlesList);
-           });
-      },function(result){
-      $scope.controlesList = $scope.controlesTemp;
-      $scope.controlesTemp = angular.copy($scope.controlesList);
-    });
-  };
-  /*  Delete  */
-  $scope.openDelete = function (item) {
-    var modalInstance = $uibModal.open({
-      animation: true,
-      templateUrl: 'templates/controles/modalDelete.html',
-      controller: 'modalcontrolesDeleteController',
-      size: 'lg',
-      resolve: {
-        item: function () {
-           return item;
-        }
-      }
-    });
-    modalInstance.result.then(function(data) {
-      var idx = $scope.controlesList.indexOf(data);
-      $scope.controlesList.splice(idx, 1);
-      controlesModel
-        .destroy(data.IdFormato)
-        .then(function(result) {
-          $scope.msjAlert = true;
-          $scope.alert = 'success';
-          $scope.message = result.message;
-        })
-        .catch(function(err) {
-          $scope.msjAlert = true;
-          $scope.alert = 'danger';
-          $scope.message = 'Error '+err;
-        })
-      });
-    };
-}])
-.controller('modalcontrolesCreateController',
-  ['$scope', '$uibModalInstance', 'item','controlesModel','$filter',"pacientesModel",
-  function ($scope, $uibModalInstance, item,controlesModel,$filter,pacientesModel) {
-    $scope.item = item;
-    $scope.saving = false;
-    if(item){
-      item.dateAsString1 = $filter("date")(item.fecha, "yyyy-MM-dd");
-       //add optional code
-    }
-    $scope.save = function () {
-      if(!item){
-        $scope.saving = true;
-        item = {fecha: $scope.item.fecha};
-        var controles = controlesModel.create();
-        controles.pacientes = $scope.item.pacientes;
-        controles.fecha = $scope.item.fecha;
-        controles.save().then(function(r){
-          $scope.saving = false;
-          $uibModalInstance.close(r);
-        });
-      }else{
-        if($scope.item.fecha === undefined){
-          $scope.item.fecha = Date.parse(item.dateAsString1);
-          $scope.item.fecha = new Date($scope.item.fecha);
-          $scope.item.fecha = $scope.item.fecha.setDate($scope.item.fecha.getDate() + 1);
-        }
-        controlesModel.findById($scope.item._id);
-        controlesModel.pacientes =  $scope.item.pacientes;
-        controlesModel.fecha = $scope.item.fecha;
-        controlesModel.save().then(function(r){
-          $scope.saving = false;
-          $uibModalInstance.close(r);
-        });
-      }
-    };
-    pacientesModel.getAll().then(function(data) {
-      $scope.pacientes = data;
-    });
-}])
-.controller('modalcontrolesDeleteController',
-  ['$scope', '$uibModalInstance', 'item',
-  function ($scope, $uibModalInstance, item) {
-    $scope.item = item;
-    $scope.ok = function () {
-      $uibModalInstance.close($scope.item);
-    };
-    $scope.cancel = function () {
-       $uibModalInstance.dismiss('cancel');
-     };
-}])
-.config(function ($routeProvider) {
-  $routeProvider
-    .when('/controles', {
-      templateUrl: '/templates/controles/index.html',
-      controller: 'controlesController',
       access: {
         restricted: false,
        rol: 1
@@ -1710,6 +1592,124 @@
         
 
 }])
+.controller('pacientesController',
+  ['$rootScope','$scope', '$location', 'pacientesModel','$uibModal',
+  function ($rootScope,$scope, $location, pacientesModel,$uibModal) {
+    $scope.titleController = 'MEAN-CASE SUPER HEROIC';
+    $rootScope.titleWeb = 'pacientes';
+    $scope.preloader = true;
+    $scope.msjAlert = false;
+    pacientesModel.getAll().then(function(data) {
+      $scope.pacientesList = data;
+      $scope.pacientesTemp = angular.copy($scope.pacientesList);
+      $scope.preloader = false;
+    });
+    /*  Modal */
+     $scope.open = function (item) {
+       var modalInstance = $uibModal.open({
+        animation: true,
+        templateUrl: 'templates/pacientes/modalCreate.html',
+        controller: 'modalpacientesCreateController',
+        size: 'lg',
+        resolve: {
+         item: function () {
+          return item;
+         }
+        }
+      });
+      modalInstance.result.then(function(data) {
+        if(!item) {
+           $scope.pacientesList.push(data);
+           $scope.pacientesTemp = angular.copy($scope.pacientesList);
+        }
+      },function(result){
+      $scope.pacientesList = $scope.pacientesTemp;
+      $scope.pacientesTemp = angular.copy($scope.pacientesList);
+    });
+  };
+  /*  Delete  */
+  $scope.openDelete = function (item) {
+    var modalInstance = $uibModal.open({
+      animation: true,
+      templateUrl: 'templates/pacientes/modalDelete.html',
+      controller: 'modalpacientesDeleteController',
+      size: 'lg',
+      resolve: {
+        item: function () {
+           return item;
+        }
+      }
+    });
+    modalInstance.result.then(function(data) {
+      var idx = $scope.pacientesList.indexOf(data);
+      $scope.pacientesList.splice(idx, 1);
+      pacientesModel
+        .destroy(data._id)
+        .then(function(result) {
+          $scope.msjAlert = true;
+          $scope.alert = 'success';
+          $scope.message = result.message;
+        })
+        .catch(function(err) {
+          $scope.msjAlert = true;
+          $scope.alert = 'danger';
+          $scope.message = 'Error '+err;
+        })
+      });
+    };
+}])
+.controller('modalpacientesCreateController',
+  ['$scope', '$uibModalInstance', 'item','pacientesModel','$filter',
+  function ($scope, $uibModalInstance, item,pacientesModel,$filter) {
+    $scope.item = item;
+    $scope.saving = false;
+    if(item){
+       //add optional code
+    }
+    $scope.save = function () {
+      if(!item){
+        $scope.saving = true;
+        item = {nombres: $scope.item.nombres,edad: $scope.item.edad};
+        var pacientes = pacientesModel.create();
+        pacientes.nombres = $scope.item.nombres;
+        pacientes.edad = $scope.item.edad;
+        pacientes.save().then(function(r){
+          $scope.saving = false;
+          $uibModalInstance.close(r);
+        });
+      }else{
+        pacientesModel.findById($scope.item._id);
+        pacientesModel.nombres = $scope.item.nombres;
+        pacientesModel.edad = $scope.item.edad;
+        pacientesModel.save().then(function(r){
+          $scope.saving = false;
+          $uibModalInstance.close(r);
+        });
+      }
+    };
+}])
+.controller('modalpacientesDeleteController',
+  ['$scope', '$uibModalInstance', 'item',
+  function ($scope, $uibModalInstance, item) {
+    $scope.item = item;
+    $scope.ok = function () {
+      $uibModalInstance.close($scope.item);
+    };
+    $scope.cancel = function () {
+       $uibModalInstance.dismiss('cancel');
+     };
+}])
+.config(function ($routeProvider) {
+  $routeProvider
+    .when('/pacientes', {
+      templateUrl: '/templates/pacientes/index.html',
+      controller: 'pacientesController',
+      access: {
+        restricted: false,
+       rol: 2
+      }
+    });
+ })
 .controller('crudController',
     ['$scope', 'crudService',
         function ($scope, crudService) {

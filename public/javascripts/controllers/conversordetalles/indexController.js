@@ -113,7 +113,7 @@
       var idx = $scope.conversordetallesList.indexOf(data);
       $scope.conversordetallesList.splice(idx, 1);
       conversordetallesModel
-        .destroy(data._id)
+        .destroy(data.IdDetalle)
         .then(function(result) {
           $scope.msjAlert = true;
           $scope.alert = 'success';
