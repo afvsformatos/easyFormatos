@@ -26,6 +26,9 @@
         formatoCabecera.save().then(function(r){
           $scope.datosCabecera = [];
           $scope.datosCabecera.push(r);
+          $scope.item.formato = null;
+          $scope.item.nombreFormato = null;
+          $scope.item.descripcionFormato = null;
           $scope.preloader = false;
           $scope.mostrarGrid = true;
         });

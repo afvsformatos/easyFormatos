@@ -69,6 +69,7 @@ router.post('/duplicarFormato', function(req, res, next){
                  conversorDetallePlantilla.create(cabeceraPlantillas[i].dataValues);
 
               }
+              data.dataValues['message'] = "Registro Duplicado Correctamente";
               res.json(data.dataValues);
           });
     });
