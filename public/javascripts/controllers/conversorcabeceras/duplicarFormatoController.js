@@ -6,11 +6,12 @@
     $rootScope.titleWeb = 'conversorcabeceras';
     $scope.preloader = true;
     $scope.msjAlert = false;
+    $scope.mostrarGrid = false;
     var obtenerCabeceras = function(){
       conversorcabecerasModel.getAll().then(function(data) {
         $scope.conversorcabecerasList = data;
         $scope.conversorcabecerasTemp = angular.copy($scope.conversorcabecerasList);
-        $scope.preloader = false;
+        //$scope.preloader = false;
       });
     }
 
@@ -23,7 +24,10 @@
         formatoCabecera.nombreFormato = $scope.item.nombreFormato;
         formatoCabecera.descripcionFormato = $scope.item.descripcionFormato;
         formatoCabecera.save().then(function(r){
-          $scope.saving = false;
+          $scope.datosCabecera = [];
+          $scope.datosCabecera.push(r);
+          $scope.preloader = false;
+          $scope.mostrarGrid = true;
         });
     }
 

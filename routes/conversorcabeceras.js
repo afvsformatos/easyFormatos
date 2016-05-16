@@ -5,6 +5,7 @@ var mongoose = require('mongoose');
 var conversorcabeceras = mongoose.model('conversorcabeceras');
 var conversorCabecera = require('../config/relationalModels/conversorCabecera.js');
 var conversorDetalle = require('../config/relationalModels/conversorDetalle.js');
+var conversorDetallePlantilla = require('../config/relationalModels/conversorDetallePlantilla.js');
 var connectionDb = require('../config/connectionDb.js');
 
 router.get('/conversorcabeceras/:id', function (req, res) {
@@ -46,19 +47,29 @@ router.post('/conversorcabeceras', function(req, res, next){
 
 /* Duplicar Formatos */
 router.post('/duplicarFormato', function(req, res, next){
-    conversorCabecera.find({ where: { IdFormato: req.body.idFormato}, include: [conversorDetalle] }).then(function(cabecera) {
+    conversorCabecera.find({ where: { IdFormato: req.body.idFormato}, include: [conversorDetalle,conversorDetallePlantilla]}).then(function(cabecera) {
           var cabeceraDetalles = cabecera.dataValues.Conversor_Detalles;
+          var cabeceraPlantillas = cabecera.dataValues.Conversor_Detalle_Plantillas;
           delete cabecera.dataValues['IdFormato'];
           delete cabecera.dataValues['Conversor_Detalles'];
           cabecera.dataValues.NombreFormato = req.body.nombreFormato;
           cabecera.dataValues.DescripcionFormato =  req.body.descripcionFormato; 
           conversorCabecera.create(cabecera.dataValues).then(function(data) {
-            for (var i=0; i <= cabeceraDetalles.length; i++) { 
-               cabeceraDetalles[i].IdFormato = data.dataValues.IdFormato;
-               //conversorDetalle.create(cabeceraDetalles[i]);
-            }
-            //res.json(data.dataValues);
-            res.json(cabeceraDetalles);
+              var size = cabeceraDetalles.length;
+              var sizePlantillas = cabeceraPlantillas.length;
+              for (var i = 0 ; i < size; i++) { 
+                 delete cabeceraDetalles[i].dataValues.IdDetalle;
+                 cabeceraDetalles[i].dataValues.IdFormato = data.dataValues.IdFormato;
+                 conversorDetalle.create(cabeceraDetalles[i].dataValues);
+
+              }
+              for (var i = 0 ; i < sizePlantillas; i++) { 
+                 delete cabeceraPlantillas[i].dataValues.IdPlantilla;
+                 cabeceraPlantillas[i].dataValues.IdFormato = data.dataValues.IdFormato;
+                 conversorDetallePlantilla.create(cabeceraPlantillas[i].dataValues);
+
+              }
+              res.json(data.dataValues);
           });
     });
 });

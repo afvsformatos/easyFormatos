@@ -161,162 +161,6 @@
  		});
  	});
  })
-.controller('bootstrapController',
-  ['$scope', '$location', 'AuthService','bootstrapService','$route',
-  function ($scope, $location, AuthService,bootstrapService,$route) {
-    $scope.test = "Menú 1";
-         /*  LOGOUT  */
-	    $scope.logout = function () {
-	      AuthService.logout()
-	        .then(function () {
-	          $location.path('/login');
-	        });
-
-	    };
-	    bootstrapService.getMenu().then(function(data) {
-	      $scope.menus = data;
-	    });	
-
-	    $scope.reloadRoute = function(menu){
-	    	if(menu.flat == 'cabecera')
-	    		location.reload();
-
-	    	
-	    	
-	    }
-	    
-}])
-.controller('homeController',
-  ['$rootScope','$scope', '$location', 'AuthService','$uibModal','mySocket',
-  function ($rootScope,$scope, $location, AuthService,$uibModal,mySocket) {
-    $scope.arrayMsg = [];
-    $scope.titleHomeController = "Welcome";
-    $scope.testSocket = function(){
-    	mySocket.emit('chat message',{user:$rootScope.user.username,input:$scope.msgInput});
-    	mySocket.emit('test', 'test test');
-      
-    }
-    $scope.$on('socket:chat message', function(event, data) {
-      
-      var size = $scope.arrayMsg.length;
-      console.log(size);
-      if(size > 0){
-        var oldUser = $scope.arrayMsg[size-1].user;
-        var newUser = data.user;
-        if(oldUser =! newUser){
-          data["class1"] = "amigo";
-          data["class2"] = "derecha";
-        }else{
-          data["class1"] = "autor";
-          data["class2"] = "izquierda";
-        }
-         
-       
-      }else{
-        data["class1"] = "autor";
-        data["class2"] = "izquierda";
-      }
-      $scope.arrayMsg.push(data);
-      $scope.msgInput = '';
-      window.setInterval(function() {
-        var elem = document.getElementById('mensajes');
-        elem.scrollTop = elem.scrollHeight;
-      }, 5000);
-        
-    });
-    $scope.$on('socket:test', function(event, data) {
-    	console.log(data);
-    });
-}])
-.controller('loginController', ['$rootScope', '$scope', '$location', 'AuthService','$uibModal',
-  function ($rootScope, $scope, $location, AuthService,$uibModal) {
-		$scope.titleLoginController = "MEAN_CASE HEROIC";
-		$rootScope.titleWeb = "Login";
-		$scope.registerSuccess = false;
-		$scope.login = function () {
-
-			// initial values
-			$scope.registerSuccess = false;
-			$scope.error = false;
-			$scope.disabled = true;
-			// call login from service
-			AuthService.login($scope.loginForm.username, $scope.loginForm.password, $scope.remember)
-				// handle success
-				.then(function () {
-					$location.path('/');
-					$scope.disabled = false;
-					$scope.loginForm = {};
-				})
-				// handle error
-				.catch(function () {
-					$scope.error = true;
-					$scope.errorMessage = "Invalid username and/or password";
-					$scope.disabled = false;
-					$scope.loginForm = {};
-				});
-
-		};
-
-	 /*  Open   Register */
-	     $scope.open = function (size) {
-	        var modalInstance = $uibModal.open({
-	          animation: true,
-	          templateUrl: 'templates/login/loginRegister.html',
-	          controller: 'registerLoginUserController',
-	          size: size
-	        });
-
-	        modalInstance.result.then(function(data) {
-	          $scope.error = false;
-	          $scope.registerSuccess = true;
-	          $scope.msjSuccess = "Register Successful";
-	        });
-	    };
-
-    /*  Open Register    */
-
-		/* REGISTRAR  */
-		$scope.register = function () {
-
-			// initial values
-			$scope.error = false;
-			$scope.disabled = true;
-
-			// call register from service
-			AuthService.register($scope.registerForm.username, $scope.registerForm.password, $scope.rol)
-				// handle success
-				.then(function () {
-					$location.path('/');
-					$scope.disabled = false;
-					$scope.registerForm = {};
-				})
-				// handle error
-				.catch(function (err) {
-					$scope.error = true;
-					$scope.errorMessage = "User already exists!";
-					$scope.disabled = false;
-					$scope.registerForm = {};
-					$scope.rol = "";
-				});
-
-		};
-
-}])
-.controller('registerLoginUserController',
-  ['$scope', '$uibModalInstance','AuthService','userService',
-  function ($scope, $uibModalInstance,AuthService,userService) {
-  
-    $scope.saving = false;
-     
-    $scope.save = function () {
-        $scope.saving = true;
-        AuthService.register($scope.item.username,$scope.item.password,1).then(function(r){
-          $scope.saving = false;
-        });
-        $uibModalInstance.close();
-    };
-
-}])
 .factory('AuditService',
   ['$q', '$http',
   function ($q, $http) {
@@ -584,6 +428,162 @@
 
 
     }])
+.controller('bootstrapController',
+  ['$scope', '$location', 'AuthService','bootstrapService','$route',
+  function ($scope, $location, AuthService,bootstrapService,$route) {
+    $scope.test = "Menú 1";
+         /*  LOGOUT  */
+	    $scope.logout = function () {
+	      AuthService.logout()
+	        .then(function () {
+	          $location.path('/login');
+	        });
+
+	    };
+	    bootstrapService.getMenu().then(function(data) {
+	      $scope.menus = data;
+	    });	
+
+	    $scope.reloadRoute = function(menu){
+	    	if(menu.flat == 'cabecera')
+	    		location.reload();
+
+	    	
+	    	
+	    }
+	    
+}])
+.controller('homeController',
+  ['$rootScope','$scope', '$location', 'AuthService','$uibModal','mySocket',
+  function ($rootScope,$scope, $location, AuthService,$uibModal,mySocket) {
+    $scope.arrayMsg = [];
+    $scope.titleHomeController = "Welcome";
+    $scope.testSocket = function(){
+    	mySocket.emit('chat message',{user:$rootScope.user.username,input:$scope.msgInput});
+    	mySocket.emit('test', 'test test');
+      
+    }
+    $scope.$on('socket:chat message', function(event, data) {
+      
+      var size = $scope.arrayMsg.length;
+      console.log(size);
+      if(size > 0){
+        var oldUser = $scope.arrayMsg[size-1].user;
+        var newUser = data.user;
+        if(oldUser =! newUser){
+          data["class1"] = "amigo";
+          data["class2"] = "derecha";
+        }else{
+          data["class1"] = "autor";
+          data["class2"] = "izquierda";
+        }
+         
+       
+      }else{
+        data["class1"] = "autor";
+        data["class2"] = "izquierda";
+      }
+      $scope.arrayMsg.push(data);
+      $scope.msgInput = '';
+      window.setInterval(function() {
+        var elem = document.getElementById('mensajes');
+        elem.scrollTop = elem.scrollHeight;
+      }, 5000);
+        
+    });
+    $scope.$on('socket:test', function(event, data) {
+    	console.log(data);
+    });
+}])
+.controller('loginController', ['$rootScope', '$scope', '$location', 'AuthService','$uibModal',
+  function ($rootScope, $scope, $location, AuthService,$uibModal) {
+		$scope.titleLoginController = "MEAN_CASE HEROIC";
+		$rootScope.titleWeb = "Login";
+		$scope.registerSuccess = false;
+		$scope.login = function () {
+
+			// initial values
+			$scope.registerSuccess = false;
+			$scope.error = false;
+			$scope.disabled = true;
+			// call login from service
+			AuthService.login($scope.loginForm.username, $scope.loginForm.password, $scope.remember)
+				// handle success
+				.then(function () {
+					$location.path('/');
+					$scope.disabled = false;
+					$scope.loginForm = {};
+				})
+				// handle error
+				.catch(function () {
+					$scope.error = true;
+					$scope.errorMessage = "Invalid username and/or password";
+					$scope.disabled = false;
+					$scope.loginForm = {};
+				});
+
+		};
+
+	 /*  Open   Register */
+	     $scope.open = function (size) {
+	        var modalInstance = $uibModal.open({
+	          animation: true,
+	          templateUrl: 'templates/login/loginRegister.html',
+	          controller: 'registerLoginUserController',
+	          size: size
+	        });
+
+	        modalInstance.result.then(function(data) {
+	          $scope.error = false;
+	          $scope.registerSuccess = true;
+	          $scope.msjSuccess = "Register Successful";
+	        });
+	    };
+
+    /*  Open Register    */
+
+		/* REGISTRAR  */
+		$scope.register = function () {
+
+			// initial values
+			$scope.error = false;
+			$scope.disabled = true;
+
+			// call register from service
+			AuthService.register($scope.registerForm.username, $scope.registerForm.password, $scope.rol)
+				// handle success
+				.then(function () {
+					$location.path('/');
+					$scope.disabled = false;
+					$scope.registerForm = {};
+				})
+				// handle error
+				.catch(function (err) {
+					$scope.error = true;
+					$scope.errorMessage = "User already exists!";
+					$scope.disabled = false;
+					$scope.registerForm = {};
+					$scope.rol = "";
+				});
+
+		};
+
+}])
+.controller('registerLoginUserController',
+  ['$scope', '$uibModalInstance','AuthService','userService',
+  function ($scope, $uibModalInstance,AuthService,userService) {
+  
+    $scope.saving = false;
+     
+    $scope.save = function () {
+        $scope.saving = true;
+        AuthService.register($scope.item.username,$scope.item.password,1).then(function(r){
+          $scope.saving = false;
+        });
+        $uibModalInstance.close();
+    };
+
+}])
 .service('controlesModel', function ($optimumModel,pacientesModel) {
   var model = new $optimumModel();
   model.url = '/api/controles';
@@ -834,11 +834,12 @@
     $rootScope.titleWeb = 'conversorcabeceras';
     $scope.preloader = true;
     $scope.msjAlert = false;
+    $scope.mostrarGrid = false;
     var obtenerCabeceras = function(){
       conversorcabecerasModel.getAll().then(function(data) {
         $scope.conversorcabecerasList = data;
         $scope.conversorcabecerasTemp = angular.copy($scope.conversorcabecerasList);
-        $scope.preloader = false;
+        //$scope.preloader = false;
       });
     }
 
@@ -851,7 +852,10 @@
         formatoCabecera.nombreFormato = $scope.item.nombreFormato;
         formatoCabecera.descripcionFormato = $scope.item.descripcionFormato;
         formatoCabecera.save().then(function(r){
-          $scope.saving = false;
+          $scope.datosCabecera = [];
+          $scope.datosCabecera.push(r);
+          $scope.preloader = false;
+          $scope.mostrarGrid = true;
         });
     }
 
