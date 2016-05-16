@@ -1,4 +1,7 @@
 <h2>Duplicar Formato</h2>
+   <div class="row div-padding">
+     <div class="alert alert-{{alert}}" ng-show="msjAlert">{{message}}</div>
+   </div>
 <fieldset>  
        <div class="row">
          <div class="form-group col-md-12">
@@ -24,12 +27,15 @@
         	</div>
 		</div>
        <div  class="row">
-       		<button ng-disabled="item.formato == undefined || item.nombreFormato  == undefined || item.descripcionFormato  == undefined" class="btn btn-primary" ng-click="duplicarFormato()">Duplicar Formato</button>
+          <div class="form-group col-md-12">
+       		  <button ng-disabled="item.formato == undefined || item.nombreFormato  == undefined || item.descripcionFormato  == undefined" class="btn btn-primary" ng-click="duplicarFormato()">Duplicar Formato</button>
+          </div>
        </div>
 
 </fieldset>
 
-<div id="scrollTabla" ng-show="mostrarGrid">
+<div class="duplicarFormato" id="scrollTabla" ng-show="mostrarGrid">
+      <p class="formatoSubtitulos"> FORMATO</p>
        <table id="scrollTabla" ng-hide="preloader" class="table table-bordered table-hover table-striped" at-table at-paginated at-list="datosCabecera | filter:searchText" at-config="configTable">
          <thead></thead>
          <tbody>

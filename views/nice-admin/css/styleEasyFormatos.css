@@ -58,3 +58,7 @@ a {
 .formatoSubtitulos:hover{
     color: black;
 }
+
+.duplicarFormato{
+  margin-top:2em;
+}
