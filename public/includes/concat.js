@@ -161,6 +161,206 @@
  		});
  	});
  })
+.controller('bootstrapController',
+  ['$scope', '$location', 'AuthService','bootstrapService','$route',
+  function ($scope, $location, AuthService,bootstrapService,$route) {
+    $scope.test = "Menú 1";
+         /*  LOGOUT  */
+	    $scope.logout = function () {
+	      AuthService.logout()
+	        .then(function () {
+	          $location.path('/login');
+	        });
+
+	    };
+	    bootstrapService.getMenu().then(function(data) {
+	      $scope.menus = data;
+	    });	
+
+	    $scope.reloadRoute = function(menu){
+	    	if(menu.flat == 'cabecera')
+	    		location.reload();
+
+	    	
+	    	
+	    }
+	    
+}])
+.controller('homeController',
+  ['$rootScope','$scope', '$location', 'AuthService','$uibModal','mySocket',
+  function ($rootScope,$scope, $location, AuthService,$uibModal,mySocket) {
+    $scope.arrayMsg = [];
+    $scope.titleHomeController = "Welcome";
+    $scope.testSocket = function(){
+    	mySocket.emit('chat message',{user:$rootScope.user.username,input:$scope.msgInput});
+    	mySocket.emit('test', 'test test');
+      
+    }
+    $scope.$on('socket:chat message', function(event, data) {
+      
+      var size = $scope.arrayMsg.length;
+      console.log(size);
+      if(size > 0){
+        var oldUser = $scope.arrayMsg[size-1].user;
+        var newUser = data.user;
+        if(oldUser =! newUser){
+          data["class1"] = "amigo";
+          data["class2"] = "derecha";
+        }else{
+          data["class1"] = "autor";
+          data["class2"] = "izquierda";
+        }
+         
+       
+      }else{
+        data["class1"] = "autor";
+        data["class2"] = "izquierda";
+      }
+      $scope.arrayMsg.push(data);
+      $scope.msgInput = '';
+      window.setInterval(function() {
+        var elem = document.getElementById('mensajes');
+        elem.scrollTop = elem.scrollHeight;
+      }, 5000);
+        
+    });
+    $scope.$on('socket:test', function(event, data) {
+    	console.log(data);
+    });
+}])
+.controller('loginController', ['$rootScope', '$scope', '$location', 'AuthService','$uibModal',
+  function ($rootScope, $scope, $location, AuthService,$uibModal) {
+		$scope.titleLoginController = "MEAN_CASE HEROIC";
+		$rootScope.titleWeb = "Login";
+		$scope.registerSuccess = false;
+		$scope.login = function () {
+
+			// initial values
+			$scope.registerSuccess = false;
+			$scope.error = false;
+			$scope.disabled = true;
+			// call login from service
+			AuthService.login($scope.loginForm.username, $scope.loginForm.password, $scope.remember)
+				// handle success
+				.then(function () {
+					$location.path('/');
+					$scope.disabled = false;
+					$scope.loginForm = {};
+				})
+				// handle error
+				.catch(function () {
+					$scope.error = true;
+					$scope.errorMessage = "Invalid username and/or password";
+					$scope.disabled = false;
+					$scope.loginForm = {};
+				});
+
+		};
+
+	 /*  Open   Register */
+	     $scope.open = function (size) {
+	        var modalInstance = $uibModal.open({
+	          animation: true,
+	          templateUrl: 'templates/login/loginRegister.html',
+	          controller: 'registerLoginUserController',
+	          size: size
+	        });
+
+	        modalInstance.result.then(function(data) {
+	          $scope.error = false;
+	          $scope.registerSuccess = true;
+	          $scope.msjSuccess = "Register Successful";
+	        });
+	    };
+
+    /*  Open Register    */
+
+		/* REGISTRAR  */
+		$scope.register = function () {
+
+			// initial values
+			$scope.error = false;
+			$scope.disabled = true;
+
+			// call register from service
+			AuthService.register($scope.registerForm.username, $scope.registerForm.password, $scope.rol)
+				// handle success
+				.then(function () {
+					$location.path('/');
+					$scope.disabled = false;
+					$scope.registerForm = {};
+				})
+				// handle error
+				.catch(function (err) {
+					$scope.error = true;
+					$scope.errorMessage = "User already exists!";
+					$scope.disabled = false;
+					$scope.registerForm = {};
+					$scope.rol = "";
+				});
+
+		};
+
+}])
+.controller('registerLoginUserController',
+  ['$scope', '$uibModalInstance','AuthService','userService',
+  function ($scope, $uibModalInstance,AuthService,userService) {
+  
+    $scope.saving = false;
+     
+    $scope.save = function () {
+        $scope.saving = true;
+        AuthService.register($scope.item.username,$scope.item.password,1).then(function(r){
+          $scope.saving = false;
+        });
+        $uibModalInstance.close();
+    };
+
+}])
+.service('ambientesModel', function ($optimumModel) {
+  var model = new $optimumModel();
+  model.url = '/api/ambientes';
+  model.constructorModel = ["ambiente","username","password","database","host","dialect","estado"];
+  return model;
+})
+.service('controlesModel', function ($optimumModel,pacientesModel) {
+  var model = new $optimumModel();
+  model.url = '/api/controles';
+  model.constructorModel = ["pacientes","fecha"];
+ model.dependencies = {pacientes:pacientesModel.url};
+  return model;
+})
+.service('conversorcabecerasModel', function ($optimumModel) {
+  var model = new $optimumModel();
+  model.url = '/api/conversorcabeceras';
+  model.constructorModel = ["IdFormato","NombreFormato","DescripcionFormato","Cabecera","Pie","Separador","FormatoConversion","Formato_destino","Tipo_Proceso","NombreObjeto","estado","tipo_archivo_salida","ORIENTACION","RutinaPrevalidacion","Unificador","Check_Totales_Por","ValidaIdentificacion","RutinaPreconversion","InfiereTipoIdCliente","MuestraCabeceraColumna","TipoConversion"];
+  return model;
+})
+.service('conversordetalleplantillasModel', function ($optimumModel) {
+  var model = new $optimumModel();
+  model.url = '/api/conversordetalleplantillas';
+  model.constructorModel = ["IdPlantilla","IdFormato","Plantilla","Tipo","Orden","Nivel","Origen"];
+  return model;
+})
+.service('conversordetallesModel', function ($optimumModel) {
+  var model = new $optimumModel();
+  model.url = '/api/conversordetalles';
+  model.constructorModel = ["IdDetalle","IdFormato","TipoRegistro","NumeroCampo","PosicionInicio","LongitudCampo","TipoCampo","SeparadorDecimales","NumeroDecimales","DescripcionCampo","IdCampoEquivalente","CampoEquivalente","Obligatorio","Validaciones","Tipo_Registro","Default_Value","observacion","Rutina_Validacion","Rutina_Transformacion","CaracterConcatenacion","OrdenCampo","Rutina_Conversion","ValidaEnMasivas"];
+  return model;
+})
+.service('pacientesModel', function ($optimumModel) {
+  var model = new $optimumModel();
+  model.url = '/api/pacientes';
+  model.constructorModel = ["nombres","edad"];
+  return model;
+})
+.service('UsersModel', function ($optimumModel) {
+	var model = new $optimumModel();
+	model.url = '/api/users';
+	model.constructorModel = ['username','password','rol'];
+	return model;
+})
+
 .factory('AuditService',
   ['$q', '$http',
   function ($q, $http) {
@@ -428,200 +628,134 @@
 
 
     }])
-.controller('bootstrapController',
-  ['$scope', '$location', 'AuthService','bootstrapService','$route',
-  function ($scope, $location, AuthService,bootstrapService,$route) {
-    $scope.test = "Menú 1";
-         /*  LOGOUT  */
-	    $scope.logout = function () {
-	      AuthService.logout()
-	        .then(function () {
-	          $location.path('/login');
-	        });
-
-	    };
-	    bootstrapService.getMenu().then(function(data) {
-	      $scope.menus = data;
-	    });	
-
-	    $scope.reloadRoute = function(menu){
-	    	if(menu.flat == 'cabecera')
-	    		location.reload();
-
-	    	
-	    	
-	    }
-	    
-}])
-.controller('homeController',
-  ['$rootScope','$scope', '$location', 'AuthService','$uibModal','mySocket',
-  function ($rootScope,$scope, $location, AuthService,$uibModal,mySocket) {
-    $scope.arrayMsg = [];
-    $scope.titleHomeController = "Welcome";
-    $scope.testSocket = function(){
-    	mySocket.emit('chat message',{user:$rootScope.user.username,input:$scope.msgInput});
-    	mySocket.emit('test', 'test test');
-      
-    }
-    $scope.$on('socket:chat message', function(event, data) {
-      
-      var size = $scope.arrayMsg.length;
-      console.log(size);
-      if(size > 0){
-        var oldUser = $scope.arrayMsg[size-1].user;
-        var newUser = data.user;
-        if(oldUser =! newUser){
-          data["class1"] = "amigo";
-          data["class2"] = "derecha";
-        }else{
-          data["class1"] = "autor";
-          data["class2"] = "izquierda";
+.controller('ambientesController',
+  ['$rootScope','$scope', '$location', 'ambientesModel','$uibModal',
+  function ($rootScope,$scope, $location, ambientesModel,$uibModal) {
+    $scope.titleController = 'MEAN-CASE SUPER HEROIC';
+    $rootScope.titleWeb = 'ambientes';
+    $scope.preloader = true;
+    $scope.msjAlert = false;
+    ambientesModel.getAll().then(function(data) {
+      $scope.ambientesList = data;
+      $scope.ambientesTemp = angular.copy($scope.ambientesList);
+      $scope.preloader = false;
+    });
+    /*  Modal */
+     $scope.open = function (item) {
+       var modalInstance = $uibModal.open({
+        animation: true,
+        templateUrl: 'templates/ambientes/modalCreate.html',
+        controller: 'modalambientesCreateController',
+        size: 'lg',
+        resolve: {
+         item: function () {
+          return item;
+         }
         }
-         
-       
-      }else{
-        data["class1"] = "autor";
-        data["class2"] = "izquierda";
+      });
+      modalInstance.result.then(function(data) {
+        if(!item) {
+           $scope.ambientesList.push(data);
+           $scope.ambientesTemp = angular.copy($scope.ambientesList);
+        }
+      },function(result){
+      $scope.ambientesList = $scope.ambientesTemp;
+      $scope.ambientesTemp = angular.copy($scope.ambientesList);
+    });
+  };
+  /*  Delete  */
+  $scope.openDelete = function (item) {
+    var modalInstance = $uibModal.open({
+      animation: true,
+      templateUrl: 'templates/ambientes/modalDelete.html',
+      controller: 'modalambientesDeleteController',
+      size: 'lg',
+      resolve: {
+        item: function () {
+           return item;
+        }
       }
-      $scope.arrayMsg.push(data);
-      $scope.msgInput = '';
-      window.setInterval(function() {
-        var elem = document.getElementById('mensajes');
-        elem.scrollTop = elem.scrollHeight;
-      }, 5000);
-        
     });
-    $scope.$on('socket:test', function(event, data) {
-    	console.log(data);
-    });
-}])
-.controller('loginController', ['$rootScope', '$scope', '$location', 'AuthService','$uibModal',
-  function ($rootScope, $scope, $location, AuthService,$uibModal) {
-		$scope.titleLoginController = "MEAN_CASE HEROIC";
-		$rootScope.titleWeb = "Login";
-		$scope.registerSuccess = false;
-		$scope.login = function () {
-
-			// initial values
-			$scope.registerSuccess = false;
-			$scope.error = false;
-			$scope.disabled = true;
-			// call login from service
-			AuthService.login($scope.loginForm.username, $scope.loginForm.password, $scope.remember)
-				// handle success
-				.then(function () {
-					$location.path('/');
-					$scope.disabled = false;
-					$scope.loginForm = {};
-				})
-				// handle error
-				.catch(function () {
-					$scope.error = true;
-					$scope.errorMessage = "Invalid username and/or password";
-					$scope.disabled = false;
-					$scope.loginForm = {};
-				});
-
-		};
-
-	 /*  Open   Register */
-	     $scope.open = function (size) {
-	        var modalInstance = $uibModal.open({
-	          animation: true,
-	          templateUrl: 'templates/login/loginRegister.html',
-	          controller: 'registerLoginUserController',
-	          size: size
-	        });
-
-	        modalInstance.result.then(function(data) {
-	          $scope.error = false;
-	          $scope.registerSuccess = true;
-	          $scope.msjSuccess = "Register Successful";
-	        });
-	    };
-
-    /*  Open Register    */
-
-		/* REGISTRAR  */
-		$scope.register = function () {
-
-			// initial values
-			$scope.error = false;
-			$scope.disabled = true;
-
-			// call register from service
-			AuthService.register($scope.registerForm.username, $scope.registerForm.password, $scope.rol)
-				// handle success
-				.then(function () {
-					$location.path('/');
-					$scope.disabled = false;
-					$scope.registerForm = {};
-				})
-				// handle error
-				.catch(function (err) {
-					$scope.error = true;
-					$scope.errorMessage = "User already exists!";
-					$scope.disabled = false;
-					$scope.registerForm = {};
-					$scope.rol = "";
-				});
-
-		};
-
-}])
-.controller('registerLoginUserController',
-  ['$scope', '$uibModalInstance','AuthService','userService',
-  function ($scope, $uibModalInstance,AuthService,userService) {
-  
-    $scope.saving = false;
-     
-    $scope.save = function () {
-        $scope.saving = true;
-        AuthService.register($scope.item.username,$scope.item.password,1).then(function(r){
-          $scope.saving = false;
-        });
-        $uibModalInstance.close();
+    modalInstance.result.then(function(data) {
+      var idx = $scope.ambientesList.indexOf(data);
+      $scope.ambientesList.splice(idx, 1);
+      ambientesModel
+        .destroy(data._id)
+        .then(function(result) {
+          $scope.msjAlert = true;
+          $scope.alert = 'success';
+          $scope.message = result.message;
+        })
+        .catch(function(err) {
+          $scope.msjAlert = true;
+          $scope.alert = 'danger';
+          $scope.message = 'Error '+err;
+        })
+      });
     };
-
 }])
-.service('controlesModel', function ($optimumModel,pacientesModel) {
-  var model = new $optimumModel();
-  model.url = '/api/controles';
-  model.constructorModel = ["pacientes","fecha"];
- model.dependencies = {pacientes:pacientesModel.url};
-  return model;
-})
-.service('conversorcabecerasModel', function ($optimumModel) {
-  var model = new $optimumModel();
-  model.url = '/api/conversorcabeceras';
-  model.constructorModel = ["IdFormato","NombreFormato","DescripcionFormato","Cabecera","Pie","Separador","FormatoConversion","Formato_destino","Tipo_Proceso","NombreObjeto","estado","tipo_archivo_salida","ORIENTACION","RutinaPrevalidacion","Unificador","Check_Totales_Por","ValidaIdentificacion","RutinaPreconversion","InfiereTipoIdCliente","MuestraCabeceraColumna","TipoConversion"];
-  return model;
-})
-.service('conversordetalleplantillasModel', function ($optimumModel) {
-  var model = new $optimumModel();
-  model.url = '/api/conversordetalleplantillas';
-  model.constructorModel = ["IdPlantilla","IdFormato","Plantilla","Tipo","Orden","Nivel","Origen"];
-  return model;
-})
-.service('conversordetallesModel', function ($optimumModel) {
-  var model = new $optimumModel();
-  model.url = '/api/conversordetalles';
-  model.constructorModel = ["IdDetalle","IdFormato","TipoRegistro","NumeroCampo","PosicionInicio","LongitudCampo","TipoCampo","SeparadorDecimales","NumeroDecimales","DescripcionCampo","IdCampoEquivalente","CampoEquivalente","Obligatorio","Validaciones","Tipo_Registro","Default_Value","observacion","Rutina_Validacion","Rutina_Transformacion","CaracterConcatenacion","OrdenCampo","Rutina_Conversion","ValidaEnMasivas"];
-  return model;
-})
-.service('pacientesModel', function ($optimumModel) {
-  var model = new $optimumModel();
-  model.url = '/api/pacientes';
-  model.constructorModel = ["nombres","edad"];
-  return model;
-})
-.service('UsersModel', function ($optimumModel) {
-	var model = new $optimumModel();
-	model.url = '/api/users';
-	model.constructorModel = ['username','password','rol'];
-	return model;
-})
-
+.controller('modalambientesCreateController',
+  ['$scope', '$uibModalInstance', 'item','ambientesModel','$filter',
+  function ($scope, $uibModalInstance, item,ambientesModel,$filter) {
+    $scope.item = item;
+    $scope.saving = false;
+    if(item){
+       //add optional code
+    }
+    $scope.save = function () {
+      if(!item){
+        $scope.saving = true;
+        item = {ambiente: $scope.item.ambiente,username: $scope.item.username,password: $scope.item.password,database: $scope.item.database,host: $scope.item.host,dialect: $scope.item.dialect,estado: $scope.item.estado};
+        var ambientes = ambientesModel.create();
+        ambientes.ambiente = $scope.item.ambiente;
+        ambientes.username = $scope.item.username;
+        ambientes.password = $scope.item.password;
+        ambientes.database = $scope.item.database;
+        ambientes.host = $scope.item.host;
+        ambientes.dialect = $scope.item.dialect;
+        ambientes.estado = $scope.item.estado;
+        ambientes.save().then(function(r){
+          $scope.saving = false;
+          $uibModalInstance.close(r);
+        });
+      }else{
+        ambientesModel.findById($scope.item._id);
+        ambientesModel.ambiente = $scope.item.ambiente;
+        ambientesModel.username = $scope.item.username;
+        ambientesModel.password = $scope.item.password;
+        ambientesModel.database = $scope.item.database;
+        ambientesModel.host = $scope.item.host;
+        ambientesModel.dialect = $scope.item.dialect;
+        ambientesModel.estado = $scope.item.estado;
+        ambientesModel.save().then(function(r){
+          $scope.saving = false;
+          $uibModalInstance.close(r);
+        });
+      }
+    };
+}])
+.controller('modalambientesDeleteController',
+  ['$scope', '$uibModalInstance', 'item',
+  function ($scope, $uibModalInstance, item) {
+    $scope.item = item;
+    $scope.ok = function () {
+      $uibModalInstance.close($scope.item);
+    };
+    $scope.cancel = function () {
+       $uibModalInstance.dismiss('cancel');
+     };
+}])
+.config(function ($routeProvider) {
+  $routeProvider
+    .when('/ambientes', {
+      templateUrl: '/templates/ambientes/index.html',
+      controller: 'ambientesController',
+      access: {
+        restricted: false,
+        rol: 5
+      }
+    });
+ })
 .controller('AuditController',
   ['$rootScope','$scope', '$location', 'AuditService','$uibModal',
   function ($rootScope,$scope, $location, AuditService,$uibModal) {
