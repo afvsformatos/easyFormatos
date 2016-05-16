@@ -1,7 +1,10 @@
 <div class="container-fluid">
    <div class="row div-padding">
-     <button ng-click="open()" class="btn btn-default "><i class="fa fa-plus"></i> Create New</button>
+     <button ng-click="open()" class="btn btn-primary btn-lg btn-block"><i class="fa fa-plus"></i> Nuevo</button>
      <div class="alert alert-{{alert}}" ng-show="msjAlert">{{message}}</div>
+   </div>
+   <div class="row div-padding">
+     <button ng-click="habilitarAmbiente()" class="btn btn-default btn-lg btn-block"><i class="fa fa-power-off"></i> Habilitar Ambiente</button>
    </div>
    <div class="row">
      <div class="input-group">
@@ -18,7 +21,7 @@
            <td  at-sortable  at-title='DATABASE' width='150'>{{item.database}}</td>
            <td  at-sortable  at-title='HOST' width='150'>{{item.host}}</td>
            <td  at-sortable  at-title='DIALECT' width='150'>{{item.dialect}}</td>
-           <td  at-sortable  at-title='ESTADO' width='150'>{{item.estado}}</td>
+           <td  at-sortable  at-title='ESTADO' width='150'><validacion ng-show="item.estado">Habilitado</validacion><validacion ng-show="!item.estado">Deshabilitado</validacion></td>
            
            <td  at-title="Acción" width="250"><button type="button" class="btn btn-default" ng-click="open(item)"><i class="fa fa-pencil-square-o"></i></button><button type="button" class="btn btn-default" ng-click="openDelete(item)"><i class="fa fa-trash-o"></i></button></td>
          </tr>

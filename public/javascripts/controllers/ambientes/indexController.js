@@ -33,6 +33,26 @@
       $scope.ambientesTemp = angular.copy($scope.ambientesList);
     });
   };
+
+   $scope.habilitarAmbiente = function () {
+       var modalInstance = $uibModal.open({
+        animation: true,
+        templateUrl: 'templates/ambientes/habilitarAmbiente.html',
+        controller: 'habilitarAmbienteController',
+        size: 'lg',
+        resolve: {
+         ambientes: function () {
+          return $scope.ambientesList;
+         }
+        }
+      });
+      modalInstance.result.then(function(data) {
+        console.log('biwn');
+      },function(result){
+        console.log('mal');
+      });
+  };
+
   /*  Delete  */
   $scope.openDelete = function (item) {
     var modalInstance = $uibModal.open({

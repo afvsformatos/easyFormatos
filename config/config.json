@@ -1,31 +1,9 @@
 {
-  "development": {
-    "username": "root",
-    "password": null,
-    "database": "meancaserelacional",
-    "host": "127.0.0.1",
-    "dialect": "mysql"
-  },
-  "test": {
-    "username": "sa",
-    "password": "E@sysoft",
-    "database": "pruebas",
-    "host": "10.0.1.34",
-    "dialect": "mssql"
-  },
-  "desarrollo": {
-    "username": "sa",
-    "password": "E@sysoft",
-    "database": "Easy_CS_MultiCanal",
-    "host": "10.0.1.34",
-    "dialect": "mssql"
-  },
-  "bancoFomento": {
-    "username": "sa",
-    "password": "E@sysoft",
-    "database": "Easy_CS_MultiCanal",
-    "host": "10.0.2.161",
-    "dialect": "mssql"
+  "ambiente":{
+    "username":"sa",
+    "password":"E@sysoft",
+    "database":"pruebas",
+    "host":"10.0.1.34",
+    "dialect":"mssql"
   }
-
 }

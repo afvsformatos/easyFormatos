@@ -6,6 +6,28 @@
     if(item){
        //add optional code
     }
+    $scope.opcionesDialect = [
+        {
+          name: 'mssql',
+          value: 'mssql'
+        }, 
+        {
+          name: 'mysql',
+          value: 'mysql'
+        }, 
+        {
+          name: 'postgres',
+          value: 'postgres'
+        }, 
+        {
+          name: 'sqlite',
+          value: 'sqlite'
+        }, 
+        {
+          name: 'mariadb',
+          value: 'mariadb'
+        }
+    ];
     $scope.save = function () {
       if(!item){
         $scope.saving = true;
@@ -17,7 +39,7 @@
         ambientes.database = $scope.item.database;
         ambientes.host = $scope.item.host;
         ambientes.dialect = $scope.item.dialect;
-        ambientes.estado = $scope.item.estado;
+        ambientes.estado = false;
         ambientes.save().then(function(r){
           $scope.saving = false;
           $uibModalInstance.close(r);

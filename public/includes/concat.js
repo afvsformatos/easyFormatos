@@ -317,50 +317,6 @@
     };
 
 }])
-.service('ambientesModel', function ($optimumModel) {
-  var model = new $optimumModel();
-  model.url = '/api/ambientes';
-  model.constructorModel = ["ambiente","username","password","database","host","dialect","estado"];
-  return model;
-})
-.service('controlesModel', function ($optimumModel,pacientesModel) {
-  var model = new $optimumModel();
-  model.url = '/api/controles';
-  model.constructorModel = ["pacientes","fecha"];
- model.dependencies = {pacientes:pacientesModel.url};
-  return model;
-})
-.service('conversorcabecerasModel', function ($optimumModel) {
-  var model = new $optimumModel();
-  model.url = '/api/conversorcabeceras';
-  model.constructorModel = ["IdFormato","NombreFormato","DescripcionFormato","Cabecera","Pie","Separador","FormatoConversion","Formato_destino","Tipo_Proceso","NombreObjeto","estado","tipo_archivo_salida","ORIENTACION","RutinaPrevalidacion","Unificador","Check_Totales_Por","ValidaIdentificacion","RutinaPreconversion","InfiereTipoIdCliente","MuestraCabeceraColumna","TipoConversion"];
-  return model;
-})
-.service('conversordetalleplantillasModel', function ($optimumModel) {
-  var model = new $optimumModel();
-  model.url = '/api/conversordetalleplantillas';
-  model.constructorModel = ["IdPlantilla","IdFormato","Plantilla","Tipo","Orden","Nivel","Origen"];
-  return model;
-})
-.service('conversordetallesModel', function ($optimumModel) {
-  var model = new $optimumModel();
-  model.url = '/api/conversordetalles';
-  model.constructorModel = ["IdDetalle","IdFormato","TipoRegistro","NumeroCampo","PosicionInicio","LongitudCampo","TipoCampo","SeparadorDecimales","NumeroDecimales","DescripcionCampo","IdCampoEquivalente","CampoEquivalente","Obligatorio","Validaciones","Tipo_Registro","Default_Value","observacion","Rutina_Validacion","Rutina_Transformacion","CaracterConcatenacion","OrdenCampo","Rutina_Conversion","ValidaEnMasivas"];
-  return model;
-})
-.service('pacientesModel', function ($optimumModel) {
-  var model = new $optimumModel();
-  model.url = '/api/pacientes';
-  model.constructorModel = ["nombres","edad"];
-  return model;
-})
-.service('UsersModel', function ($optimumModel) {
-	var model = new $optimumModel();
-	model.url = '/api/users';
-	model.constructorModel = ['username','password','rol'];
-	return model;
-})
-
 .factory('AuditService',
   ['$q', '$http',
   function ($q, $http) {
@@ -628,6 +584,62 @@
 
 
     }])
+.service('ambientesModel', function ($optimumModel) {
+  var model = new $optimumModel();
+  model.url = '/api/ambientes';
+  model.constructorModel = ["ambiente","username","password","database","host","dialect","estado"];
+  return model;
+})
+.service('controlesModel', function ($optimumModel,pacientesModel) {
+  var model = new $optimumModel();
+  model.url = '/api/controles';
+  model.constructorModel = ["pacientes","fecha"];
+ model.dependencies = {pacientes:pacientesModel.url};
+  return model;
+})
+.service('conversorcabecerasModel', function ($optimumModel) {
+  var model = new $optimumModel();
+  model.url = '/api/conversorcabeceras';
+  model.constructorModel = ["IdFormato","NombreFormato","DescripcionFormato","Cabecera","Pie","Separador","FormatoConversion","Formato_destino","Tipo_Proceso","NombreObjeto","estado","tipo_archivo_salida","ORIENTACION","RutinaPrevalidacion","Unificador","Check_Totales_Por","ValidaIdentificacion","RutinaPreconversion","InfiereTipoIdCliente","MuestraCabeceraColumna","TipoConversion"];
+  return model;
+})
+.service('conversordetalleplantillasModel', function ($optimumModel) {
+  var model = new $optimumModel();
+  model.url = '/api/conversordetalleplantillas';
+  model.constructorModel = ["IdPlantilla","IdFormato","Plantilla","Tipo","Orden","Nivel","Origen"];
+  return model;
+})
+.service('conversordetallesModel', function ($optimumModel) {
+  var model = new $optimumModel();
+  model.url = '/api/conversordetalles';
+  model.constructorModel = ["IdDetalle","IdFormato","TipoRegistro","NumeroCampo","PosicionInicio","LongitudCampo","TipoCampo","SeparadorDecimales","NumeroDecimales","DescripcionCampo","IdCampoEquivalente","CampoEquivalente","Obligatorio","Validaciones","Tipo_Registro","Default_Value","observacion","Rutina_Validacion","Rutina_Transformacion","CaracterConcatenacion","OrdenCampo","Rutina_Conversion","ValidaEnMasivas"];
+  return model;
+})
+.service('pacientesModel', function ($optimumModel) {
+  var model = new $optimumModel();
+  model.url = '/api/pacientes';
+  model.constructorModel = ["nombres","edad"];
+  return model;
+})
+.service('UsersModel', function ($optimumModel) {
+	var model = new $optimumModel();
+	model.url = '/api/users';
+	model.constructorModel = ['username','password','rol'];
+	return model;
+})
+
+.controller('habilitarAmbienteController',
+  ['$scope', '$uibModalInstance', 'ambientes','ambientesModel','$filter',
+  function ($scope, $uibModalInstance, ambientes,ambientesModel,$filter) {
+    $scope.saving = false;
+    $scope.ambientes = ambientes;
+    $scope.item = {};
+    $scope.save = function(){
+        ambientesModel.url = '/api/ambientes/habilitar';
+        ambientesModel.findById($scope.item.ambiente);
+        $uibModalInstance.close();        
+    }
+}])
 .controller('ambientesController',
   ['$rootScope','$scope', '$location', 'ambientesModel','$uibModal',
   function ($rootScope,$scope, $location, ambientesModel,$uibModal) {
@@ -663,6 +675,26 @@
       $scope.ambientesTemp = angular.copy($scope.ambientesList);
     });
   };
+
+   $scope.habilitarAmbiente = function () {
+       var modalInstance = $uibModal.open({
+        animation: true,
+        templateUrl: 'templates/ambientes/habilitarAmbiente.html',
+        controller: 'habilitarAmbienteController',
+        size: 'lg',
+        resolve: {
+         ambientes: function () {
+          return $scope.ambientesList;
+         }
+        }
+      });
+      modalInstance.result.then(function(data) {
+        console.log('biwn');
+      },function(result){
+        console.log('mal');
+      });
+  };
+
   /*  Delete  */
   $scope.openDelete = function (item) {
     var modalInstance = $uibModal.open({
@@ -702,6 +734,28 @@
     if(item){
        //add optional code
     }
+    $scope.opcionesDialect = [
+        {
+          name: 'mssql',
+          value: 'mssql'
+        }, 
+        {
+          name: 'mysql',
+          value: 'mysql'
+        }, 
+        {
+          name: 'postgres',
+          value: 'postgres'
+        }, 
+        {
+          name: 'sqlite',
+          value: 'sqlite'
+        }, 
+        {
+          name: 'mariadb',
+          value: 'mariadb'
+        }
+    ];
     $scope.save = function () {
       if(!item){
         $scope.saving = true;
@@ -713,7 +767,7 @@
         ambientes.database = $scope.item.database;
         ambientes.host = $scope.item.host;
         ambientes.dialect = $scope.item.dialect;
-        ambientes.estado = $scope.item.estado;
+        ambientes.estado = false;
         ambientes.save().then(function(r){
           $scope.saving = false;
           $uibModalInstance.close(r);
@@ -988,6 +1042,9 @@
         formatoCabecera.save().then(function(r){
           $scope.datosCabecera = [];
           $scope.datosCabecera.push(r);
+          $scope.item.formato = null;
+          $scope.item.nombreFormato = null;
+          $scope.item.descripcionFormato = null;
           $scope.preloader = false;
           $scope.mostrarGrid = true;
         });

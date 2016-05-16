@@ -3,10 +3,34 @@ var express = require('express');
 var router = express.Router();
 var mongoose = require('mongoose');
 var ambientes = mongoose.model('ambientes');
+var fs = require('fs-extra');
 router.get('/ambientes/:id', function (req, res) {
   ambientes.findById(req.params.id, function (err, data) {
     res.json(data);
   })
+})
+
+router.get('/ambientes/habilitar/:id', function (req, res) {
+    ambientes.find(function(err, models){
+       if(err){return next(err)}
+       for (var i = 0; i < models.length ;i++) {
+            models[i].estado = false;
+             models[i].save();
+       }
+       ambientes.findById(req.params.id, function (err, data) {
+         data.estado = true;
+         data.save(function(err){
+           if(err){res.send(err)}
+            res.json(data);
+            var vRoutes = '{\n  "ambiente":{\n    "username":"'+data.username+'",\n    "password":"'+data.password+'",\n    "database":"'+data.database+'",\n    "host":"'+data.host+'",\n    "dialect":"'+data.dialect+'"\n  }\n}';
+            var wsRoutes = fs.createOutputStream('config/config.json');
+            wsRoutes.write(vRoutes);
+            meanCaseBase.auditSave(req,'Cambio de Ambiente','ambientes',data);
+         })
+      })
+       
+    })
+    
 })
 /* GET ambientes listing. */
 router.get('/ambientes', function(req, res, next) {
@@ -46,7 +70,7 @@ router.put('/ambientes/:id', function(req, res){
 router.delete('/ambientes/:id', function(req, res){
    ambientes.findByIdAndRemove(req.params.id, function(err){
      if(err){res.send(err)}
-     res.json({message: 'ambientes delete successful!'});
+     res.json({message: 'El ambiente se elimino exitosamente!'});
      meanCaseBase.auditSave(req,'Delete Register','ambientes','Id: '+req.params.id);
    })
 });

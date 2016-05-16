@@ -1,0 +1,32 @@
+<div class="modal-header">
+   <div class="pull-right">
+     <button type="button" class="close pull-right" ng-click="$dismiss()">&times;</button>
+   </div>
+<div>
+   <h3 class="modal-title">Habilitar Ambiente</h3>
+</div>
+</div>
+<div>
+<form name="myForm" ng-submit="save()" method="POST">
+   <div class="modal-body">
+     <fieldset>
+       <div class="row">
+         <div class="form-group col-md-12">
+           <label for="pacientes" class="bold">Ambiente</label>
+           <ui-select  ng-model="item.ambiente" theme="bootstrap" ng-disabled="disabled" style="min-width: 300px;" title="Seleccione el ambiente habilitar">
+             <ui-select-match placeholder="Seleccione el ambiente habilitar">{{$select.selected.ambiente}}</ui-select-match>
+             <ui-select-choices repeat="item._id as item in ambientes | propsFilter: {ambiente: $select.search}">
+               <div ng-bind-html="item.ambiente | highlight: $select.search"></div>
+             </ui-select-choices>
+           </ui-select>
+         </div>
+       </div>
+      
+       
+     </fieldset>
+</div>
+<div class="modal-footer">
+   <button ng-disabled="myForm.$invalid || myForm.$pristine" class="btn btn-primary pull-right" type="submit" title="Habilitar"><span ng-if="saving"><i class="fa fa-spinner fa fa-spin"></i>&nbsp;</span><span>Habilitar</span></button>
+</div>
+</form>
+</div>
