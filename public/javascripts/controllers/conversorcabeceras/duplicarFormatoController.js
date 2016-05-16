@@ -14,20 +14,19 @@
       });
     }
 
-    var unaCabecera = function(){
-      //conversorcabecerasModel.url = '/api/conversorcabeceras';
-      conversorcabecerasModel.findById($routeParams.idFormato).then(function(cabecera){
-              $scope.conversorcabecerasList = cabecera;
-              $scope.conversorcabecerasTemp = angular.copy($scope.conversorcabecerasList);
-              $scope.preloader = false;
-      });
+    obtenerCabeceras();
+    $scope.item = {};
+    $scope.duplicarFormato = function(){
+      var formatoCabecera = conversorcabecerasModel.create();
+        formatoCabecera.url = '/api/duplicarFormato';
+        formatoCabecera.idFormato = $scope.item.formato;
+        formatoCabecera.nombreFormato = $scope.item.nombreFormato;
+        formatoCabecera.descripcionFormato = $scope.item.descripcionFormato;
+        formatoCabecera.save().then(function(r){
+          $scope.saving = false;
+        });
     }
 
-    if(!$routeParams.idFormato){
-      obtenerCabeceras();
-    }else{
-      unaCabecera();
-    }
     $scope.options = [
         {
           name: '5',

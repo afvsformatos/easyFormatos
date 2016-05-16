@@ -43,6 +43,26 @@ router.post('/conversorcabeceras', function(req, res, next){
       meanCaseBase.auditSave(req,'Insert Register','conversorcabeceras',data);
     });
 });
+
+/* Duplicar Formatos */
+router.post('/duplicarFormato', function(req, res, next){
+    conversorCabecera.find({ where: { IdFormato: req.body.idFormato}, include: [conversorDetalle] }).then(function(cabecera) {
+          var cabeceraDetalles = cabecera.dataValues.Conversor_Detalles;
+          delete cabecera.dataValues['IdFormato'];
+          delete cabecera.dataValues['Conversor_Detalles'];
+          cabecera.dataValues.NombreFormato = req.body.nombreFormato;
+          cabecera.dataValues.DescripcionFormato =  req.body.descripcionFormato; 
+          conversorCabecera.create(cabecera.dataValues).then(function(data) {
+            for (var i=0; i <= cabeceraDetalles.length; i++) { 
+               cabeceraDetalles[i].IdFormato = data.dataValues.IdFormato;
+               //conversorDetalle.create(cabeceraDetalles[i]);
+            }
+            //res.json(data.dataValues);
+            res.json(cabeceraDetalles);
+          });
+    });
+});
+
 /* PUT - Update conversorcabeceras. */
 router.put('/conversorcabeceras/:id', function(req, res){
    var datosActualizar = {};

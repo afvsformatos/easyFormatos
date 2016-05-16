@@ -3,13 +3,28 @@
        <div class="row">
          <div class="form-group col-md-12">
            <label for="pacientes" class="bold">Formatos</label>
-           <ui-select required ng-model="item.pacientes" theme="bootstrap" ng-disabled="disabled" style="min-width: 300px;" title="Selecciona un Formato">
-             <ui-select-match placeholder="Selecciona un Formato">{{$select.selected.nombres}} {{$select.selected.edad}} </ui-select-match>
-             <ui-select-choices repeat="item._id as item in pacientes | propsFilter: {nombres: $select.search,edad: $select.search,}">
-               <div ng-bind-html="item.nombres | highlight: $select.search"></div>
-               <div ng-bind-html="item.edad | highlight: $select.search"></div>
+           <ui-select  ng-model="item.formato" theme="bootstrap" ng-disabled="disabled" style="min-width: 300px;" title="Seleccione Formato a Duplicar">
+             <ui-select-match placeholder="Seleccione Formato a Duplicar">{{$select.selected.NombreFormato}}</ui-select-match>
+             <ui-select-choices repeat="item.IdFormato as item in conversorcabecerasList | propsFilter: {NombreFormato: $select.search}">
+               <div ng-bind-html="item.NombreFormato | highlight: $select.search"></div>
              </ui-select-choices>
            </ui-select>
          </div>
        </div>
+        <div class="row">
+        	<div class="form-group col-md-12">
+        		<label for="fecha" class="bold">Nombre Formato</label>
+        		<input  autofocus   type="text" class="form-control"  ng-model="item.nombreFormato">
+        	</div>
+		</div>
+		<div class="row">
+        	<div class="form-group col-md-12">
+        		<label for="fecha" class="bold">Descripción Formato</label>
+        		<input  autofocus  type="text" class="form-control"  ng-model="item.descripcionFormato">
+        	</div>
+		</div>
+       <div  class="row">
+       		<button ng-disabled="item.formato == undefined || item.nombreFormato  == undefined || item.descripcionFormato  == undefined" class="btn btn-primary" ng-click="duplicarFormato()">Duplicar Formato</button>
+       </div>
+
 </fieldset>
