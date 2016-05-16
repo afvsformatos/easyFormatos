@@ -73,7 +73,7 @@ router.put('/conversorcabeceras/:id', function(req, res){
       })
       .then(function (result) { 
           res.json(result);
-          meanCaseBase.auditSave(req,'Update Register','conversocabeceras',data);
+          meanCaseBase.auditSave(req,'Update Register','conversocabeceras',datosActualizar);
       }, function(rejectedPromiseError){
           res.json(rejectedPromiseError);
       });

@@ -15,5 +15,13 @@
         restricted: false,
        rol: 1
       }
+    })
+    .when('/duplicarFormato', {
+      templateUrl: '/templates/conversorcabeceras/duplicarFormato.html',
+      controller: 'duplicarFormatoController',
+      access: {
+        restricted: false,
+       rol: 1
+      }
     });
  })
