@@ -1,0 +1,35 @@
+<a ng-click="regresarFormato()" href=""><h2 class="formatoSubtitulos">{{NombreFormato}}</h2></a>
+<fieldset>
+       <div class="row" >
+	       	<div class="form-group col-md-12">
+		       	<label for="valorTipoProceso" class="bold">Tipo Proceso</label>
+		       	<select  ng-model="valorTipoProceso" ng-change="cambiarValores(valorTipoProceso)" ng-options="option.name for option in options"  class="form-control" >
+        		</select>
+	       	</div>
+       	</div>
+       	 <div class="row" >
+	       	<div class="form-group col-md-12">
+		       	<label for="tramaPersonalizada" class="bold" ng-show="labelTrama">Trama Campos JSON</label>
+		       	<label for="tramaPersonalizada" class="bold" ng-show="!labelTrama">Trama XML</label>
+		       	<textarea ng-model="tramaPersonalizada" class="form-control" rows="10"></textarea>
+	       	</div>
+       	</div>
+       	<div class="row"  ng-show="!labelTrama">
+	       	<div class="form-group col-md-12">
+		       	<label for="resultado" class="bold">Resultado</label>
+		       	<textarea disabled ng-model="resultado" class="form-control" rows="5"></textarea>
+	       	</div>
+       	</div>
+       	<div class="row"  ng-show="showRes">
+	       	<div class="form-group col-md-12">
+		       	<label for="res" class="bold">Respuesta</label>
+		       	<textarea disabled ng-model="res" class="form-control" rows="25"></textarea>
+	       	</div>
+       	</div>
+       	<div class="row">
+	       	<div class="form-group col-md-12">
+		       	<button class="btn btn-primary btn-lg btn-block" ng-click="testear()" ng-disabled="tramaPersonalizada == undefinied">Probar</button>
+	       	</div>
+       	</div>
+
+</fieldset>

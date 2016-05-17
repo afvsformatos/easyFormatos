@@ -47,7 +47,7 @@
         }
       });
       modalInstance.result.then(function(data) {
-        console.log('biwn');
+        location.reload();
       },function(result){
         console.log('mal');
       });
