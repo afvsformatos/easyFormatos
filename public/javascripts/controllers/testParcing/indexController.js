@@ -69,15 +69,22 @@
           }
           $scope.tramaGenerica.Transaccion.Detalle.Tipo_Proceso = arg.value;
       }
+      $scope.deshabilitarResultado = '#eee';
+      $scope.cambiarEstadoResultado = function(){
+        $scope.deshabilitarResultado = !$scope.deshabilitarResultado;
+      }
       $scope.testear = function(){
-         var tramaLimpia = $scope.tramaPersonalizada.replace(/\s+/g, '');
-         var conversionTrama = tramaLimpia.replace(/"/g,'\\"');
-         $scope.resultado =  Object.freeze(conversionTrama);
-         $scope.tramaGenerica.Trama = {};
+          if($scope.tramaPersonalizada != undefined){
+            var tramaLimpia = $scope.tramaPersonalizada.replace(/\s+/g, ' ');
+           //var tramaLimpia = $scope.tramaPersonalizada.replace(/\>\s+\</g,'');;
+           var conversionTrama = tramaLimpia.replace(/"/g,'\\"');
+           $scope.resultado =  conversionTrama;
+          }
+          $scope.tramaGenerica.Trama = {};
          if($scope.labelTrama){
             $scope.tramaGenerica.Trama = JSON.parse($scope.tramaPersonalizada);
          }else{
-            $scope.tramaGenerica.Trama['RespuestaAutorizador'] = conversionTrama.replace(/\\/g,'');
+            $scope.tramaGenerica.Trama['RespuestaAutorizador'] = $scope.resultado.replace(/\\/g,'');
          }
          factoryParsing.testParsing($scope.tramaGenerica).then(function(data) {
             $scope.res = JSON.stringify(data, null, 4);
@@ -87,7 +94,7 @@
             $scope.res = JSON.stringify(err, null, 4);
             $scope.showRes = true;
          });
-         console.log(JSON.stringify($scope.tramaGenerica));
+         //console.log(JSON.stringify($scope.tramaGenerica));
          //console.log(conversionTrama);
       }
       

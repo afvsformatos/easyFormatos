@@ -2009,15 +2009,22 @@
           }
           $scope.tramaGenerica.Transaccion.Detalle.Tipo_Proceso = arg.value;
       }
+      $scope.deshabilitarResultado = '#eee';
+      $scope.cambiarEstadoResultado = function(){
+        $scope.deshabilitarResultado = !$scope.deshabilitarResultado;
+      }
       $scope.testear = function(){
-         var tramaLimpia = $scope.tramaPersonalizada.replace(/\s+/g, '');
-         var conversionTrama = tramaLimpia.replace(/"/g,'\\"');
-         $scope.resultado =  Object.freeze(conversionTrama);
-         $scope.tramaGenerica.Trama = {};
+          if($scope.tramaPersonalizada != undefined){
+            var tramaLimpia = $scope.tramaPersonalizada.replace(/\s+/g, ' ');
+           //var tramaLimpia = $scope.tramaPersonalizada.replace(/\>\s+\</g,'');;
+           var conversionTrama = tramaLimpia.replace(/"/g,'\\"');
+           $scope.resultado =  conversionTrama;
+          }
+          $scope.tramaGenerica.Trama = {};
          if($scope.labelTrama){
             $scope.tramaGenerica.Trama = JSON.parse($scope.tramaPersonalizada);
          }else{
-            $scope.tramaGenerica.Trama['RespuestaAutorizador'] = conversionTrama.replace(/\\/g,'');
+            $scope.tramaGenerica.Trama['RespuestaAutorizador'] = $scope.resultado.replace(/\\/g,'');
          }
          factoryParsing.testParsing($scope.tramaGenerica).then(function(data) {
             $scope.res = JSON.stringify(data, null, 4);
@@ -2027,7 +2034,7 @@
             $scope.res = JSON.stringify(err, null, 4);
             $scope.showRes = true;
          });
-         console.log(JSON.stringify($scope.tramaGenerica));
+         //console.log(JSON.stringify($scope.tramaGenerica));
          //console.log(conversionTrama);
       }
       
@@ -2571,6 +2578,69 @@ require: 'ngModel',
  			}
  		});
  })
+.controller('selectTemplatesController', ['$scope', 'templateFactory','$ngBootbox','$location','$route', function ($scope, templateFactory,$location,$route) {
+    templateFactory.allLayouts().then(function (data) {
+        $scope.layouts = data;
+    });
+    $scope.selectTemplate = function (layout, index) {
+        $scope.template = layout;
+        $scope.index = index;
+        templateFactory.setValue(layout.label).then(function(result){
+            if(result == true){
+                location.reload();
+            }
+        });
+    };
+}])
+    .factory('templateFactory', ['$q', '$http', function ($q, $http) {
+        return ({
+            allLayouts: allLayouts,
+            setValue: setValue
+        });
+
+        function allLayouts() {
+            var defered = $q.defer();
+            var promise = defered.promise;
+
+            $http.get('/setup/layouts')
+                .success(function (data) {
+                    defered.resolve(data);
+                })
+                .error(function (err) {
+                    defered.reject(err)
+                });
+
+            return promise;
+        }
+
+        function setValue(template) {
+            var deferred = $q.defer();
+            $http.put('/config/updateTemplate', {
+                template: template
+            })
+                .success(function (data, status) {
+                    deferred.resolve(data);
+                })
+                .error(function (data) {
+                    deferred.reject();
+                });
+            return deferred.promise;
+
+        }
+    }])
+.config(function ($routeProvider) {
+ 	$routeProvider
+ 		.when('/selectTemplates', {
+ 			templateUrl: '/javascripts/setup/selectTemplates/templates/selectTemplates.html',
+ 			controller: 'selectTemplatesController',
+ 			access: {
+ 				restricted: false,
+ 				rol: 5
+ 			}
+ 		});
+ })
+
+
 .controller('modalRelationshipDeleteController',
   ['$scope', '$uibModalInstance', 'item',
   function ($scope, $uibModalInstance, item) {
@@ -2970,69 +3040,6 @@ require: 'ngModel',
  			}
  		});
  })
-.controller('selectTemplatesController', ['$scope', 'templateFactory','$ngBootbox','$location','$route', function ($scope, templateFactory,$location,$route) {
-    templateFactory.allLayouts().then(function (data) {
-        $scope.layouts = data;
-    });
-    $scope.selectTemplate = function (layout, index) {
-        $scope.template = layout;
-        $scope.index = index;
-        templateFactory.setValue(layout.label).then(function(result){
-            if(result == true){
-                location.reload();
-            }
-        });
-    };
-}])
-    .factory('templateFactory', ['$q', '$http', function ($q, $http) {
-        return ({
-            allLayouts: allLayouts,
-            setValue: setValue
-        });
-
-        function allLayouts() {
-            var defered = $q.defer();
-            var promise = defered.promise;
-
-            $http.get('/setup/layouts')
-                .success(function (data) {
-                    defered.resolve(data);
-                })
-                .error(function (err) {
-                    defered.reject(err)
-                });
-
-            return promise;
-        }
-
-        function setValue(template) {
-            var deferred = $q.defer();
-            $http.put('/config/updateTemplate', {
-                template: template
-            })
-                .success(function (data, status) {
-                    deferred.resolve(data);
-                })
-                .error(function (data) {
-                    deferred.reject();
-                });
-            return deferred.promise;
-
-        }
-    }])
-.config(function ($routeProvider) {
- 	$routeProvider
- 		.when('/selectTemplates', {
- 			templateUrl: '/javascripts/setup/selectTemplates/templates/selectTemplates.html',
- 			controller: 'selectTemplatesController',
- 			access: {
- 				restricted: false,
- 				rol: 5
- 			}
- 		});
- })
-
-
 .controller('uploadTemplatesController',
     ['$scope','uploadTemplatesService',
         function ($scope,uploadTemplatesService) {

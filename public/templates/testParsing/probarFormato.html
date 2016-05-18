@@ -17,7 +17,7 @@
        	<div class="row"  ng-show="!labelTrama">
 	       	<div class="form-group col-md-12">
 		       	<label for="resultado" class="bold">Resultado</label>
-		       	<textarea disabled ng-model="resultado" class="form-control" rows="5"></textarea>
+		       	<textarea style="background-color:{{deshabilitarResultado}};"  ng-click="cambiarEstadoResultado()" placeholder="Trama xml sin espacios..." ng-model="resultado" class="form-control" rows="5"></textarea>
 	       	</div>
        	</div>
        	<div class="row"  ng-show="showRes">
@@ -28,7 +28,7 @@
        	</div>
        	<div class="row">
 	       	<div class="form-group col-md-12">
-		       	<button class="btn btn-primary btn-lg btn-block" ng-click="testear()" ng-disabled="tramaPersonalizada == undefinied">Probar</button>
+		       	<button class="btn btn-primary btn-lg btn-block" ng-click="testear()" ng-disabled="tramaPersonalizada == undefined && resultado == undefined">Probar</button>
 	       	</div>
        	</div>
 
