@@ -14,6 +14,7 @@ var settings = require('./config/settings.js');
 var cors = require('cors');
 mongoose.connect(settings.db);
 //MODELS CRUD BY SCAFFOLDMEANHEROIC
+var model_almacentramas = require('./models/almacentramas.js');
 var model_ambientes = require('./models/ambientes.js');
 var model_ambientes = require('./models/ambientes.js');
 var model_conversordetalleplantillas = require('./models/conversordetalleplantillas.js');
@@ -28,6 +29,7 @@ var ModelRelationship = require('./config/setup/models/modelRelationship.js');
 var ModelSchema = require('./config/setup/models/modelSchema.js');
 var ModelGeneralConfig = require('./config/setup/models/modelGeneralConfig.js');
 //ROUTES CRUD BY SCAFFOLDMEANHEROIC
+var route_almacentramas = require('./routes/almacentramas');
 var route_ambientes = require('./routes/ambientes');
 var route_ambientes = require('./routes/ambientes');
 var route_conversordetalleplantillas = require('./routes/conversordetalleplantillas');
@@ -108,6 +110,7 @@ passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
 //API ROUTES CRUD BY SCAFFOLDMEANHEROIC
+app.use('/api',route_almacentramas);
 app.use('/api',route_ambientes);
 app.use('/api',route_ambientes);
 app.use('/api',route_conversordetalleplantillas);

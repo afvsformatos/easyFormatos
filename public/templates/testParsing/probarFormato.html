@@ -14,6 +14,12 @@
 		       	<textarea ng-model="tramaPersonalizada" class="form-control" rows="10"></textarea>
 	       	</div>
        	</div>
+       	<div class="row">
+	       	<div class="form-group col-md-12">
+	       		<div class="alert alert-success" ng-show="showMensaje">{{mensaje}}</div>
+		       	<button class="btn btn-default btn-md btn-block" ng-click="grabar()" ng-disabled="tramaPersonalizada == undefined">Grabar</button>
+	       	</div>
+       	</div>
        	<div class="row"  ng-show="!labelTrama">
 	       	<div class="form-group col-md-12">
 		       	<label for="resultado" class="bold">Resultado</label>

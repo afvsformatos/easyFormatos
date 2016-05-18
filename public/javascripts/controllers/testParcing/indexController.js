@@ -1,6 +1,6 @@
 .controller('parsingController',
-  ['$rootScope','$scope', '$location', 'conversorcabecerasModel','$uibModal','$routeParams','factoryParsing',
-  function ($rootScope,$scope, $location, conversorcabecerasModel,$uibModal,$routeParams,factoryParsing) {
+  ['$rootScope','$scope', '$location', 'conversorcabecerasModel','$uibModal','$routeParams','factoryParsing','almacentramasModel',
+  function ($rootScope,$scope, $location, conversorcabecerasModel,$uibModal,$routeParams,factoryParsing,almacentramasModel) {
 
     $scope.titleController = 'MEAN-CASE SUPER HEROIC';
     $rootScope.titleWeb = 'Test Parcing';
@@ -19,10 +19,36 @@
 
    if($routeParams.nombreFormato){
       $scope.showRes = false; 
+      $scope.showMensaje = false;
       $scope.NombreFormato = $routeParams.nombreFormato;
       $scope.regresarFormato = function(){
         $location.url('/conversorcabeceras/'+$routeParams.idFormato);
       }
+      $scope.grabar = function(){
+        var parsingPass = {};
+        parsingPass.id_formato  = $routeParams.idFormato;
+        parsingPass.nombre_formato  = $routeParams.nombreFormato;
+        parsingPass.trama  = $scope.tramaPersonalizada;
+        parsingPass.aprobo = false;
+        if($scope.tmpParsing != null){
+            parsingPass.idMongo = $scope.tmpParsing._id;
+        }
+        factoryParsing.eliminarGrabar(parsingPass).then(function(r){
+          $scope.showMensaje = true;
+          $scope.mensaje = r;
+        });
+      }
+      almacentramasModel.findById($routeParams.idFormato).then(function(result){
+        if(result != null){
+          $scope.tmpParsing = result;
+          var tramaSinComillas = JSON.stringify(result.trama);
+          var sizeCadena = tramaSinComillas.length - 1;
+          $scope.tramaPersonalizada = tramaSinComillas.slice(1,sizeCadena);
+        }else{
+          $scope.tmpParsing = null;
+        }
+      });
+
       $scope.options = [
         {
           name: 'ENVIO',
@@ -72,13 +98,13 @@
       $scope.deshabilitarResultado = '#eee';
       $scope.cambiarEstadoResultado = function(){
         $scope.deshabilitarResultado = !$scope.deshabilitarResultado;
+        $scope.tramaPersonalizada = undefined;
       }
       $scope.testear = function(){
           if($scope.tramaPersonalizada != undefined){
-            var tramaLimpia = $scope.tramaPersonalizada.replace(/\s+/g, ' ');
-           //var tramaLimpia = $scope.tramaPersonalizada.replace(/\>\s+\</g,'');;
-           var conversionTrama = tramaLimpia.replace(/"/g,'\\"');
-           $scope.resultado =  conversionTrama;
+             var tramaLimpia = $scope.tramaPersonalizada.replace(/\s+/g, ' ');
+             var conversionTrama = tramaLimpia.replace(/"/g,'\\"');
+             $scope.resultado =  conversionTrama;
           }
           $scope.tramaGenerica.Trama = {};
          if($scope.labelTrama){
