@@ -116,7 +116,10 @@
         .destroy(data.IdDetalle)
         .then(function(result) {
           $scope.msjAlert = true;
-          $scope.alert = 'success';
+          if(result.exito)
+            $scope.alert = 'success';
+          else
+            $scope.alert = 'danger';
           $scope.message = result.message;
         })
         .catch(function(err) {

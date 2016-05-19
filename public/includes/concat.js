@@ -1189,6 +1189,147 @@
       });
     };
 }])
+.controller('formatosAutomaticosController',
+  ['$rootScope','$scope', '$location', 'conversorcabecerasModel','$uibModal','$routeParams',
+  function ($rootScope,$scope, $location, conversorcabecerasModel,$uibModal,$routeParams) {
+
+    $scope.titleController = 'MEAN-CASE SUPER HEROIC';
+    $rootScope.titleWeb = 'Formatos Automaticos';
+    $scope.preloader = true;
+    $scope.msjAlert = false;
+    $scope.mostrarGrid = false;
+    var obtenerCabeceras = function(){
+      conversorcabecerasModel.getAll().then(function(data) {
+        $scope.conversorcabecerasList = data;
+        $scope.conversorcabecerasTemp = angular.copy($scope.conversorcabecerasList);
+        //$scope.preloader = false;
+      });
+    }
+
+    obtenerCabeceras();
+    $scope.item = {};
+    $scope.duplicarFormato = function(){
+      var formatoCabecera = conversorcabecerasModel.create();
+        formatoCabecera.url = '/api/duplicarFormato';
+        formatoCabecera.idFormato = $scope.item.formato;
+        formatoCabecera.nombreFormato = $scope.item.nombreFormato;
+        formatoCabecera.descripcionFormato = $scope.item.descripcionFormato;
+        formatoCabecera.save().then(function(r){
+          $scope.datosCabecera = [];
+          $scope.datosCabecera.push(r);
+          $scope.item.formato = null;
+          $scope.item.nombreFormato = null;
+          $scope.item.descripcionFormato = null;
+          $scope.preloader = false;
+          $scope.mostrarGrid = true;
+        });
+    }
+
+    $scope.options = [
+        {
+          name: '5',
+          value: '5'
+        }, 
+        {
+          name: '10',
+          value: '10'
+        }, 
+        {
+          name: '15',
+          value: '15'
+        }, 
+        {
+          name: '20',
+          value: '20'
+        }
+    ];
+
+    $scope.valorPaginacion = $scope.options[0];
+    $scope.cambioPaginacion = function(dato){
+      $rootScope.configTable.itemsPerPage =  dato.value;
+    }
+    $scope.obtenerDetalles = function(item){
+      $location.url('/conversordetalles/'+item.IdFormato+'/'+item.NombreFormato);
+      /*conversorcabecerasModel.url = '/api/conversorcabeceras/detalles';
+      conversorcabecerasModel.findById(idFormato).then(function(detalles){
+        
+        //$location.url('/conversorcabeceras/detalles');
+        $scope.conversoDetalles = detalles;
+        console.log($scope.conversoDetalles);
+      });*/
+      
+     
+    }
+    $scope.verPlantilla = function(item){
+      $location.url('/conversordetalleplantillas/'+item.IdFormato+'/'+item.NombreFormato);
+    }
+
+    /*  Modal */
+     $scope.open = function (item) {
+       var modalInstance = $uibModal.open({
+        animation: true,
+        templateUrl: 'templates/conversorcabeceras/modalCreate.html',
+        controller: 'modalconversorcabecerasCreateController',
+        size: 'lg',
+        resolve: {
+         item: function () {
+          return item;
+         }
+        }
+      });
+      modalInstance.result.then(function(data) {
+        if(!item) {
+           $scope.conversorcabecerasList.push(data);
+           $scope.conversorcabecerasTemp = angular.copy($scope.conversorcabecerasList);
+        }
+        if(data.message){
+          $scope.alert = 'success';
+          $scope.message = data.message;
+          $scope.msjAlert = true;
+        }
+ 
+      },function(result){
+          $scope.conversorcabecerasList = $scope.conversorcabecerasTemp;
+          $scope.conversorcabecerasTemp = angular.copy($scope.conversorcabecerasList);
+    })
+    .catch(function(err) {
+          $scope.msjAlert = true;
+          $scope.alert = 'danger';
+          $scope.message = 'Error '+err;
+          $scope.msjAlert = true;
+    });
+  };
+  /*  Delete  */
+  $scope.openDelete = function (item) {
+    var modalInstance = $uibModal.open({
+      animation: true,
+      templateUrl: 'templates/conversorcabeceras/modalDelete.html',
+      controller: 'modalconversorcabecerasDeleteController',
+      size: 'lg',
+      resolve: {
+        item: function () {
+           return item;
+        }
+      }
+    });
+    modalInstance.result.then(function(data) {
+      var idx = $scope.conversorcabecerasList.indexOf(data);
+      $scope.conversorcabecerasList.splice(idx, 1);
+      conversorcabecerasModel
+        .destroy(data.IdFormato)
+        .then(function(result) {
+          $scope.msjAlert = true;
+          $scope.alert = 'success';
+          $scope.message = result.message;
+        })
+        .catch(function(err) {
+          $scope.msjAlert = true;
+          $scope.alert = 'danger';
+          $scope.message = 'Error '+err;
+        })
+      });
+    };
+}])
 .controller('conversorcabecerasController',
   ['$rootScope','$scope', '$location', 'conversorcabecerasModel','$uibModal','$routeParams',
   function ($rootScope,$scope, $location, conversorcabecerasModel,$uibModal,$routeParams) {
@@ -1343,9 +1484,13 @@
         if($scope.item.Cabecera == undefined)
             $scope.item.Cabecera = false;
         conversorCabeceras.Cabecera = $scope.item.Cabecera;
+        if($scope.item.Pie == undefined)
+            $scope.item.Pie = false;
         conversorCabeceras.Pie = $scope.item.Pie;
         conversorCabeceras.Separador = $scope.item.Separador;
         conversorCabeceras.FormatoConversion = $scope.item.FormatoConversion;
+        if($scope.item.Formato_destino == undefined)
+            $scope.item.Formato_destino = false;
         conversorCabeceras.Formato_destino = $scope.item.Formato_destino;
         conversorCabeceras.Tipo_Proceso = $scope.item.Tipo_Proceso;
         conversorCabeceras.NombreObjeto = $scope.item.NombreObjeto;
@@ -1355,9 +1500,15 @@
         conversorCabeceras.RutinaPrevalidacion = $scope.item.RutinaPrevalidacion;
         conversorCabeceras.Unificador = $scope.item.Unificador;
         conversorCabeceras.Check_Totales_Por = $scope.item.Check_Totales_Por;
+        if($scope.item.ValidaIdentificacion == undefined)
+            $scope.item.ValidaIdentificacion = false;
         conversorCabeceras.ValidaIdentificacion = $scope.item.ValidaIdentificacion;
         conversorCabeceras.RutinaPreconversion = $scope.item.RutinaPreconversion;
+        if($scope.item.InfiereTipoIdCliente == undefined)
+            $scope.item.InfiereTipoIdCliente = false;
         conversorCabeceras.InfiereTipoIdCliente = $scope.item.InfiereTipoIdCliente;
+        if($scope.item.MuestraCabeceraColumna == undefined)
+            $scope.item.MuestraCabeceraColumna = false;
         conversorCabeceras.MuestraCabeceraColumna = $scope.item.MuestraCabeceraColumna;
         conversorCabeceras.TipoConversion = $scope.item.TipoConversion;
         conversorCabeceras.save().then(function(r){
@@ -1426,6 +1577,14 @@
     .when('/duplicarFormato', {
       templateUrl: '/templates/conversorcabeceras/duplicarFormato.html',
       controller: 'duplicarFormatoController',
+      access: {
+        restricted: false,
+       rol: 1
+      }
+    })
+    .when('/formatosAutomaticos', {
+      templateUrl: '/templates/conversorcabeceras/formatosAutomaticos.html',
+      controller: 'formatosAutomaticosController',
       access: {
         restricted: false,
        rol: 1
@@ -1722,7 +1881,10 @@
         .destroy(data.IdDetalle)
         .then(function(result) {
           $scope.msjAlert = true;
-          $scope.alert = 'success';
+          if(result.exito)
+            $scope.alert = 'success';
+          else
+            $scope.alert = 'danger';
           $scope.message = result.message;
         })
         .catch(function(err) {
@@ -1754,11 +1916,15 @@
         conversordetalles.PosicionInicio = $scope.item.PosicionInicio;
         conversordetalles.LongitudCampo = $scope.item.LongitudCampo;
         conversordetalles.TipoCampo = $scope.item.TipoCampo;
+        if($scope.item.SeparadorDecimales == undefined)
+            $scope.item.SeparadorDecimales = false;
         conversordetalles.SeparadorDecimales = $scope.item.SeparadorDecimales;
         conversordetalles.NumeroDecimales = $scope.item.NumeroDecimales;
         conversordetalles.DescripcionCampo = $scope.item.DescripcionCampo;
         conversordetalles.IdCampoEquivalente = $scope.item.IdCampoEquivalente;
         conversordetalles.CampoEquivalente = $scope.item.CampoEquivalente;
+        if($scope.item.Obligatorio == undefined)
+            $scope.item.Obligatorio = false;
         conversordetalles.Obligatorio = $scope.item.Obligatorio;
         conversordetalles.Validaciones = $scope.item.Validaciones;
         conversordetalles.Tipo_Registro = $scope.item.Tipo_Registro;
@@ -1769,6 +1935,8 @@
         conversordetalles.CaracterConcatenacion = $scope.item.CaracterConcatenacion;
         conversordetalles.OrdenCampo = $scope.item.OrdenCampo;
         conversordetalles.Rutina_Conversion = $scope.item.Rutina_Conversion;
+        if($scope.item.ValidaEnMasivas == undefined)
+            $scope.item.ValidaEnMasivas = false;
         conversordetalles.ValidaEnMasivas = $scope.item.ValidaEnMasivas;
         conversordetalles.save().then(function(r){
           $scope.saving = false;
@@ -1828,143 +1996,6 @@
       }
     });
  })
-.controller('modalUserCreateController',
-  ['$scope', '$uibModalInstance', 'item','AuthService','userService',
-  function ($scope, $uibModalInstance, item,AuthService,userService) {
-  
-    $scope.item = item;
-    $scope.saving = false;
-    if(item){
-     $scope.tmpUsername = angular.copy(item.username);
-    }
-     
-    $scope.save = function () {
-
-      if(!item){
-        $scope.saving = true;
-        item = {username:$scope.item.username,rol:$scope.item.rol,flat:true};
-        AuthService.register($scope.item.username,$scope.item.password,$scope.item.rol).then(function(r){
-          $scope.saving = false;
-        });
-      }else{
-        userService.editUser($scope.tmpUsername,item.username,$scope.item.password,$scope.item.rol).then(function(r){
-          $scope.saving = false;
-        });
-      }
-      $uibModalInstance.close(item);
-    };
-
-}])
-
-.controller('modalUserDeleteController',
-  ['$scope', '$modalInstance', 'item',
-  function ($scope, $modalInstance, item) {
-    
-  $scope.item = item;
-  $scope.ok = function () {
-    $modalInstance.close($scope.item);
-  };
-
-  $scope.cancel = function () {
-    $modalInstance.dismiss('cancel');
-  };
-    
-
-}])
-.controller('userController',
-  ['$rootScope','$scope', '$location', 'userService','$timeout','$uibModal','UsersModel',
-  function ($rootScope,$scope, $location, userService,$timeout,$uibModal,UsersModel) {
-    $scope.titleLoginController = "MEAN-CASE SUPER HEROIC";
-    $rootScope.titleWeb = "Users";
-    $scope.preloader = true;
-    $scope.msjAlert = false;
-    UsersModel.getAll().then(function(data){
-            $scope.usersList = data; 
-            $scope.usersTemp = angular.copy($scope.usersList);
-            $scope.preloader = false;
-    })
-    /*  Modal*/
-
-    /*  Create    */
-     $scope.open = function (size,item) {
-        var modalInstance = $uibModal.open({
-          animation: true,
-          templateUrl: 'templates/users/modalUserCreate.html',
-          controller: 'modalUserCreateController',
-          size: size,
-          resolve: {
-            item: function () {
-              return item;
-            }
-          }
-        });
-
-        modalInstance.result.then(function(data) {
-          if(!data._id) {
-         
-                $scope.usersList.push(data); 
-                $scope.usersTemp = angular.copy($scope.usersList);
-            }      
-        },function(result){
-          $scope.usersList = $scope.usersTemp;
-          $scope.usersTemp = angular.copy($scope.usersList);  
-        });
-    };
-
-    /*  Create    */
-    /*  Delete    */
-    $scope.openDelete = function (size,item) {
-        var modalInstance = $uibModal.open({
-          animation: true,
-          templateUrl: 'templates/users/modalUserDelete.html',
-          controller: 'modalUserDeleteController',
-          size: size,
-          resolve: {
-            item: function () {
-              return item;
-            }
-          }
-        });
-
-        modalInstance.result.then(function(data) { 
-          var idx = $scope.usersList.indexOf(data); 
-          $scope.usersList.splice(idx, 1);
-          userService
-            .deleteUser(data._id)
-            .then(function(result) {
-                $scope.msjAlert = true;
-                $scope.alert = "success";
-                $scope.message = result.message;
-            })
-            .catch(function(err) {
-                //error
-                $scope.msjAlert = true;
-                $scope.alert = "danger";
-                $scope.message = "Error "+err;
-            })            
-        });
-    };
-
-    /*  Delete    */
-
-    /*  Modal*/
-
-    /*    Configuration Watch  Change Serch    */
-         /* $scope.filterText = '';
-          // Instantiate these variables outside the watch
-          var tempFilterText = '',
-          filterTextTimeout;
-          $scope.$watch('searchText', function (val) {
-              if (filterTextTimeout) $timeout.cancel(filterTextTimeout);
-              tempFilterText = val;
-              filterTextTimeout = $timeout(function() {
-                  $scope.filterText = tempFilterText;
-              }, 1500); // delay 250 ms
-          })*/
-    /*    Configuration Watch Change Serch     */
-        
-
-}])
 .controller('parsingController',
   ['$rootScope','$scope', '$location', 'conversorcabecerasModel','$uibModal','$routeParams','factoryParsing','almacentramasModel',
   function ($rootScope,$scope, $location, conversorcabecerasModel,$uibModal,$routeParams,factoryParsing,almacentramasModel) {
@@ -2127,6 +2158,143 @@
       }
     });
  })
+.controller('modalUserCreateController',
+  ['$scope', '$uibModalInstance', 'item','AuthService','userService',
+  function ($scope, $uibModalInstance, item,AuthService,userService) {
+  
+    $scope.item = item;
+    $scope.saving = false;
+    if(item){
+     $scope.tmpUsername = angular.copy(item.username);
+    }
+     
+    $scope.save = function () {
+
+      if(!item){
+        $scope.saving = true;
+        item = {username:$scope.item.username,rol:$scope.item.rol,flat:true};
+        AuthService.register($scope.item.username,$scope.item.password,$scope.item.rol).then(function(r){
+          $scope.saving = false;
+        });
+      }else{
+        userService.editUser($scope.tmpUsername,item.username,$scope.item.password,$scope.item.rol).then(function(r){
+          $scope.saving = false;
+        });
+      }
+      $uibModalInstance.close(item);
+    };
+
+}])
+
+.controller('modalUserDeleteController',
+  ['$scope', '$modalInstance', 'item',
+  function ($scope, $modalInstance, item) {
+    
+  $scope.item = item;
+  $scope.ok = function () {
+    $modalInstance.close($scope.item);
+  };
+
+  $scope.cancel = function () {
+    $modalInstance.dismiss('cancel');
+  };
+    
+
+}])
+.controller('userController',
+  ['$rootScope','$scope', '$location', 'userService','$timeout','$uibModal','UsersModel',
+  function ($rootScope,$scope, $location, userService,$timeout,$uibModal,UsersModel) {
+    $scope.titleLoginController = "MEAN-CASE SUPER HEROIC";
+    $rootScope.titleWeb = "Users";
+    $scope.preloader = true;
+    $scope.msjAlert = false;
+    UsersModel.getAll().then(function(data){
+            $scope.usersList = data; 
+            $scope.usersTemp = angular.copy($scope.usersList);
+            $scope.preloader = false;
+    })
+    /*  Modal*/
+
+    /*  Create    */
+     $scope.open = function (size,item) {
+        var modalInstance = $uibModal.open({
+          animation: true,
+          templateUrl: 'templates/users/modalUserCreate.html',
+          controller: 'modalUserCreateController',
+          size: size,
+          resolve: {
+            item: function () {
+              return item;
+            }
+          }
+        });
+
+        modalInstance.result.then(function(data) {
+          if(!data._id) {
+         
+                $scope.usersList.push(data); 
+                $scope.usersTemp = angular.copy($scope.usersList);
+            }      
+        },function(result){
+          $scope.usersList = $scope.usersTemp;
+          $scope.usersTemp = angular.copy($scope.usersList);  
+        });
+    };
+
+    /*  Create    */
+    /*  Delete    */
+    $scope.openDelete = function (size,item) {
+        var modalInstance = $uibModal.open({
+          animation: true,
+          templateUrl: 'templates/users/modalUserDelete.html',
+          controller: 'modalUserDeleteController',
+          size: size,
+          resolve: {
+            item: function () {
+              return item;
+            }
+          }
+        });
+
+        modalInstance.result.then(function(data) { 
+          var idx = $scope.usersList.indexOf(data); 
+          $scope.usersList.splice(idx, 1);
+          userService
+            .deleteUser(data._id)
+            .then(function(result) {
+                $scope.msjAlert = true;
+                $scope.alert = "success";
+                $scope.message = result.message;
+            })
+            .catch(function(err) {
+                //error
+                $scope.msjAlert = true;
+                $scope.alert = "danger";
+                $scope.message = "Error "+err;
+            })            
+        });
+    };
+
+    /*  Delete    */
+
+    /*  Modal*/
+
+    /*    Configuration Watch  Change Serch    */
+         /* $scope.filterText = '';
+          // Instantiate these variables outside the watch
+          var tempFilterText = '',
+          filterTextTimeout;
+          $scope.$watch('searchText', function (val) {
+              if (filterTextTimeout) $timeout.cancel(filterTextTimeout);
+              tempFilterText = val;
+              filterTextTimeout = $timeout(function() {
+                  $scope.filterText = tempFilterText;
+              }, 1500); // delay 250 ms
+          })*/
+    /*    Configuration Watch Change Serch     */
+        
+
+}])
 .controller('crudController',
     ['$scope', 'crudService',
         function ($scope, crudService) {
