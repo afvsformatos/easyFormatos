@@ -1340,6 +1340,8 @@
         conversorCabeceras.IdFormato = $scope.item.IdFormato;
         conversorCabeceras.NombreFormato = $scope.item.NombreFormato;
         conversorCabeceras.DescripcionFormato = $scope.item.DescripcionFormato;
+        if($scope.item.Cabecera == undefined)
+            $scope.item.Cabecera = false;
         conversorCabeceras.Cabecera = $scope.item.Cabecera;
         conversorCabeceras.Pie = $scope.item.Pie;
         conversorCabeceras.Separador = $scope.item.Separador;
