@@ -1856,7 +1856,18 @@
         var parsingPass = {};
         parsingPass.id_formato  = $routeParams.idFormato;
         parsingPass.nombre_formato  = $routeParams.nombreFormato;
-        parsingPass.trama  = $scope.tramaPersonalizada;
+        parsingPass.trama  = $scope.tramaPersonalizada.replace(/\s+/g, ' ');
+        /*if(!$scope.labelTrama){
+          //Respuesta
+          parsingPass.trama  = $scope.tramaPersonalizada.replace(/\s+/g, ' ');
+        }else{
+          //Envio
+          var tmpTest = $scope.tramaPersonalizada.replace(/\s+/g, ' ');
+          console.log(tmpTest);
+          parsingPass.trama  = tmpTest.replace(/\\\\/g,'');
+          console.log(parsingPass.trama);
+        }*/
+        console.log(parsingPass.trama);
         parsingPass.aprobo = false;
         if($scope.tmpParsing != null){
             parsingPass.idMongo = $scope.tmpParsing._id;
@@ -1871,7 +1882,7 @@
           $scope.tmpParsing = result;
           var tramaSinComillas = JSON.stringify(result.trama);
           var sizeCadena = tramaSinComillas.length - 1;
-          $scope.tramaPersonalizada = tramaSinComillas.slice(1,sizeCadena);
+          $scope.tramaPersonalizada = tramaSinComillas.slice(1,sizeCadena).replace(/\\/g,'');
         }else{
           $scope.tmpParsing = null;
         }
@@ -1915,7 +1926,7 @@
       $scope.cambiarValores = function(arg){
           $scope.showRes = false; 
           $scope.resultado = '';
-          $scope.tramaPersonalizada = '';
+          //$scope.tramaPersonalizada = '';
           if(arg.value == 'ENVIO'){
              $scope.labelTrama = true;
           }else{
