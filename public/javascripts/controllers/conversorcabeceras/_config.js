@@ -23,5 +23,13 @@
         restricted: false,
        rol: 1
       }
+    })
+    .when('/formatosAutomaticos', {
+      templateUrl: '/templates/conversorcabeceras/formatosAutomaticos.html',
+      controller: 'formatosAutomaticosController',
+      access: {
+        restricted: false,
+       rol: 1
+      }
     });
  })

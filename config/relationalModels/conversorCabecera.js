@@ -78,7 +78,8 @@ var conversorCabecera = connectionDb.sequelize.define('Conversor_Cabecera', {
 
 conversorCabecera.hasMany(conversorDetalle, {
   foreignKey: 'IdFormato',
-  constraints: false
+   onDelete: "CASCADE",
+  //constraints: false
  /* scope: {
     commentable: 'post'
   }*/
@@ -86,7 +87,8 @@ conversorCabecera.hasMany(conversorDetalle, {
 
 conversorCabecera.hasMany(conversorDetallePlantilla, {
   foreignKey: 'IdFormato',
-  constraints: false
+  onDelete: "CASCADE",
+  //constraints: false
 });
 
 module.exports = conversorCabecera;

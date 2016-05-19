@@ -78,18 +78,16 @@ var conversorDetalle = connectionDb.sequelize.define('Conversor_Detalle', {
   freezeTableName: true, // Model tableName will be the same as the model name
    updatedAt : false,
    createdAt: false
-}/*, {
+},{
 	    classMethods: {
 		      associate: function(models) {
 				    Conversor_Detalle.belongsTo(models.Conversor_Cabecera, {
-				          onDelete: "CASCADE",
-				          foreignKey: {
-				            allowNull: false
-				          }
+				          foreignKeyConstraint: true,
+                  onDelete: "CASCADE"
 			        });
 		      }
 	    }
-	}*/
+	}
 
 );
 
