@@ -19,11 +19,15 @@
         conversordetalles.PosicionInicio = $scope.item.PosicionInicio;
         conversordetalles.LongitudCampo = $scope.item.LongitudCampo;
         conversordetalles.TipoCampo = $scope.item.TipoCampo;
+        if($scope.item.SeparadorDecimales == undefined)
+            $scope.item.SeparadorDecimales = false;
         conversordetalles.SeparadorDecimales = $scope.item.SeparadorDecimales;
         conversordetalles.NumeroDecimales = $scope.item.NumeroDecimales;
         conversordetalles.DescripcionCampo = $scope.item.DescripcionCampo;
         conversordetalles.IdCampoEquivalente = $scope.item.IdCampoEquivalente;
         conversordetalles.CampoEquivalente = $scope.item.CampoEquivalente;
+        if($scope.item.Obligatorio == undefined)
+            $scope.item.Obligatorio = false;
         conversordetalles.Obligatorio = $scope.item.Obligatorio;
         conversordetalles.Validaciones = $scope.item.Validaciones;
         conversordetalles.Tipo_Registro = $scope.item.Tipo_Registro;
@@ -34,6 +38,8 @@
         conversordetalles.CaracterConcatenacion = $scope.item.CaracterConcatenacion;
         conversordetalles.OrdenCampo = $scope.item.OrdenCampo;
         conversordetalles.Rutina_Conversion = $scope.item.Rutina_Conversion;
+        if($scope.item.ValidaEnMasivas == undefined)
+            $scope.item.ValidaEnMasivas = false;
         conversordetalles.ValidaEnMasivas = $scope.item.ValidaEnMasivas;
         conversordetalles.save().then(function(r){
           $scope.saving = false;
