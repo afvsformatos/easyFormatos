@@ -4,75 +4,90 @@
 
     $scope.titleController = 'MEAN-CASE SUPER HEROIC';
     $rootScope.titleWeb = 'Formatos Automaticos';
+    $scope.mostrarPrimeraVista = true;
+    $scope.mostrarSegundaVista = false;
     $scope.preloader = true;
     $scope.msjAlert = false;
-    $scope.mostrarGrid = false;
-    var obtenerCabeceras = function(){
-      conversorcabecerasModel.getAll().then(function(data) {
-        $scope.conversorcabecerasList = data;
-        $scope.conversorcabecerasTemp = angular.copy($scope.conversorcabecerasList);
-        //$scope.preloader = false;
-      });
-    }
+    $scope.showTramaJson = true;
+     
+    var scan = function(obj,superior){
+        superior = superior || null;
+        var k;
+        if (obj instanceof Object) {
+            for (k in obj){
+                if (obj.hasOwnProperty(k)){
+                    //recursive call to scan property
+                    if(superior != null){
+                        var tmp = superior+'.'+k;
+                        $scope.nodosJson.push({name:tmp,value:tmp});
+                    }else{
+                        var tmp = k;
+                        $scope.nodosJson.push({name:tmp,value:tmp});
+                    }
+                    scan(obj[k],k);  
+                }                
+            }
+        } else {
+            //not an Object so obj[k] here is a value
+        };
 
-    obtenerCabeceras();
-    $scope.item = {};
-    $scope.duplicarFormato = function(){
-      var formatoCabecera = conversorcabecerasModel.create();
-        formatoCabecera.url = '/api/duplicarFormato';
-        formatoCabecera.idFormato = $scope.item.formato;
-        formatoCabecera.nombreFormato = $scope.item.nombreFormato;
-        formatoCabecera.descripcionFormato = $scope.item.descripcionFormato;
-        formatoCabecera.save().then(function(r){
-          $scope.datosCabecera = [];
-          $scope.datosCabecera.push(r);
-          $scope.item.formato = null;
-          $scope.item.nombreFormato = null;
-          $scope.item.descripcionFormato = null;
-          $scope.preloader = false;
-          $scope.mostrarGrid = true;
-        });
-    }
+    };
+    $scope.nodosJson = [];
+   
 
     $scope.options = [
         {
-          name: '5',
-          value: '5'
+          name: 'ENVIO',
+          value: 'ENVIO'
         }, 
         {
-          name: '10',
-          value: '10'
-        }, 
-        {
-          name: '15',
-          value: '15'
-        }, 
-        {
-          name: '20',
-          value: '20'
+          name: 'RESPUESTA',
+          value: 'RESPUESTA'
         }
-    ];
+      ];
 
-    $scope.valorPaginacion = $scope.options[0];
-    $scope.cambioPaginacion = function(dato){
-      $rootScope.configTable.itemsPerPage =  dato.value;
-    }
-    $scope.obtenerDetalles = function(item){
-      $location.url('/conversordetalles/'+item.IdFormato+'/'+item.NombreFormato);
-      /*conversorcabecerasModel.url = '/api/conversorcabeceras/detalles';
-      conversorcabecerasModel.findById(idFormato).then(function(detalles){
-        
-        //$location.url('/conversorcabeceras/detalles');
-        $scope.conversoDetalles = detalles;
-        console.log($scope.conversoDetalles);
-      });*/
       
-     
-    }
-    $scope.verPlantilla = function(item){
-      $location.url('/conversordetalleplantillas/'+item.IdFormato+'/'+item.NombreFormato);
+    
+      
+      $scope.nodosXml = [
+        {
+          name: 'xml.usuario',
+          value: 'xml.usuario'
+        }, 
+        {
+          name: 'xml.mostrar.password',
+          value: 'xml.mostrar.password'
+        }
+      ];
+
+    $scope.nodosResultados = [];
+    $scope.concatenar = function(){
+      var concatName = $scope.nodoJson[0].name+' | '+ $scope.nodoXml[0].name;
+      var concatValue = $scope.nodoJson[0].value+','+ $scope.nodoXml[0].value;
+      $scope.nodosResultados.push({name:concatName,value:concatValue});
     }
 
+    $scope.eliminarElemento = function(elemento){
+      var idx = $scope.nodosResultados.indexOf(elemento[0]);
+      $scope.nodosResultados.splice(idx, 1);
+    }
+
+    $scope.valorTipoProceso = $scope.options[0];
+
+    $scope.cambiarTipoProceso = function(){
+        $scope.showTramaJson = !$scope.showTramaJson;    
+    }
+    
+    $scope.showSegundaVista = function(arg){
+        
+        if($scope.tramaJson != undefined){
+          scan(JSON.parse($scope.tramaJson));
+        }
+        console.log(typeof $scope.tramaJson);
+        $scope.mostrarPrimeraVista = false;
+        $scope.mostrarSegundaVista = true;
+        
+    }
     /*  Modal */
      $scope.open = function (item) {
        var modalInstance = $uibModal.open({
