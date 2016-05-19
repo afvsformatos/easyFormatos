@@ -17,9 +17,13 @@
         if($scope.item.Cabecera == undefined)
             $scope.item.Cabecera = false;
         conversorCabeceras.Cabecera = $scope.item.Cabecera;
+        if($scope.item.Pie == undefined)
+            $scope.item.Pie = false;
         conversorCabeceras.Pie = $scope.item.Pie;
         conversorCabeceras.Separador = $scope.item.Separador;
         conversorCabeceras.FormatoConversion = $scope.item.FormatoConversion;
+        if($scope.item.Formato_destino == undefined)
+            $scope.item.Formato_destino = false;
         conversorCabeceras.Formato_destino = $scope.item.Formato_destino;
         conversorCabeceras.Tipo_Proceso = $scope.item.Tipo_Proceso;
         conversorCabeceras.NombreObjeto = $scope.item.NombreObjeto;
@@ -29,9 +33,15 @@
         conversorCabeceras.RutinaPrevalidacion = $scope.item.RutinaPrevalidacion;
         conversorCabeceras.Unificador = $scope.item.Unificador;
         conversorCabeceras.Check_Totales_Por = $scope.item.Check_Totales_Por;
+        if($scope.item.ValidaIdentificacion == undefined)
+            $scope.item.ValidaIdentificacion = false;
         conversorCabeceras.ValidaIdentificacion = $scope.item.ValidaIdentificacion;
         conversorCabeceras.RutinaPreconversion = $scope.item.RutinaPreconversion;
+        if($scope.item.InfiereTipoIdCliente == undefined)
+            $scope.item.InfiereTipoIdCliente = false;
         conversorCabeceras.InfiereTipoIdCliente = $scope.item.InfiereTipoIdCliente;
+        if($scope.item.MuestraCabeceraColumna == undefined)
+            $scope.item.MuestraCabeceraColumna = false;
         conversorCabeceras.MuestraCabeceraColumna = $scope.item.MuestraCabeceraColumna;
         conversorCabeceras.TipoConversion = $scope.item.TipoConversion;
         conversorCabeceras.save().then(function(r){
