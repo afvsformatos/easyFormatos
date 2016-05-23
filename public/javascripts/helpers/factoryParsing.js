@@ -4,7 +4,8 @@
 
       return ({
         testParsing: testParsing,
-        eliminarGrabar:  eliminarGrabar
+        eliminarGrabar:  eliminarGrabar,
+        generarFormatoAutomatico : generarFormatoAutomatico
       });
 
 
@@ -30,6 +31,23 @@
         var deferred = $q.defer();
 
         $http.post('/api/almacentramas/eliminarGrabar', params)
+          // handle success
+          .success(function (data, status) {
+             deferred.resolve(data);
+          })
+          // handle error
+          .error(function (data) {
+            deferred.reject(data);
+          });
+        return deferred.promise;
+
+      }
+
+      function generarFormatoAutomatico(params) {
+
+        var deferred = $q.defer();
+
+        $http.post('/api/generarFormatosAutomaticos', params)
           // handle success
           .success(function (data, status) {
              deferred.resolve(data);

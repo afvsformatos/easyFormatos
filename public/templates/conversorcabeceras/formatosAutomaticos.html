@@ -1,4 +1,16 @@
 <fieldset ng-show="mostrarPrimeraVista">
+	   <div class="row" >
+	       	<div class="form-group col-md-12">
+		       	<label for="valorTipoProceso" class="bold">Nombre Formato</label>
+		       	<input  ng-model="inputNombreFormato"  class="form-control" >
+	       	</div>
+       </div>
+       <div class="row" >
+	       	<div class="form-group col-md-12">
+		       	<label for="valorTipoProceso" class="bold">Descripción Formato</label>
+		       	<input  ng-model="inputDescripcionFormato"  class="form-control" >
+	       	</div>
+       </div>
        <div class="row" >
 	       	<div class="form-group col-md-12">
 		       	<label for="valorTipoProceso" class="bold">Tipo Proceso</label>
@@ -15,12 +27,13 @@
        	<div class="row">
 	       	<div class="form-group col-md-12">
 		       	<label for="tramaXml" class="bold">Trama XML</label>
-		       	<input ng-model="nodoRaizXml" placeholder="Nodo Raíz XML" class="form-control" ng-show="showTramaJson">
+		       	<!--<input ng-model="nodoRaizXml" placeholder="Nodo Raíz XML" class="form-control" ng-show="showTramaJson">-->
 		       	<textarea  placeholder="Ingresa la Trama XML" ng-model="tramaXml" class="form-control" rows="10"></textarea>
 	       	</div>
        	</div>
        	<div class="row">
 	       	<div class="form-group col-md-12">
+	       		<div class="alert alert-danger" ng-show="showMensajeError">{{mensajeError}}</div>
 		       	<button class="btn btn-primary btn-lg btn-block" ng-click="showSegundaVista()" ng-disabled="tramaXml == undefined">Siguiente</button>
 	       	</div>
        	</div>

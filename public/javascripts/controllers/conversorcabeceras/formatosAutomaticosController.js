@@ -1,6 +1,6 @@
 .controller('formatosAutomaticosController',
-  ['$rootScope','$scope', '$location', 'conversorcabecerasModel','$uibModal','$routeParams',
-  function ($rootScope,$scope, $location, conversorcabecerasModel,$uibModal,$routeParams) {
+  ['$rootScope','$scope', '$location', 'conversorcabecerasModel','$uibModal','$routeParams','x2js','factoryParsing',
+  function ($rootScope,$scope, $location, conversorcabecerasModel,$uibModal,$routeParams,x2js,factoryParsing) {
 
     $scope.titleController = 'MEAN-CASE SUPER HEROIC';
     $rootScope.titleWeb = 'Formatos Automaticos';
@@ -9,29 +9,73 @@
     $scope.preloader = true;
     $scope.msjAlert = false;
     $scope.showTramaJson = true;
-     
+    $scope.showMensajeError = false;
+    var flagDetalle = false;
+    //var xmlText = '<?xml version="1.0" encoding="UTF-8"?><soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ser="http://bpichincha.com/servicios"><soapenv:Header /><soapenv:Body><ser:ProcesarRequerimiento><header><usuario>{usuario}</usuario><aplicacion>{aplicacion}</aplicacion><canal>{canal}</canal><idTransaccion /><banco>{banco}</banco><oficina>{oficina}</oficina></header><body><servicio>{servicio}</servicio><metodo>{metodo}</metodo><dataIn><field id="iuto" valor="hbCI2" /><field id="tipoTarjeta" valor="{TipoTarjeta}" /><field id="Tipo_Emisor" valor="{Tipo_Emisor}" /><field id="numTarjeta" valor="{Tarjeta}" /><field id="timestamp" valor="{fechahora}" /></dataIn></body></ser:ProcesarRequerimiento></soapenv:Body></soapenv:Envelope>';
+   
+    //console.log(jsonObj);
+
+
     var scan = function(obj,superior){
         superior = superior || null;
         var k;
         if (obj instanceof Object) {
             for (k in obj){
                 if (obj.hasOwnProperty(k)){
-                    //recursive call to scan property
-                    if(superior != null){
-                        var tmp = superior+'.'+k;
-                        $scope.nodosJson.push({name:tmp,value:tmp});
-                    }else{
-                        var tmp = k;
-                        $scope.nodosJson.push({name:tmp,value:tmp});
+                    if(superior == 'Detalle' ){
+                        flagDetalle = true;
+                        if(typeof obj[k] != 'object'){
+                          var tmp = k;
+                          $scope.nodosJson.push({name:tmp,value:tmp});
+                        }                     
+                    }else if (flagDetalle) {
+                          var tmp = superior+'.'+k;
+                          $scope.nodosJson.push({name:tmp,value:tmp});    
                     }
                     scan(obj[k],k);  
-                }                
+                }  
+                                              
             }
         } else {
-            //not an Object so obj[k] here is a value
+            //si no es obj[k] instancia de objeto
         };
 
     };
+    $scope.nodosXml = [];
+    var scanXml = function(obj){
+        var k;
+        if (obj instanceof Object) {
+            for (k in obj){
+                if (obj.hasOwnProperty(k)){
+                    
+                    if(k != '__prefix'){
+                      if(typeof obj[k] == 'string'){
+                        if(k != '_id'){
+                          var tmpExist = obj[k].indexOf("http");
+                          if(obj[k] != ''){   
+                              if(tmpExist == -1) {
+                                  var tmpExistLlave = obj[k].indexOf("{");
+                                   if(tmpExistLlave != -1) {
+                                      $scope.nodosXml.push({name:obj[k],value:obj[k]});
+                                    }
+                              }                                                                              
+                          }
+                           
+                        }
+                         
+                      }
+                      
+                    }
+                    scanXml(obj[k]);  
+                }  
+                                              
+            }
+        } else {
+            //si no es obj[k] instancia de objeto
+        };
+
+    };
+    //scanXml(jsonObj);
     $scope.nodosJson = [];
    
 
@@ -49,22 +93,30 @@
       
     
       
-      $scope.nodosXml = [
-        {
-          name: 'xml.usuario',
-          value: 'xml.usuario'
-        }, 
-        {
-          name: 'xml.mostrar.password',
-          value: 'xml.mostrar.password'
-        }
-      ];
+      
 
     $scope.nodosResultados = [];
     $scope.concatenar = function(){
       var concatName = $scope.nodoJson[0].name+' | '+ $scope.nodoXml[0].name;
-      var concatValue = $scope.nodoJson[0].value+','+ $scope.nodoXml[0].value;
-      $scope.nodosResultados.push({name:concatName,value:concatValue});
+      //var concatValue = $scope.nodoJson[0].value+','+ $scope.nodoXml[0].value;
+      var equivalentes = $scope.nodoXml[0].name.replace(/{/g, "");
+      equivalentes = equivalentes.replace(/}/g, "");
+      $scope.nodosResultados.push({name:concatName,descripcionCampo:$scope.nodoJson[0].name,campoEquivalente:equivalentes});
+    }
+    $scope.generarFormato = function(){
+      if($scope.valorTipoProceso.value == 'ENVIO'){
+          $scope.nodosResultados.unshift({value:$scope.tramaXml.replace(/\s/g, ' ')});
+      }
+      
+      $scope.nodosResultados.unshift({value:$scope.inputNombreFormato});
+      $scope.nodosResultados.unshift({value:$scope.inputDescripcionFormato});
+      $scope.nodosResultados.unshift({value: $scope.valorTipoProceso.value});
+      factoryParsing.generarFormatoAutomatico($scope.nodosResultados).then(function(res){
+          $scope.nodosResultados.shift();
+          $scope.nodosResultados.shift();
+          $scope.nodosResultados.shift();
+          console.log(res);
+      });
     }
 
     $scope.eliminarElemento = function(elemento){
@@ -79,14 +131,30 @@
     }
     
     $scope.showSegundaVista = function(arg){
-        
+        console.log('aqui');
         if($scope.tramaJson != undefined){
-          scan(JSON.parse($scope.tramaJson));
+              if (/^[\],:{}\s]*$/.test($scope.tramaJson.replace(/\\["\\\/bfnrtu]/g, '@').
+                replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']').
+                replace(/(?:^|:|,)(?:\s*\[)+/g, ''))) {
+                  scan(JSON.parse($scope.tramaJson));
+                  var jsonObj = x2js.xml_str2json( $scope.tramaXml );
+                  if(jsonObj != null){
+                      scanXml(jsonObj);
+                      $scope.mostrarPrimeraVista = false;
+                      $scope.mostrarSegundaVista = true;
+                      $scope.showMensajeError = false;
+                  }else{
+                      $scope.showMensajeError = true;
+                      $scope.mensajeError  = 'Su trama XML no tiene el formato esperado';
+                  }
+                  
+                }else{
+                  $scope.showMensajeError = true;
+                  $scope.mensajeError  = 'Su trama JSON no tiene el formato esperado';
+                }    
+          
         }
-        console.log(typeof $scope.tramaJson);
-        $scope.mostrarPrimeraVista = false;
-        $scope.mostrarSegundaVista = true;
-        
+           
     }
     /*  Modal */
      $scope.open = function (item) {

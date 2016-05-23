@@ -45,6 +45,103 @@ router.post('/conversorcabeceras', function(req, res, next){
     });
 });
 
+/* GENERAR FORMATOS AUTOMATICOS*/
+router.post('/generarFormatosAutomaticos', function(req, res, next){
+      
+      var nombreFormato = req.body[2].value;
+      var descripcionFormato = req.body[1].value;
+      var objCabecera = {
+            NombreFormato: nombreFormato,
+            DescripcionFormato: descripcionFormato,
+            Cabecera: 0,
+            Pie: 0,
+            Separador: '',
+            FormatoConversion: 0,
+            Formato_destino: 0,
+            //Tipo_Proceso: nombreFormato,
+            NombreObjeto: '',
+            estado: 'ACTIVO',
+            //tipo_archivo_salida: nombreFormato,
+            ORIENTACION: '',
+            RutinaPrevalidacion: '',
+            Unificador: '',
+            Check_Totales_Por: '',
+            ValidaIdentificacion: 1,
+            RutinaPreconversion: '',
+            InfiereTipoIdCliente: 0,
+            MuestraCabeceraColumna: 0
+            //TipoConversion: nombreFormato
+
+        };
+        var objDetalle = {
+            //IdFormato: ,
+            TipoRegistro: 'D',
+            //NumeroCampo: ,
+            PosicionInicio: 0,
+            LongitudCampo: 0,
+            TipoCampo: 'X',
+            SeparadorDecimales: 0,
+            NumeroDecimales: 0,
+            //DescripcionCampo: ,
+            IdCampoEquivalente: 0,
+            //CampoEquivalente: ,
+            Obligatorio: 0,
+            Validaciones: '',
+            Tipo_Registro: 'ITEM',
+            Default_Value: '',
+            observacion: '',
+            Rutina_Validacion: '',
+            Rutina_Transformacion: '',
+            CaracterConcatenacion: '',
+            OrdenCampo: -1,
+            Rutina_Conversion: '',
+            ValidaEnMasivas: 1
+        };
+      if(req.body[0].value == 'ENVIO'){
+        var plantilla = req.body[3].value;
+        req.body.shift();
+        req.body.shift();
+        req.body.shift();
+        objCabecera.Tipo_Proceso = 'IN';
+        objCabecera.tipo_archivo_salida = 'STRING';
+        objCabecera.TipoConversion = 'PROCESO,PLANTILLA';
+        
+        conversorCabecera.create(objCabecera).then(function(data) {
+          var objPlantilla = {
+            IdFormato: data.IdFormato,
+            Plantilla: plantilla,
+            Tipo: '',
+            Orden: 1,
+            Nivel: 'root',
+            Origen: 'root'
+          };
+          var i = 1;
+          for (prop in req.body){
+            objDetalle.IdFormato = data.IdFormato;
+            objDetalle.NumeroCampo = i;
+            objDetalle.DescripcionCampo = req.body[prop].descripcionCampo;
+            objDetalle.CampoEquivalente = req.body[prop].campoEquivalente;
+            conversorDetalle.create(objDetalle);
+            i++;
+          }
+          conversorDetallePlantilla.create(objPlantilla).then(function(r){
+               res.json(data);
+          });
+        });
+      }else{
+        req.body.shift();
+        req.body.shift();
+        req.body.shift();
+        objCabecera.Tipo_Proceso = 'OUT';
+        objCabecera.tipo_archivo_salida = 'DICCIONARIO';
+        objCabecera.TipoConversion = 'PROCESO';
+        conversorCabecera.create(objCabecera).then(function(data) {
+          res.json(data);
+        });
+      }
+   
+});
+
 /* Duplicar Formatos */
 router.post('/duplicarFormato', function(req, res, next){
     conversorCabecera.find({ where: { IdFormato: req.body.idFormato}, include: [conversorDetalle,conversorDetallePlantilla]}).then(function(cabecera) {
