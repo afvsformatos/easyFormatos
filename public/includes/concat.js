@@ -1208,8 +1208,8 @@
     };
 }])
 .controller('formatosAutomaticosController',
-  ['$rootScope','$scope', '$location', 'conversorcabecerasModel','$uibModal','$routeParams','x2js','factoryParsing',
-  function ($rootScope,$scope, $location, conversorcabecerasModel,$uibModal,$routeParams,x2js,factoryParsing) {
+  ['$rootScope','$scope', '$location', 'conversorcabecerasModel','$uibModal','$routeParams','x2js','factoryParsing','$route',
+  function ($rootScope,$scope, $location, conversorcabecerasModel,$uibModal,$routeParams,x2js,factoryParsing,$route) {
 
     $scope.titleController = 'MEAN-CASE SUPER HEROIC';
     $rootScope.titleWeb = 'Formatos Automaticos';
@@ -1220,6 +1220,8 @@
     $scope.showTramaJson = true;
     $scope.showMensajeError = false;
     var flagDetalle = false;
+    $scope.mostrarTerceraVista = false;
+    $scope.preloader = true;
     //var xmlText = '<?xml version="1.0" encoding="UTF-8"?><soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ser="http://bpichincha.com/servicios"><soapenv:Header /><soapenv:Body><ser:ProcesarRequerimiento><header><usuario>{usuario}</usuario><aplicacion>{aplicacion}</aplicacion><canal>{canal}</canal><idTransaccion /><banco>{banco}</banco><oficina>{oficina}</oficina></header><body><servicio>{servicio}</servicio><metodo>{metodo}</metodo><dataIn><field id="iuto" valor="hbCI2" /><field id="tipoTarjeta" valor="{TipoTarjeta}" /><field id="Tipo_Emisor" valor="{Tipo_Emisor}" /><field id="numTarjeta" valor="{Tarjeta}" /><field id="timestamp" valor="{fechahora}" /></dataIn></body></ser:ProcesarRequerimiento></soapenv:Body></soapenv:Envelope>';
    
     //console.log(jsonObj);
@@ -1324,8 +1326,19 @@
           $scope.nodosResultados.shift();
           $scope.nodosResultados.shift();
           $scope.nodosResultados.shift();
-          console.log(res);
+          $scope.nodosJson = [];
+          $scope.nodosXml = [];
+          var tmpArray = [];
+          tmpArray.push(res);
+          $scope.conversorcabecerasList = tmpArray;
+          $scope.mostrarSegundaVista = false;
+          $scope.mostrarTerceraVista = true;
+          $scope.preloader = false;
       });
+    }
+
+    $scope.refrescar = function(){
+      $route.reload();
     }
 
     $scope.eliminarElemento = function(elemento){
@@ -1383,6 +1396,15 @@
         }
         
            
+    }
+
+    $scope.obtenerDetalles = function(item){
+      $location.url('/conversordetalles/'+item.IdFormato+'/'+item.NombreFormato);
+      
+    }
+
+    $scope.verPlantilla = function(item){
+      $location.url('/conversordetalleplantillas/'+item.IdFormato+'/'+item.NombreFormato);
     }
     /*  Modal */
      $scope.open = function (item) {
