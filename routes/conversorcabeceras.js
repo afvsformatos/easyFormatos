@@ -211,12 +211,7 @@ router.put('/conversorcabeceras/:id', function(req, res){
 });
 /* DELETE - conversorcabeceras. */
 router.delete('/conversorcabeceras/:id', function(req, res){
-   conversorCabecera.destroy({
-        where: {
-          IdFormato: req.params.id
-        }
-    }).then(function(rowDeleted) {
-        if(rowDeleted > 0){
+  
            //Eliminacion Detalles Asociados
             conversorDetalle.destroy({
               where: {
@@ -231,8 +226,18 @@ router.delete('/conversorcabeceras/:id', function(req, res){
                       }
                     }).then(function(rowDeleted) {
                         if(rowDeleted > 0){
-                          res.json({message: 'Eliminación Exitosa!',exito:true});
-                          meanCaseBase.auditSave(req,'Delete Register','conversorcabeceras','Id: '+req.params.id); 
+                           conversorCabecera.destroy({
+                                where: {
+                                  IdFormato: req.params.id
+                                }
+                            }).then(function(rowDeleted) {
+                                if(rowDeleted > 0){
+                                   res.json({message: 'Eliminación Exitosa!',exito:true});
+                                   meanCaseBase.auditSave(req,'Delete Register','conversorcabeceras','Id: '+req.params.id); 
+                                }else{
+                                   res.json({message: 'Se ha Producido un Error al Eliminar el Registro!'});
+                                }
+                            });
                         }else{
                            res.json({message: 'Se ha Producido un Error al Eliminar el Registro!'});
                         }
@@ -246,11 +251,9 @@ router.delete('/conversorcabeceras/:id', function(req, res){
                 
             });
            //Fin Eliminacion Detalles Asociuados
-      }else{
-         res.json({message: 'Se ha Producido un Error al Eliminar el Registro!'});
-      }
       
-  });
+      
+  
    
 });
 module.exports = router;
