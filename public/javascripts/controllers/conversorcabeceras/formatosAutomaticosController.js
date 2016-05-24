@@ -13,6 +13,7 @@
     var flagDetalle = false;
     $scope.mostrarTerceraVista = false;
     $scope.preloader = true;
+    $scope.enlazarTabla = true;
     //var xmlText = '<?xml version="1.0" encoding="UTF-8"?><soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ser="http://bpichincha.com/servicios"><soapenv:Header /><soapenv:Body><ser:ProcesarRequerimiento><header><usuario>{usuario}</usuario><aplicacion>{aplicacion}</aplicacion><canal>{canal}</canal><idTransaccion /><banco>{banco}</banco><oficina>{oficina}</oficina></header><body><servicio>{servicio}</servicio><metodo>{metodo}</metodo><dataIn><field id="iuto" valor="hbCI2" /><field id="tipoTarjeta" valor="{TipoTarjeta}" /><field id="Tipo_Emisor" valor="{Tipo_Emisor}" /><field id="numTarjeta" valor="{Tarjeta}" /><field id="timestamp" valor="{fechahora}" /></dataIn></body></ser:ProcesarRequerimiento></soapenv:Body></soapenv:Envelope>';
    
     //console.log(jsonObj);
@@ -142,7 +143,13 @@
     $scope.cambiarTipoProceso = function(){
         $scope.showTramaJson = !$scope.showTramaJson;    
     }
-    
+    $scope.validarBtnEnlazar = function(){
+      if($scope.campoTemporal != ''){
+        $scope.enlazarTabla = false;
+      }else{
+        $scope.enlazarTabla = true;
+      }
+    }
     $scope.showSegundaVista = function(arg){
         if($scope.valorTipoProceso.value == 'ENVIO'){
                   if($scope.tramaJson != undefined){
@@ -188,10 +195,84 @@
         
            
     }
-
+    $scope.arrayTemporales = [{name:'Temp_TramaRespuesta'}];
+    $scope.addTemporal = function(arg){
+       $scope.arrayTemporales.push({name:arg[0].name});
+    }
+    $scope.tablaEnlazada = [{descripcionCampo:'RespuestaAutorizador',campoEquivalente:'Temp_TramaRespuesta'}];
+    $scope.variablesTemporales = [];
+    $scope.enlazar = function(){
+        var union = $scope.arrayTemporales.map(function(elem){
+            return elem.name;
+        }).join(".");
+        $scope.tablaEnlazada.push({descripcionCampo:union,campoEquivalente:$scope.campoTemporal});
+        $scope.variablesTemporales.push({name:$scope.campoTemporal});
+        $scope.arrayTemporales = [];
+        $scope.campoTemporal = '';
+        $scope.enlazarTabla = true;
+    }
+    $scope.eliminarTemporal = function(index){
+        $scope.arrayTemporales.splice(index, 1);
+    }
+    $scope.eliminarTablatemporal = function(index){
+       $scope.tablaEnlazada.splice(index, 1);
+    }
     $scope.obtenerDetalles = function(item){
       $location.url('/conversordetalles/'+item.IdFormato+'/'+item.NombreFormato);
-      
+    }
+   
+    $scope.nodosResultadoTramaXml = [];
+    var scanXmlRespuesta = function(obj){
+        var k;
+        if (obj instanceof Object) {
+            for (k in obj){
+                if (obj.hasOwnProperty(k)){
+                  if(obj[k].__prefix){
+                    var tmpUnion = obj[k].__prefix+':'+k;
+                    $scope.nodosResultadoTramaXml.push({name:tmpUnion}); 
+                  }else{
+                    var tmpExist = k.indexOf("xmlns");
+                    var tmpExist2 = k.indexOf("__prefix");
+                    if(tmpExist2 == -1){
+                      if (tmpExist == -1) {
+                          $scope.nodosResultadoTramaXml.push({name:k}); 
+                      }
+                      
+                    }
+                    
+                  }
+                     
+                    scanXmlRespuesta(obj[k]);  
+                }  
+                                              
+            }
+        } else {
+            //si no es obj[k] instancia de objeto
+        };
+
+    };
+    $scope.generarDirecto = function(){
+        
+        var jsonObj = x2js.xml_str2json( $scope.tramaXml );
+         if(jsonObj != null){
+              scanXmlRespuesta(jsonObj);
+              $scope.mostrarPrimeraVista = false;
+              $scope.mostrarTerceraVista = true;
+              $scope.showTramaJson = false;
+              $scope.showMensajeError = false;
+              
+          }else{
+              $scope.showMensajeError = true;
+              $scope.mensajeError  = 'Su trama XML no tiene el formato esperado';
+          }
+        /*factoryParsing.generarFormatoAutomatico($scope.nodosResultados).then(function(res){
+            var tmpArray = [];
+            tmpArray.push(res);
+            $scope.conversorcabecerasList = tmpArray;
+            $scope.mostrarPrimeraVista = false;
+            $scope.mostrarTerceraVista = true;
+            $scope.preloader = false;
+        });*/
     }
 
     $scope.verPlantilla = function(item){

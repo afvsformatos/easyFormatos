@@ -1,3 +1,11 @@
+<style type="text/css">
+	.red{
+		color: red;
+	}
+	.red:hover {
+		 cursor: pointer;
+	}
+</style>
 <fieldset ng-show="mostrarPrimeraVista">
 	   <div class="row" >
 	       	<div class="form-group col-md-12">
@@ -18,12 +26,18 @@
         		</select>
 	       	</div>
        	</div>
-       	 <div class="row" ng-show="showTramaJson">
+       	<div class="row" ng-show="showTramaJson">
 	       	<div class="form-group col-md-12">
 		       	<label for="tramaJson" class="bold" >Trama JSON</label>
 		       	<textarea ng-model="tramaJson" class="form-control" rows="10" placeholder="Ingresa la Trama JSON" ></textarea>
 	       	</div>
        	</div>
+       	<!--<div class="row" ng-show="!showTramaJson">
+	       	<div class="form-group col-md-12">
+		       	<label for="tramaJson" class="bold" >Nodo Raíz XML</label>
+		       	<input ng-model="nodoRaizXml" class="form-control" placeholder="Ingresa Nodo Raíz" >
+	       	</div>
+       	</div>-->
        	<div class="row">
 	       	<div class="form-group col-md-12">
 		       	<label for="tramaXml" class="bold">Trama XML</label>
@@ -34,7 +48,8 @@
        	<div class="row">
 	       	<div class="form-group col-md-12">
 	       		<div class="alert alert-danger" ng-show="showMensajeError">{{mensajeError}}</div>
-		       	<button class="btn btn-primary btn-lg btn-block" ng-click="showSegundaVista()" ng-disabled="tramaXml == undefined">Siguiente</button>
+	       		<button ng-show="!showTramaJson" class="btn btn-primary btn-lg btn-block" ng-click="generarDirecto()" ng-disabled="tramaXml == undefined">Generar</button>
+		       	<button ng-show="showTramaJson" class="btn btn-primary btn-lg btn-block" ng-click="showSegundaVista()" ng-disabled="tramaXml == undefined">Siguiente</button>
 	       	</div>
        	</div>
 
@@ -75,6 +90,54 @@
 
 
 <vista ng-show="mostrarTerceraVista">
+		<contenedorRespuesta ng-show="!showTramaJson">
+			<fieldset>
+				<div class="row">
+		       		<div class="form-group col-md-12">
+				       	<label for="tramaXml" class="bold">Nodos Trama XML</label>
+				       	<select   size="15" ng-model="nodoResultadoTramaXml" ng-click="addTemporal(nodoResultadoTramaXml)" ng-options="option.name for option in nodosResultadoTramaXml"  class="form-control" multiple >
+		        		</select>
+			       	</div>
+		       	</div>
+		       	<div class="row">
+		       		<div class="form-group col-md-12">
+				       	<label for="tramaXml" class="bold">Variables Temporales</label>
+				       	<select   size="15" ng-model="variableTemporal" ng-click="addTemporal(variableTemporal)" ng-options="option.name for option in variablesTemporales"  class="form-control" multiple >
+		        		</select>
+			       	</div>
+		       	</div>
+		       	<div class="row">
+		       		<div class="form-group col-md-12">
+				       	<label for="tramaXml" class="bold">
+				       			<span ng-repeat="temp in arrayTemporales">&nbsp;&nbsp;{{temp.name}} <i ng-click="eliminarTemporal($index)" class="fa fa-times red" aria-hidden="true"></i></span>
+				       	</label>
+				       	<input ng-model="campoTemporal" class="form-control" placeholder="Campo Equivalente"  ng-change="validarBtnEnlazar()">
+		        		
+			       	</div>
+		       	</div>
+		       	<div class="row">
+		       		<div class="form-group col-md-8">
+				       	<button ng-disabled="enlazarTabla" class="btn btn-success " ng-click="enlazar()"><i class="fa fa-plus" aria-hidden="true"></i> Enlazar</button>
+			       	</div>
+		       	</div>
+			</fieldset>
+		    <table  class="table table-bordered table-hover table-striped" at-table at-paginated at-list="tablaEnlazada | filter:searchText" at-config="configTable">
+		         <thead></thead>
+		         <tbody>
+		           <tr>
+		             <!--<td  at-sortable  at-title='ID FORMATO' width='150'>{{item.IdFormato}}</td>-->
+		             <td  at-sortable  at-title='Descripción Campo' width='150'>{{item.descripcionCampo}}</td>
+		             <td  at-sortable  at-title='Campo Equivalente' width='150'>{{item.campoEquivalente}}</td>
+		             <td  at-title="Acción" width="250">
+		               <button title="Eliminar" type="button" class="btn btn-default" ng-click="eliminarTablatemporal($index)"><i class="fa fa-trash-o"></i></button>
+		             </td>
+		           </tr>
+		         </tbody>
+		    </table>
+		    <div class="col-md-6 col-md-offset-3" ><at-pagination  at-list="conversorcabecerasList" at-config="configTable"></at-pagination></div>
+		</contenedorRespuesta>
+		
+		<contenedor ng-show="showTramaJson">
 			<div class="row">
 	       		<div class="form-group col-md-8">
 			       	<button class="btn btn-success " ng-click="refrescar()"><i class="fa fa-plus" aria-hidden="true"></i> Nuevo</button>
@@ -118,6 +181,7 @@
 			       </table>
 			       <div class="col-md-6 col-md-offset-3" ><at-pagination ng-hide="preloader" at-list="conversorcabecerasList" at-config="configTable"></at-pagination></div>
 			       <div class="wait" ng-hide="!preloader"><i class="fa fa-spinner fa-spin fa-5x position-spinner"></i></div>
-     </div>		
+     		</div>	
+     	</contenedor>	
 
 </vista>
