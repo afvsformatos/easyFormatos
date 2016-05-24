@@ -1318,24 +1318,40 @@
     $scope.generarFormato = function(){
       if($scope.valorTipoProceso.value == 'ENVIO'){
           $scope.nodosResultados.unshift({value:$scope.tramaXml.replace(/\s/g, ' ')});
+          $scope.nodosResultados.unshift({value:$scope.inputNombreFormato});
+          $scope.nodosResultados.unshift({value:$scope.inputDescripcionFormato});
+          $scope.nodosResultados.unshift({value: $scope.valorTipoProceso.value});
+          factoryParsing.generarFormatoAutomatico($scope.nodosResultados).then(function(res){
+              $scope.nodosResultados.shift();
+              $scope.nodosResultados.shift();
+              $scope.nodosResultados.shift();
+              $scope.nodosJson = [];
+              $scope.nodosXml = [];
+              var tmpArray = [];
+              tmpArray.push(res);
+              $scope.conversorcabecerasList = tmpArray;
+              $scope.mostrarSegundaVista = false;
+              $scope.mostrarTerceraVista = true;
+              $scope.preloader = false;
+          });
+      }else{
+                $scope.tablaEnlazada.unshift({value:$scope.inputNombreFormato});
+                $scope.tablaEnlazada.unshift({value:$scope.inputDescripcionFormato});
+                $scope.tablaEnlazada.unshift({value: $scope.valorTipoProceso.value});
+                factoryParsing.generarFormatoAutomatico($scope.tablaEnlazada).then(function(res){
+                    $scope.tablaEnlazada.shift();
+                    $scope.tablaEnlazada.shift();
+                    $scope.tablaEnlazada.shift();
+                    var tmpArray = [];
+                    tmpArray.push(res);
+                    $scope.conversorcabecerasList = tmpArray;
+                    $scope.showTramaJson = true;
+                    //$scope.mostrarTerceraVista = true;
+                    $scope.preloader = false;
+                });
       }
       
-      $scope.nodosResultados.unshift({value:$scope.inputNombreFormato});
-      $scope.nodosResultados.unshift({value:$scope.inputDescripcionFormato});
-      $scope.nodosResultados.unshift({value: $scope.valorTipoProceso.value});
-      factoryParsing.generarFormatoAutomatico($scope.nodosResultados).then(function(res){
-          $scope.nodosResultados.shift();
-          $scope.nodosResultados.shift();
-          $scope.nodosResultados.shift();
-          $scope.nodosJson = [];
-          $scope.nodosXml = [];
-          var tmpArray = [];
-          tmpArray.push(res);
-          $scope.conversorcabecerasList = tmpArray;
-          $scope.mostrarSegundaVista = false;
-          $scope.mostrarTerceraVista = true;
-          $scope.preloader = false;
-      });
+      
     }
 
     $scope.refrescar = function(){
@@ -1389,7 +1405,6 @@
               var jsonObj = x2js.xml_str2json( $scope.tramaXml );
               if(jsonObj != null){
                   //scanXml(jsonObj);
-                  console.log(jsonObj);
                   $scope.mostrarPrimeraVista = false;
                   $scope.mostrarSegundaVista = true;
                   $scope.showMensajeError = false;
@@ -1474,14 +1489,6 @@
               $scope.showMensajeError = true;
               $scope.mensajeError  = 'Su trama XML no tiene el formato esperado';
           }
-        /*factoryParsing.generarFormatoAutomatico($scope.nodosResultados).then(function(res){
-            var tmpArray = [];
-            tmpArray.push(res);
-            $scope.conversorcabecerasList = tmpArray;
-            $scope.mostrarPrimeraVista = false;
-            $scope.mostrarTerceraVista = true;
-            $scope.preloader = false;
-        });*/
     }
 
     $scope.verPlantilla = function(item){

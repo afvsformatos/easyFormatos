@@ -136,6 +136,15 @@ router.post('/generarFormatosAutomaticos', function(req, res, next){
         objCabecera.tipo_archivo_salida = 'DICCIONARIO';
         objCabecera.TipoConversion = 'PROCESO';
         conversorCabecera.create(objCabecera).then(function(data) {
+          var i = 1;
+          for (prop in req.body){
+            objDetalle.IdFormato = data.IdFormato;
+            objDetalle.NumeroCampo = i;
+            objDetalle.DescripcionCampo = req.body[prop].descripcionCampo;
+            objDetalle.CampoEquivalente = req.body[prop].campoEquivalente;
+            conversorDetalle.create(objDetalle);
+            i++;
+          }
           res.json(data);
         });
       }
