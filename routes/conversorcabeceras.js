@@ -102,6 +102,7 @@ router.post('/generarFormatosAutomaticos', function(req, res, next){
         req.body.shift();
         req.body.shift();
         req.body.shift();
+        req.body.shift();
         objCabecera.Tipo_Proceso = 'IN';
         objCabecera.tipo_archivo_salida = 'STRING';
         objCabecera.TipoConversion = 'PROCESO,PLANTILLA';
