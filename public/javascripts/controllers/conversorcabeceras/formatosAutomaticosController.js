@@ -131,29 +131,48 @@
     }
     
     $scope.showSegundaVista = function(arg){
-        console.log('aqui');
-        if($scope.tramaJson != undefined){
-              if (/^[\],:{}\s]*$/.test($scope.tramaJson.replace(/\\["\\\/bfnrtu]/g, '@').
-                replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']').
-                replace(/(?:^|:|,)(?:\s*\[)+/g, ''))) {
-                  scan(JSON.parse($scope.tramaJson));
-                  var jsonObj = x2js.xml_str2json( $scope.tramaXml );
-                  if(jsonObj != null){
-                      scanXml(jsonObj);
-                      $scope.mostrarPrimeraVista = false;
-                      $scope.mostrarSegundaVista = true;
-                      $scope.showMensajeError = false;
-                  }else{
-                      $scope.showMensajeError = true;
-                      $scope.mensajeError  = 'Su trama XML no tiene el formato esperado';
-                  }
+        if($scope.valorTipoProceso.value == 'ENVIO'){
+                  if($scope.tramaJson != undefined){
+                      if (/^[\],:{}\s]*$/.test($scope.tramaJson.replace(/\\["\\\/bfnrtu]/g, '@').
+                        replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']').
+                        replace(/(?:^|:|,)(?:\s*\[)+/g, ''))) {
+                          scan(JSON.parse($scope.tramaJson));
+                          var jsonObj = x2js.xml_str2json( $scope.tramaXml );
+                          if(jsonObj != null){
+                              scanXml(jsonObj);
+                              $scope.mostrarPrimeraVista = false;
+                              $scope.mostrarSegundaVista = true;
+                              $scope.showMensajeError = false;
+                          }else{
+                              $scope.showMensajeError = true;
+                              $scope.mensajeError  = 'Su trama XML no tiene el formato esperado';
+                          }
+                          
+                        }else{
+                          $scope.showMensajeError = true;
+                          $scope.mensajeError  = 'Su trama JSON no tiene el formato esperado';
+                        }    
                   
-                }else{
+                  }
+
+        }else{
+          if($scope.tramaXml != undefined){
+              var jsonObj = x2js.xml_str2json( $scope.tramaXml );
+              if(jsonObj != null){
+                  //scanXml(jsonObj);
+                  console.log(jsonObj);
+                  $scope.mostrarPrimeraVista = false;
+                  $scope.mostrarSegundaVista = true;
+                  $scope.showMensajeError = false;
+              }else{
                   $scope.showMensajeError = true;
-                  $scope.mensajeError  = 'Su trama JSON no tiene el formato esperado';
-                }    
-          
+                  $scope.mensajeError  = 'Su trama XML no tiene el formato esperado';
+              }
+
+          }
+
         }
+        
            
     }
     /*  Modal */
