@@ -235,6 +235,8 @@ router.delete('/conversorcabeceras/:id', function(req, res){
                         IdFormato: req.params.id
                       }
                     });
+                  //Fin Eliminar Plantilla Asociada 
+                  //Eliminar Cabecera
                    conversorCabecera.destroy({
                         where: {
                           IdFormato: req.params.id
@@ -248,10 +250,25 @@ router.delete('/conversorcabeceras/:id', function(req, res){
                         }
                     });
 
-                  //Fin Eliminar Plantilla Asociada 
+                  //Fin Eliminar Cabecera
                    
                 }else{
-                   res.json({message: 'Se ha Producido un Error al Eliminar el Registro!'});
+                  
+                   //Eliminar Cabecera
+                   conversorCabecera.destroy({
+                        where: {
+                          IdFormato: req.params.id
+                        }
+                    }).then(function(rowDeleted) {
+                        if(rowDeleted > 0){
+                           res.json({message: 'Eliminación Exitosa!',exito:true});
+                           meanCaseBase.auditSave(req,'Delete Register','conversorcabeceras','Id: '+req.params.id); 
+                        }else{
+                           res.json({message: 'Se ha Producido un Error al Eliminar el Registro!'});
+                        }
+                    });
+
+                  //Fin Eliminar Cabecera
                 }
                 
             });
