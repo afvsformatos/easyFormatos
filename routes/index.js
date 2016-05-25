@@ -21,6 +21,7 @@ router.post('/accesoExterno', function (req, res) {
 	    req.session.us = true;
 		req.session.name = 'easyConfigurator';
 		req.session.rol = 4;
+		req.session.externo = true;
 		res.redirect(settings.url+"#/"+req.body.pagina);
 })
 

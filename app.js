@@ -94,7 +94,11 @@ app.get('/cookie', function(req, res) {
                 req.session.authorName  = data.authorName;
                 req.session.projectType = data.projectType;
                 req.session.email       = data.email;
-                res.json({comp:req.session.us,check:req.session.check,user:{id:req.session.idd,username: req.session.name,rol:req.session.rol},project:{name:req.session.projectName,template:req.session.template,authorName:req.session.authorName,projectType:req.session.projectType,email:req.session.email,schemas:schemas}});
+                var externo = false;
+                if(req.session.externo){
+                    externo = true;
+                }
+                res.json({comp:req.session.us,check:req.session.check,user:{id:req.session.idd,username: req.session.name,rol:req.session.rol},project:{name:req.session.projectName,template:req.session.template,authorName:req.session.authorName,projectType:req.session.projectType,email:req.session.email,schemas:schemas,externo:externo}});
         });
     });
 });
