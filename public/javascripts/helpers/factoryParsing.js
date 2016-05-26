@@ -12,8 +12,7 @@
      function testParsing(params) {
 
         var deferred = $q.defer();
-
-        $http.post('http://10.0.1.33:8000/processjson', params)
+        $http.post(multicanalGeneral.ip+'processjson', params)
           // handle success
           .success(function (data, status) {
              deferred.resolve(data);

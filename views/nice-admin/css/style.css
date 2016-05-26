@@ -491,6 +491,11 @@ ul.sidebar-menu li.active a i {
     margin-left: 180px;
 }
 
+#main-externo {
+    margin-left: 15px;
+    margin-top: 15px;
+}
+
 .header, .footer {
     min-height: 60px;
     padding: 0 15px;

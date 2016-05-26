@@ -19,6 +19,7 @@
     <script src="bower_components/bootbox/bootbox.js"></script>
     <script src="bower_components/ngBootbox/dist/ngBootbox.js"></script>
     <!-- This Script concatenate all the file in the  folder /public/javascripts/ -->
+    <script type="text/javascript" src="includes/config.js"></script>
     <script type="text/javascript" src="includes/concat.js"></script>
     <script type="text/javascript" src="includes/angular-table.min.js"></script>
     <script type="text/javascript" src="includes/angular-drag-and-drop-lists.js"></script>
@@ -379,7 +380,7 @@
     </contenedor>
 
     <!--main content start-->
-    <section  ng-if="project.externo">
+    <section  id="main-externo" ng-if="project.externo">
             <section>
                 <!-- #Proyects views -->
                 <div ng-if="route">

@@ -317,6 +317,43 @@
     };
 
 }])
+.service('almacentramasModel', function ($optimumModel) {
+  var model = new $optimumModel();
+  model.url = '/api/almacentramas';
+  model.constructorModel = ["id_formato","nombre_formato","trama","aprobo"];
+  return model;
+})
+.service('ambientesModel', function ($optimumModel) {
+  var model = new $optimumModel();
+  model.url = '/api/ambientes';
+  model.constructorModel = ["ambiente","username","password","database","host","dialect","estado"];
+  return model;
+})
+.service('conversorcabecerasModel', function ($optimumModel) {
+  var model = new $optimumModel();
+  model.url = '/api/conversorcabeceras';
+  model.constructorModel = ["IdFormato","NombreFormato","DescripcionFormato","Cabecera","Pie","Separador","FormatoConversion","Formato_destino","Tipo_Proceso","NombreObjeto","estado","tipo_archivo_salida","ORIENTACION","RutinaPrevalidacion","Unificador","Check_Totales_Por","ValidaIdentificacion","RutinaPreconversion","InfiereTipoIdCliente","MuestraCabeceraColumna","TipoConversion"];
+  return model;
+})
+.service('conversordetalleplantillasModel', function ($optimumModel) {
+  var model = new $optimumModel();
+  model.url = '/api/conversordetalleplantillas';
+  model.constructorModel = ["IdPlantilla","IdFormato","Plantilla","Tipo","Orden","Nivel","Origen"];
+  return model;
+})
+.service('conversordetallesModel', function ($optimumModel) {
+  var model = new $optimumModel();
+  model.url = '/api/conversordetalles';
+  model.constructorModel = ["IdDetalle","IdFormato","TipoRegistro","NumeroCampo","PosicionInicio","LongitudCampo","TipoCampo","SeparadorDecimales","NumeroDecimales","DescripcionCampo","IdCampoEquivalente","CampoEquivalente","Obligatorio","Validaciones","Tipo_Registro","Default_Value","observacion","Rutina_Validacion","Rutina_Transformacion","CaracterConcatenacion","OrdenCampo","Rutina_Conversion","ValidaEnMasivas"];
+  return model;
+})
+.service('UsersModel', function ($optimumModel) {
+	var model = new $optimumModel();
+	model.url = '/api/users';
+	model.constructorModel = ['username','password','rol'];
+	return model;
+})
+
 .factory('AuditService',
   ['$q', '$http',
   function ($q, $http) {
@@ -513,8 +550,7 @@
      function testParsing(params) {
 
         var deferred = $q.defer();
-
-        $http.post('http://10.0.1.33:8000/processjson', params)
+        $http.post(multicanalGeneral.ip+'processjson', params)
           // handle success
           .success(function (data, status) {
              deferred.resolve(data);
@@ -648,43 +684,6 @@
 
 
     }])
-.service('almacentramasModel', function ($optimumModel) {
-  var model = new $optimumModel();
-  model.url = '/api/almacentramas';
-  model.constructorModel = ["id_formato","nombre_formato","trama","aprobo"];
-  return model;
-})
-.service('ambientesModel', function ($optimumModel) {
-  var model = new $optimumModel();
-  model.url = '/api/ambientes';
-  model.constructorModel = ["ambiente","username","password","database","host","dialect","estado"];
-  return model;
-})
-.service('conversorcabecerasModel', function ($optimumModel) {
-  var model = new $optimumModel();
-  model.url = '/api/conversorcabeceras';
-  model.constructorModel = ["IdFormato","NombreFormato","DescripcionFormato","Cabecera","Pie","Separador","FormatoConversion","Formato_destino","Tipo_Proceso","NombreObjeto","estado","tipo_archivo_salida","ORIENTACION","RutinaPrevalidacion","Unificador","Check_Totales_Por","ValidaIdentificacion","RutinaPreconversion","InfiereTipoIdCliente","MuestraCabeceraColumna","TipoConversion"];
-  return model;
-})
-.service('conversordetalleplantillasModel', function ($optimumModel) {
-  var model = new $optimumModel();
-  model.url = '/api/conversordetalleplantillas';
-  model.constructorModel = ["IdPlantilla","IdFormato","Plantilla","Tipo","Orden","Nivel","Origen"];
-  return model;
-})
-.service('conversordetallesModel', function ($optimumModel) {
-  var model = new $optimumModel();
-  model.url = '/api/conversordetalles';
-  model.constructorModel = ["IdDetalle","IdFormato","TipoRegistro","NumeroCampo","PosicionInicio","LongitudCampo","TipoCampo","SeparadorDecimales","NumeroDecimales","DescripcionCampo","IdCampoEquivalente","CampoEquivalente","Obligatorio","Validaciones","Tipo_Registro","Default_Value","observacion","Rutina_Validacion","Rutina_Transformacion","CaracterConcatenacion","OrdenCampo","Rutina_Conversion","ValidaEnMasivas"];
-  return model;
-})
-.service('UsersModel', function ($optimumModel) {
-	var model = new $optimumModel();
-	model.url = '/api/users';
-	model.constructorModel = ['username','password','rol'];
-	return model;
-})
-
 .controller('almacentramasController',
   ['$rootScope','$scope', '$location', 'almacentramasModel','$uibModal',
   function ($rootScope,$scope, $location, almacentramasModel,$uibModal) {
@@ -2763,6 +2762,27 @@ require: 'ngModel',
  			}
  		});
  })
+.controller('listSchemasController',
+    ['$scope', 'schemaModel','$uibModal',
+        function ($scope, schemaModel,$uibModal) {
+        $scope.preloader = true;
+        schemaModel.getAll().then(function(data){
+        	 $scope.schemas = data;
+        	 $scope.preloader = false;
+        });
+
+}])
+.config(function ($routeProvider) {
+ 	$routeProvider
+ 		.when('/listSchemas', {
+ 		    templateUrl: '/javascripts/setup/listSchemas/templates/listSchemas.html',
+ 			controller: 'listSchemasController',
+ 			access: {
+ 				 restricted: false,
+ 				 rol: 5
+ 			}
+ 		});
+ })
 .controller('exportProjectController',
     ['$rootScope','$scope','$uibModal','exportProjectService','$ngBootbox',
         function ($rootScope,$scope,$uibModal,exportProjectService,$ngBootbox) {
@@ -2876,27 +2896,6 @@ require: 'ngModel',
  		.when('/exportProject', {
  		    templateUrl: '/javascripts/setup/exportProject/templates/exportProject.html',
  			controller: 'exportProjectController',
- 			access: {
- 				 restricted: false,
- 				 rol: 5
- 			}
- 		});
- })
-.controller('listSchemasController',
-    ['$scope', 'schemaModel','$uibModal',
-        function ($scope, schemaModel,$uibModal) {
-        $scope.preloader = true;
-        schemaModel.getAll().then(function(data){
-        	 $scope.schemas = data;
-        	 $scope.preloader = false;
-        });
-
-}])
-.config(function ($routeProvider) {
- 	$routeProvider
- 		.when('/listSchemas', {
- 		    templateUrl: '/javascripts/setup/listSchemas/templates/listSchemas.html',
- 			controller: 'listSchemasController',
  			access: {
  				 restricted: false,
  				 rol: 5

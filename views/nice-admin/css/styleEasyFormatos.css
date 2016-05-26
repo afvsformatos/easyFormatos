@@ -5,12 +5,12 @@
 }
 
 table tr th {
-	color: #bfbfbf;
-	background-color: #222;
-	font-size: 13px;
-	font-weight: bold;
-	text-align: center;
-	width: 20px;
+	background: #255A7A;
+    background: -moz-linear-gradient(#255A7A 0%, #347EAB 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #255A7A), color-stop(100%, #347EAB));
+    background: -webkit-linear-gradient(#255A7A 0%, #347EAB 100%);
+    background: linear-gradient(#255A7A 0%, #347EAB 100%);
+    color:#fff;
 }
 
 table tr th:hover {
