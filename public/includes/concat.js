@@ -317,43 +317,6 @@
     };
 
 }])
-.service('almacentramasModel', function ($optimumModel) {
-  var model = new $optimumModel();
-  model.url = '/api/almacentramas';
-  model.constructorModel = ["id_formato","nombre_formato","trama","aprobo"];
-  return model;
-})
-.service('ambientesModel', function ($optimumModel) {
-  var model = new $optimumModel();
-  model.url = '/api/ambientes';
-  model.constructorModel = ["ambiente","username","password","database","host","dialect","estado"];
-  return model;
-})
-.service('conversorcabecerasModel', function ($optimumModel) {
-  var model = new $optimumModel();
-  model.url = '/api/conversorcabeceras';
-  model.constructorModel = ["IdFormato","NombreFormato","DescripcionFormato","Cabecera","Pie","Separador","FormatoConversion","Formato_destino","Tipo_Proceso","NombreObjeto","estado","tipo_archivo_salida","ORIENTACION","RutinaPrevalidacion","Unificador","Check_Totales_Por","ValidaIdentificacion","RutinaPreconversion","InfiereTipoIdCliente","MuestraCabeceraColumna","TipoConversion"];
-  return model;
-})
-.service('conversordetalleplantillasModel', function ($optimumModel) {
-  var model = new $optimumModel();
-  model.url = '/api/conversordetalleplantillas';
-  model.constructorModel = ["IdPlantilla","IdFormato","Plantilla","Tipo","Orden","Nivel","Origen"];
-  return model;
-})
-.service('conversordetallesModel', function ($optimumModel) {
-  var model = new $optimumModel();
-  model.url = '/api/conversordetalles';
-  model.constructorModel = ["IdDetalle","IdFormato","TipoRegistro","NumeroCampo","PosicionInicio","LongitudCampo","TipoCampo","SeparadorDecimales","NumeroDecimales","DescripcionCampo","IdCampoEquivalente","CampoEquivalente","Obligatorio","Validaciones","Tipo_Registro","Default_Value","observacion","Rutina_Validacion","Rutina_Transformacion","CaracterConcatenacion","OrdenCampo","Rutina_Conversion","ValidaEnMasivas"];
-  return model;
-})
-.service('UsersModel', function ($optimumModel) {
-	var model = new $optimumModel();
-	model.url = '/api/users';
-	model.constructorModel = ['username','password','rol'];
-	return model;
-})
-
 .factory('AuditService',
   ['$q', '$http',
   function ($q, $http) {
@@ -684,6 +647,55 @@
 
 
     }])
+.service('almacentramasModel', function ($optimumModel) {
+  var model = new $optimumModel();
+  model.url = '/api/almacentramas';
+  model.constructorModel = ["id_formato","nombre_formato","trama","aprobo"];
+  return model;
+})
+.service('ambientesModel', function ($optimumModel) {
+  var model = new $optimumModel();
+  model.url = '/api/ambientes';
+  model.constructorModel = ["ambiente","username","password","database","host","dialect","estado"];
+  return model;
+})
+.service('conversorcabeceraisosModel', function ($optimumModel) {
+  var model = new $optimumModel();
+  model.url = '/api/conversorcabeceraisos';
+  model.constructorModel = ["id_transaccion_cabecera","idformato","orden","nombre","tipo","longitud","bytes","aplicadefault","valordefault","respuesta","descripcion"];
+  return model;
+})
+.service('conversorcabecerasModel', function ($optimumModel) {
+  var model = new $optimumModel();
+  model.url = '/api/conversorcabeceras';
+  model.constructorModel = ["IdFormato","NombreFormato","DescripcionFormato","Cabecera","Pie","Separador","FormatoConversion","Formato_destino","Tipo_Proceso","NombreObjeto","estado","tipo_archivo_salida","ORIENTACION","RutinaPrevalidacion","Unificador","Check_Totales_Por","ValidaIdentificacion","RutinaPreconversion","InfiereTipoIdCliente","MuestraCabeceraColumna","TipoConversion"];
+  return model;
+})
+.service('conversordetalleisosModel', function ($optimumModel) {
+  var model = new $optimumModel();
+  model.url = '/api/conversordetalleisos';
+  model.constructorModel = ["id_operador","bitmap","nombre","tipo","longitud","descripcion","tipodato"];
+  return model;
+})
+.service('conversordetalleplantillasModel', function ($optimumModel) {
+  var model = new $optimumModel();
+  model.url = '/api/conversordetalleplantillas';
+  model.constructorModel = ["IdPlantilla","IdFormato","Plantilla","Tipo","Orden","Nivel","Origen"];
+  return model;
+})
+.service('conversordetallesModel', function ($optimumModel) {
+  var model = new $optimumModel();
+  model.url = '/api/conversordetalles';
+  model.constructorModel = ["IdDetalle","IdFormato","TipoRegistro","NumeroCampo","PosicionInicio","LongitudCampo","TipoCampo","SeparadorDecimales","NumeroDecimales","DescripcionCampo","IdCampoEquivalente","CampoEquivalente","Obligatorio","Validaciones","Tipo_Registro","Default_Value","observacion","Rutina_Validacion","Rutina_Transformacion","CaracterConcatenacion","OrdenCampo","Rutina_Conversion","ValidaEnMasivas"];
+  return model;
+})
+.service('UsersModel', function ($optimumModel) {
+	var model = new $optimumModel();
+	model.url = '/api/users';
+	model.constructorModel = ['username','password','rol'];
+	return model;
+})
+
 .controller('almacentramasController',
   ['$rootScope','$scope', '$location', 'almacentramasModel','$uibModal',
   function ($rootScope,$scope, $location, almacentramasModel,$uibModal) {
@@ -1062,6 +1074,184 @@
       access: {
         restricted: false,
        rol: 4
+      }
+    });
+ })
+.controller('conversorcabeceraisosController',
+  ['$rootScope','$scope', '$location', 'conversorcabeceraisosModel','$uibModal',
+  function ($rootScope,$scope, $location, conversorcabeceraisosModel,$uibModal) {
+    $scope.titleController = 'MEAN-CASE SUPER HEROIC';
+    $rootScope.titleWeb = 'conversorcabeceraisos';
+    $scope.preloader = true;
+    $scope.msjAlert = false;
+    $scope.longitud =  128;
+    $scope.bitmaps = [];
+    $scope.itemsValidos = [];
+    var divInputs = function(){
+        var cont = 0,flag=false;
+        for (var i = 1; i <= $scope.longitud; i++) {
+          cont++;
+          if(i % 32 == 0){
+            flag = true;
+          }
+          var ceros="";
+          var inicio = String(i).length;
+          inicio = parseInt(inicio);
+          for(var x = inicio;x < 3 ; x++){
+              ceros += '0';
+          }
+          $scope.bitmaps.push({name:cont,value:ceros+i}); 
+          if(flag){
+             flag = false;
+             cont = 0;
+          } 
+          
+        }
+    }
+    divInputs();
+    $scope.cambioValoresChecks = function(){
+      $scope.bitmaps = [];
+      divInputs();
+    }
+    $scope.addChecksValidos = function(item){
+        
+        var idx = $scope.itemsValidos.indexOf(item);
+        if(idx != -1){
+          $scope.itemsValidos.splice(idx, 1);
+        }else{
+          $scope.itemsValidos.push(item);
+        }
+        
+    }
+    $scope.siguiente = function(){
+      console.log($scope.itemsValidos);
+    }
+    conversorcabeceraisosModel.getAll().then(function(data) {
+      $scope.conversorcabeceraisosList = data;
+      $scope.conversorcabeceraisosTemp = angular.copy($scope.conversorcabeceraisosList);
+      $scope.preloader = false;
+    });
+    /*  Modal */
+     $scope.open = function (item) {
+       var modalInstance = $uibModal.open({
+        animation: true,
+        templateUrl: 'templates/conversorcabeceraisos/modalCreate.html',
+        controller: 'modalconversorcabeceraisosCreateController',
+        size: 'lg',
+        resolve: {
+         item: function () {
+          return item;
+         }
+        }
+      });
+      modalInstance.result.then(function(data) {
+        if(!item) {
+           $scope.conversorcabeceraisosList.push(data);
+           $scope.conversorcabeceraisosTemp = angular.copy($scope.conversorcabeceraisosList);
+        }
+      },function(result){
+      $scope.conversorcabeceraisosList = $scope.conversorcabeceraisosTemp;
+      $scope.conversorcabeceraisosTemp = angular.copy($scope.conversorcabeceraisosList);
+    });
+  };
+  /*  Delete  */
+  $scope.openDelete = function (item) {
+    var modalInstance = $uibModal.open({
+      animation: true,
+      templateUrl: 'templates/conversorcabeceraisos/modalDelete.html',
+      controller: 'modalconversorcabeceraisosDeleteController',
+      size: 'lg',
+      resolve: {
+        item: function () {
+           return item;
+        }
+      }
+    });
+    modalInstance.result.then(function(data) {
+      var idx = $scope.conversorcabeceraisosList.indexOf(data);
+      $scope.conversorcabeceraisosList.splice(idx, 1);
+      conversorcabeceraisosModel
+        .destroy(data._id)
+        .then(function(result) {
+          $scope.msjAlert = true;
+          $scope.alert = 'success';
+          $scope.message = result.message;
+        })
+        .catch(function(err) {
+          $scope.msjAlert = true;
+          $scope.alert = 'danger';
+          $scope.message = 'Error '+err;
+        })
+      });
+    };
+}])
+.controller('modalconversorcabeceraisosCreateController',
+  ['$scope', '$uibModalInstance', 'item','conversorcabeceraisosModel','$filter',
+  function ($scope, $uibModalInstance, item,conversorcabeceraisosModel,$filter) {
+    $scope.item = item;
+    $scope.saving = false;
+    if(item){
+       //add optional code
+    }
+    $scope.save = function () {
+      if(!item){
+        $scope.saving = true;
+        item = {id_transaccion_cabecera: $scope.item.id_transaccion_cabecera,idformato: $scope.item.idformato,orden: $scope.item.orden,nombre: $scope.item.nombre,tipo: $scope.item.tipo,longitud: $scope.item.longitud,bytes: $scope.item.bytes,aplicadefault: $scope.item.aplicadefault,valordefault: $scope.item.valordefault,respuesta: $scope.item.respuesta,descripcion: $scope.item.descripcion};
+        var conversorcabeceraisos = conversorcabeceraisosModel.create();
+        conversorcabeceraisos.id_transaccion_cabecera = $scope.item.id_transaccion_cabecera;
+        conversorcabeceraisos.idformato = $scope.item.idformato;
+        conversorcabeceraisos.orden = $scope.item.orden;
+        conversorcabeceraisos.nombre = $scope.item.nombre;
+        conversorcabeceraisos.tipo = $scope.item.tipo;
+        conversorcabeceraisos.longitud = $scope.item.longitud;
+        conversorcabeceraisos.bytes = $scope.item.bytes;
+        conversorcabeceraisos.aplicadefault = $scope.item.aplicadefault;
+        conversorcabeceraisos.valordefault = $scope.item.valordefault;
+        conversorcabeceraisos.respuesta = $scope.item.respuesta;
+        conversorcabeceraisos.descripcion = $scope.item.descripcion;
+        conversorcabeceraisos.save().then(function(r){
+          $scope.saving = false;
+          $uibModalInstance.close(r);
+        });
+      }else{
+        conversorcabeceraisosModel.findById($scope.item._id);
+        conversorcabeceraisosModel.id_transaccion_cabecera = $scope.item.id_transaccion_cabecera;
+        conversorcabeceraisosModel.idformato = $scope.item.idformato;
+        conversorcabeceraisosModel.orden = $scope.item.orden;
+        conversorcabeceraisosModel.nombre = $scope.item.nombre;
+        conversorcabeceraisosModel.tipo = $scope.item.tipo;
+        conversorcabeceraisosModel.longitud = $scope.item.longitud;
+        conversorcabeceraisosModel.bytes = $scope.item.bytes;
+        conversorcabeceraisosModel.aplicadefault = $scope.item.aplicadefault;
+        conversorcabeceraisosModel.valordefault = $scope.item.valordefault;
+        conversorcabeceraisosModel.respuesta = $scope.item.respuesta;
+        conversorcabeceraisosModel.descripcion = $scope.item.descripcion;
+        conversorcabeceraisosModel.save().then(function(r){
+          $scope.saving = false;
+          $uibModalInstance.close(r);
+        });
+      }
+    };
+}])
+.controller('modalconversorcabeceraisosDeleteController',
+  ['$scope', '$uibModalInstance', 'item',
+  function ($scope, $uibModalInstance, item) {
+    $scope.item = item;
+    $scope.ok = function () {
+      $uibModalInstance.close($scope.item);
+    };
+    $scope.cancel = function () {
+       $uibModalInstance.dismiss('cancel');
+     };
+}])
+.config(function ($routeProvider) {
+  $routeProvider
+    .when('/conversorcabeceraisos', {
+      templateUrl: '/templates/conversorcabeceraisos/index.html',
+      controller: 'conversorcabeceraisosController',
+      access: {
+        restricted: false,
+       rol: 1
       }
     });
  })
@@ -1814,6 +2004,134 @@
     .when('/formatosAutomaticos', {
       templateUrl: '/templates/conversorcabeceras/formatosAutomaticos.html',
       controller: 'formatosAutomaticosController',
+      access: {
+        restricted: false,
+       rol: 1
+      }
+    });
+ })
+.controller('conversordetalleisosController',
+  ['$rootScope','$scope', '$location', 'conversordetalleisosModel','$uibModal',
+  function ($rootScope,$scope, $location, conversordetalleisosModel,$uibModal) {
+    $scope.titleController = 'MEAN-CASE SUPER HEROIC';
+    $rootScope.titleWeb = 'conversordetalleisos';
+    $scope.preloader = true;
+    $scope.msjAlert = false;
+    conversordetalleisosModel.getAll().then(function(data) {
+      $scope.conversordetalleisosList = data;
+      $scope.conversordetalleisosTemp = angular.copy($scope.conversordetalleisosList);
+      $scope.preloader = false;
+    });
+    /*  Modal */
+     $scope.open = function (item) {
+       var modalInstance = $uibModal.open({
+        animation: true,
+        templateUrl: 'templates/conversordetalleisos/modalCreate.html',
+        controller: 'modalconversordetalleisosCreateController',
+        size: 'lg',
+        resolve: {
+         item: function () {
+          return item;
+         }
+        }
+      });
+      modalInstance.result.then(function(data) {
+        if(!item) {
+           $scope.conversordetalleisosList.push(data);
+           $scope.conversordetalleisosTemp = angular.copy($scope.conversordetalleisosList);
+        }
+      },function(result){
+      $scope.conversordetalleisosList = $scope.conversordetalleisosTemp;
+      $scope.conversordetalleisosTemp = angular.copy($scope.conversordetalleisosList);
+    });
+  };
+  /*  Delete  */
+  $scope.openDelete = function (item) {
+    var modalInstance = $uibModal.open({
+      animation: true,
+      templateUrl: 'templates/conversordetalleisos/modalDelete.html',
+      controller: 'modalconversordetalleisosDeleteController',
+      size: 'lg',
+      resolve: {
+        item: function () {
+           return item;
+        }
+      }
+    });
+    modalInstance.result.then(function(data) {
+      var idx = $scope.conversordetalleisosList.indexOf(data);
+      $scope.conversordetalleisosList.splice(idx, 1);
+      conversordetalleisosModel
+        .destroy(data._id)
+        .then(function(result) {
+          $scope.msjAlert = true;
+          $scope.alert = 'success';
+          $scope.message = result.message;
+        })
+        .catch(function(err) {
+          $scope.msjAlert = true;
+          $scope.alert = 'danger';
+          $scope.message = 'Error '+err;
+        })
+      });
+    };
+}])
+.controller('modalconversordetalleisosCreateController',
+  ['$scope', '$uibModalInstance', 'item','conversordetalleisosModel','$filter',
+  function ($scope, $uibModalInstance, item,conversordetalleisosModel,$filter) {
+    $scope.item = item;
+    $scope.saving = false;
+    if(item){
+       //add optional code
+    }
+    $scope.save = function () {
+      if(!item){
+        $scope.saving = true;
+        item = {id_operador: $scope.item.id_operador,bitmap: $scope.item.bitmap,nombre: $scope.item.nombre,tipo: $scope.item.tipo,longitud: $scope.item.longitud,descripcion: $scope.item.descripcion,tipodato: $scope.item.tipodato};
+        var conversordetalleisos = conversordetalleisosModel.create();
+        conversordetalleisos.id_operador = $scope.item.id_operador;
+        conversordetalleisos.bitmap = $scope.item.bitmap;
+        conversordetalleisos.nombre = $scope.item.nombre;
+        conversordetalleisos.tipo = $scope.item.tipo;
+        conversordetalleisos.longitud = $scope.item.longitud;
+        conversordetalleisos.descripcion = $scope.item.descripcion;
+        conversordetalleisos.tipodato = $scope.item.tipodato;
+        conversordetalleisos.save().then(function(r){
+          $scope.saving = false;
+          $uibModalInstance.close(r);
+        });
+      }else{
+        conversordetalleisosModel.findById($scope.item._id);
+        conversordetalleisosModel.id_operador = $scope.item.id_operador;
+        conversordetalleisosModel.bitmap = $scope.item.bitmap;
+        conversordetalleisosModel.nombre = $scope.item.nombre;
+        conversordetalleisosModel.tipo = $scope.item.tipo;
+        conversordetalleisosModel.longitud = $scope.item.longitud;
+        conversordetalleisosModel.descripcion = $scope.item.descripcion;
+        conversordetalleisosModel.tipodato = $scope.item.tipodato;
+        conversordetalleisosModel.save().then(function(r){
+          $scope.saving = false;
+          $uibModalInstance.close(r);
+        });
+      }
+    };
+}])
+.controller('modalconversordetalleisosDeleteController',
+  ['$scope', '$uibModalInstance', 'item',
+  function ($scope, $uibModalInstance, item) {
+    $scope.item = item;
+    $scope.ok = function () {
+      $uibModalInstance.close($scope.item);
+    };
+    $scope.cancel = function () {
+       $uibModalInstance.dismiss('cancel');
+     };
+}])
+.config(function ($routeProvider) {
+  $routeProvider
+    .when('/conversordetalleisos', {
+      templateUrl: '/templates/conversordetalleisos/index.html',
+      controller: 'conversordetalleisosController',
       access: {
         restricted: false,
        rol: 1
@@ -2762,27 +3080,6 @@ require: 'ngModel',
  			}
  		});
  })
-.controller('listSchemasController',
-    ['$scope', 'schemaModel','$uibModal',
-        function ($scope, schemaModel,$uibModal) {
-        $scope.preloader = true;
-        schemaModel.getAll().then(function(data){
-        	 $scope.schemas = data;
-        	 $scope.preloader = false;
-        });
-
-}])
-.config(function ($routeProvider) {
- 	$routeProvider
- 		.when('/listSchemas', {
- 		    templateUrl: '/javascripts/setup/listSchemas/templates/listSchemas.html',
- 			controller: 'listSchemasController',
- 			access: {
- 				 restricted: false,
- 				 rol: 5
- 			}
- 		});
- })
 .controller('exportProjectController',
     ['$rootScope','$scope','$uibModal','exportProjectService','$ngBootbox',
         function ($rootScope,$scope,$uibModal,exportProjectService,$ngBootbox) {
@@ -2896,6 +3193,27 @@ require: 'ngModel',
  		.when('/exportProject', {
  		    templateUrl: '/javascripts/setup/exportProject/templates/exportProject.html',
  			controller: 'exportProjectController',
+ 			access: {
+ 				 restricted: false,
+ 				 rol: 5
+ 			}
+ 		});
+ })
+.controller('listSchemasController',
+    ['$scope', 'schemaModel','$uibModal',
+        function ($scope, schemaModel,$uibModal) {
+        $scope.preloader = true;
+        schemaModel.getAll().then(function(data){
+        	 $scope.schemas = data;
+        	 $scope.preloader = false;
+        });
+
+}])
+.config(function ($routeProvider) {
+ 	$routeProvider
+ 		.when('/listSchemas', {
+ 		    templateUrl: '/javascripts/setup/listSchemas/templates/listSchemas.html',
+ 			controller: 'listSchemasController',
  			access: {
  				 restricted: false,
  				 rol: 5
@@ -3301,69 +3619,6 @@ require: 'ngModel',
  			}
  		});
  })
-.controller('selectTemplatesController', ['$scope', 'templateFactory','$ngBootbox','$location','$route', function ($scope, templateFactory,$location,$route) {
-    templateFactory.allLayouts().then(function (data) {
-        $scope.layouts = data;
-    });
-    $scope.selectTemplate = function (layout, index) {
-        $scope.template = layout;
-        $scope.index = index;
-        templateFactory.setValue(layout.label).then(function(result){
-            if(result == true){
-                location.reload();
-            }
-        });
-    };
-}])
-    .factory('templateFactory', ['$q', '$http', function ($q, $http) {
-        return ({
-            allLayouts: allLayouts,
-            setValue: setValue
-        });
-
-        function allLayouts() {
-            var defered = $q.defer();
-            var promise = defered.promise;
-
-            $http.get('/setup/layouts')
-                .success(function (data) {
-                    defered.resolve(data);
-                })
-                .error(function (err) {
-                    defered.reject(err)
-                });
-
-            return promise;
-        }
-
-        function setValue(template) {
-            var deferred = $q.defer();
-            $http.put('/config/updateTemplate', {
-                template: template
-            })
-                .success(function (data, status) {
-                    deferred.resolve(data);
-                })
-                .error(function (data) {
-                    deferred.reject();
-                });
-            return deferred.promise;
-
-        }
-    }])
-.config(function ($routeProvider) {
- 	$routeProvider
- 		.when('/selectTemplates', {
- 			templateUrl: '/javascripts/setup/selectTemplates/templates/selectTemplates.html',
- 			controller: 'selectTemplatesController',
- 			access: {
- 				restricted: false,
- 				rol: 5
- 			}
- 		});
- })
-
-
 .controller('uploadTemplatesController',
     ['$scope','uploadTemplatesService',
         function ($scope,uploadTemplatesService) {
@@ -3434,3 +3689,65 @@ require: 'ngModel',
  			}
  		});
  })
+.controller('selectTemplatesController', ['$scope', 'templateFactory','$ngBootbox','$location','$route', function ($scope, templateFactory,$location,$route) {
+    templateFactory.allLayouts().then(function (data) {
+        $scope.layouts = data;
+    });
+    $scope.selectTemplate = function (layout, index) {
+        $scope.template = layout;
+        $scope.index = index;
+        templateFactory.setValue(layout.label).then(function(result){
+            if(result == true){
+                location.reload();
+            }
+        });
+    };
+}])
+    .factory('templateFactory', ['$q', '$http', function ($q, $http) {
+        return ({
+            allLayouts: allLayouts,
+            setValue: setValue
+        });
+
+        function allLayouts() {
+            var defered = $q.defer();
+            var promise = defered.promise;
+
+            $http.get('/setup/layouts')
+                .success(function (data) {
+                    defered.resolve(data);
+                })
+                .error(function (err) {
+                    defered.reject(err)
+                });
+
+            return promise;
+        }
+
+        function setValue(template) {
+            var deferred = $q.defer();
+            $http.put('/config/updateTemplate', {
+                template: template
+            })
+                .success(function (data, status) {
+                    deferred.resolve(data);
+                })
+                .error(function (data) {
+                    deferred.reject();
+                });
+            return deferred.promise;
+
+        }
+    }])
+.config(function ($routeProvider) {
+ 	$routeProvider
+ 		.when('/selectTemplates', {
+ 			templateUrl: '/javascripts/setup/selectTemplates/templates/selectTemplates.html',
+ 			controller: 'selectTemplatesController',
+ 			access: {
+ 				restricted: false,
+ 				rol: 5
+ 			}
+ 		});
+ })
+

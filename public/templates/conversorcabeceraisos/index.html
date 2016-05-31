@@ -1,0 +1,80 @@
+     <style type="text/css">
+        .frame{
+            background: #D3E5E7;
+            -webkit-border-radius: 20px;
+            -moz-border-radius: 20px;
+            border-radius: 20px;
+        }
+        .salto{
+          color: red;
+        }
+        .contenedor-tabla{
+
+          display: table;
+          margin-left: 50px;
+
+        }
+
+        .contenedor-fila{
+
+          display: table-row;
+
+        }
+
+        .contenedor-columna{
+
+          display: table-cell;
+
+        }
+     </style>
+     <fieldset>
+        <div class="row" >
+          <div class="form-group col-md-6">
+             <label for="id_transaccion_cabecera" class="bold">
+                Longitud:
+             </label>
+             <input  disabled="disabled" required  type="text" class="form-control"  ng-model="longitud" ng-change="cambioValoresChecks()">
+          </div>
+          <div class="form-group col-md-6">
+             <label for="id_transaccion_cabecera" class="bold">
+                MTI:
+             </label>
+             <input  autofocus required  type="text" class="form-control"  ng-model="mti" >
+          </div>
+        </div>
+        <div class="row" >
+          <div class="form-group col-md-12">
+             <label for="id_transaccion_cabecera" class="bold">
+                Operador:
+             </label>
+             <input  autofocus required  type="text" class="form-control"  ng-model="operador" >
+          </div>
+       </div>
+       <div class="row" >
+          <div class="form-group col-md-12">
+             <label for="id_transaccion_cabecera" class="bold">
+                Campos:
+             </label>
+          </div>
+       </div>
+       <div class="contenedor-tabla">
+          <iterador ng-repeat="item in bitmaps" style="margin-right: 5px;">
+            <div class="contenedor-fila">
+                <div class="contenedor-columna"> &nbsp;</div>
+            </div>
+            <div class="contenedor-fila">
+                <div class="contenedor-columna"><input  type="checkbox"  ng-click="addChecksValidos(item)"></div>
+            </div>
+            <div class="contenedor-fila">
+                <div class="contenedor-columna">{{item.value}}</div>
+            </div><br ng-if="item.name == 32">
+          </iterador>
+       </div> 
+       <br>       
+       <br>       
+       <div class="row" >
+          <div class="form-group col-md-12">
+             <button ng-disabled="itemsValidos.length <=0"class="btn btn-primary" ng-click="siguiente()">Siguiente <i class="fa fa-arrow-right"></i></button>
+          </div>
+       </div>
+     </fieldset>

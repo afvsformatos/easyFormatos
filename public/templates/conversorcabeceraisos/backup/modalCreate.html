@@ -1,0 +1,32 @@
+<div class="modal-header">
+   <div class="pull-right">
+     <button type="button" class="close pull-right" ng-click="$dismiss()">&times;</button>
+   </div>
+<div>
+   <h3 class="modal-title" ng-if="!item._id">Create</h3>
+   <h3 class="modal-title" ng-if="item._id">Edit</h3>
+</div>
+</div>
+<div>
+<form name="myForm" ng-submit="save()" method="POST">
+   <div class="modal-body">
+     <fieldset>
+       <div class="row" ><div class="form-group col-md-12"><label for="id_transaccion_cabecera" class="bold">ID TRANSACCION CABECERA</label><input  autofocus required name="id_transaccion_cabecera" type="number" class="form-control"  ng-model="item.id_transaccion_cabecera" ></div></div>
+       <div class="row" ><div class="form-group col-md-12"><label for="idformato" class="bold">IDFORMATO</label><input  autofocus required name="idformato" type="number" class="form-control"  ng-model="item.idformato" ></div></div>
+       <div class="row" ><div class="form-group col-md-12"><label for="orden" class="bold">ORDEN</label><input  autofocus required name="orden" type="number" class="form-control"  ng-model="item.orden" ></div></div>
+       <div class="row" ><div class="form-group col-md-12"><label for="nombre" class="bold">NOMBRE</label><input  autofocus required name="nombre" type="text" class="form-control"  ng-model="item.nombre" ></div></div>
+       <div class="row" ><div class="form-group col-md-12"><label for="tipo" class="bold">TIPO</label><input  autofocus required name="tipo" type="text" class="form-control"  ng-model="item.tipo" ></div></div>
+       <div class="row" ><div class="form-group col-md-12"><label for="longitud" class="bold">LONGITUD</label><input  autofocus required name="longitud" type="number" class="form-control"  ng-model="item.longitud" ></div></div>
+       <div class="row" ><div class="form-group col-md-12"><label for="bytes" class="bold">BYTES</label><input  autofocus required name="bytes" type="number" class="form-control"  ng-model="item.bytes" ></div></div>
+       <div class="row" ><div class="form-group col-md-12"><label for="aplicadefault" class="bold">APLICADEFAULT</label><input  autofocus  name="aplicadefault" type="checkbox" class="form-control"  ng-model="item.aplicadefault" ></div></div>
+       <div class="row" ><div class="form-group col-md-12"><label for="valordefault" class="bold">VALORDEFAULT</label><input  autofocus required name="valordefault" type="text" class="form-control"  ng-model="item.valordefault" ></div></div>
+       <div class="row" ><div class="form-group col-md-12"><label for="respuesta" class="bold">RESPUESTA</label><input  autofocus required name="respuesta" type="text" class="form-control"  ng-model="item.respuesta" ></div></div>
+       <div class="row" ><div class="form-group col-md-12"><label for="descripcion" class="bold">DESCRIPCION</label><input  autofocus required name="descripcion" type="text" class="form-control"  ng-model="item.descripcion" ></div></div>
+       
+     </fieldset>
+</div>
+<div class="modal-footer">
+   <button ng-disabled="myForm.$invalid || myForm.$pristine" class="btn btn-primary pull-right" type="submit" title="Save"><span ng-if="saving"><i class="fa fa-spinner fa fa-spin"></i>&nbsp;</span><span>Save</span></button>
+</div>
+</form>
+</div>
