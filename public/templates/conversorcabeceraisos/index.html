@@ -27,54 +27,82 @@
 
         }
      </style>
-     <fieldset>
-        <div class="row" >
-          <div class="form-group col-md-6">
-             <label for="id_transaccion_cabecera" class="bold">
-                Longitud:
-             </label>
-             <input  disabled="disabled" required  type="text" class="form-control"  ng-model="longitud" ng-change="cambioValoresChecks()">
-          </div>
-          <div class="form-group col-md-6">
-             <label for="id_transaccion_cabecera" class="bold">
-                MTI:
-             </label>
-             <input  autofocus required  type="text" class="form-control"  ng-model="mti" >
-          </div>
-        </div>
-        <div class="row" >
-          <div class="form-group col-md-12">
-             <label for="id_transaccion_cabecera" class="bold">
-                Operador:
-             </label>
-             <input  autofocus required  type="text" class="form-control"  ng-model="operador" >
-          </div>
-       </div>
+    <vista ng-show="primeraVista">
+         <fieldset>
+            <div class="row" >
+              <div class="form-group col-md-6">
+                 <label for="id_transaccion_cabecera" class="bold">
+                    Longitud:
+                 </label>
+                 <input  disabled="disabled" required  type="text" class="form-control"  ng-model="longitud" ng-change="cambioValoresChecks()">
+              </div>
+              <div class="form-group col-md-6">
+                 <label for="id_transaccion_cabecera" class="bold">
+                    MTI:
+                 </label>
+                 <input  autofocus required  type="text" class="form-control"  ng-model="mti" >
+              </div>
+            </div>
+            <div class="row" >
+              <div class="form-group col-md-12">
+                 <label for="id_transaccion_cabecera" class="bold">
+                    Operador:
+                 </label>
+                 <input  autofocus required  type="text" class="form-control"  ng-model="operador" >
+              </div>
+           </div>
+           <div class="row" >
+              <div class="form-group col-md-12">
+                 <label for="id_transaccion_cabecera" class="bold">
+                    Campos:
+                 </label>
+              </div>
+           </div>
+           <div class="contenedor-tabla">
+              <iterador ng-repeat="item in bitmaps" style="margin-right: 5px;">
+                <div class="contenedor-fila">
+                    <div class="contenedor-columna"> &nbsp;</div>
+                </div>
+                <div class="contenedor-fila">
+                    <div class="contenedor-columna"><input  type="checkbox" ng-checked="item.check"  ng-click="addChecksValidos(item)"></div>
+                </div>
+                <div class="contenedor-fila">
+                    <div class="contenedor-columna">{{item.value}}</div>
+                </div><br ng-if="item.name == 32">
+              </iterador>
+           </div> 
+           <br>       
+           <br>       
+           <div class="row" >
+              <div class="form-group col-md-12">
+                 <button ng-disabled="itemsValidos.length <=0"class="btn btn-primary" ng-click="siguiente()">Siguiente <i class="fa fa-arrow-right"></i></button>
+              </div>
+           </div>
+         </fieldset>
+    </vista>
+
+    <vista ng-show="!primeraVista">
+        <table id="scrollTabla" ng-hide="preloader" class="table table-bordered table-hover table-striped" at-table at-paginated at-list="itemsValidos | filter:searchText" at-config="configTable">
+         <thead></thead>
+         <tbody>
+           <tr>
+             <!--<td  at-sortable  at-title='ID FORMATO' width='150'>{{item.IdFormato}}</td>-->
+             <td  at-sortable  at-title='ORDEN' width='150'><a ng-click="obtenerDetalles(item)">{{item.orden}}</a></tdue>
+             <td  at-sortable  at-title='NOMBRE' width='150'><a ng-click="obtenerDetalles(item)">{{item.nombre}}</a></td>
+             <td  at-sortable  at-title='TIPO' width='150'><a ng-click="obtenerDetalles(item)">{{item.tipo}}</a></td>
+             <td  at-sortable  at-title='LONGITUD' width='150'><a ng-click="obtenerDetalles(item)">{{item.longitud}}</a></td>
+             <td  at-sortable  at-title='DESCRIPCIÓN' width='150'><a ng-click="obtenerDetalles(item)">{{item.descripcion}}</a></td>
+             <td  at-title="Acción" width="250">
+               <button title="Eliminar" type="button" class="btn btn-default" ng-click="eliminarData(item)"><i class="fa fa-trash-o"></i></button>
+             </td>
+           </tr>
+         </tbody>
+       </table>
        <div class="row" >
           <div class="form-group col-md-12">
-             <label for="id_transaccion_cabecera" class="bold">
-                Campos:
-             </label>
+             <button class="btn btn-default" ng-click="anterior()"><i class="fa fa-arrow-left"></i>  Anterior</button>
+             <button ng-disabled="itemsValidos.length <= 0"class="btn btn-primary" ng-click="guardarDatos()">Guardar <i class="fa fa-floppy-o"></i></button>
           </div>
        </div>
-       <div class="contenedor-tabla">
-          <iterador ng-repeat="item in bitmaps" style="margin-right: 5px;">
-            <div class="contenedor-fila">
-                <div class="contenedor-columna"> &nbsp;</div>
-            </div>
-            <div class="contenedor-fila">
-                <div class="contenedor-columna"><input  type="checkbox"  ng-click="addChecksValidos(item)"></div>
-            </div>
-            <div class="contenedor-fila">
-                <div class="contenedor-columna">{{item.value}}</div>
-            </div><br ng-if="item.name == 32">
-          </iterador>
-       </div> 
-       <br>       
-       <br>       
-       <div class="row" >
-          <div class="form-group col-md-12">
-             <button ng-disabled="itemsValidos.length <=0"class="btn btn-primary" ng-click="siguiente()">Siguiente <i class="fa fa-arrow-right"></i></button>
-          </div>
-       </div>
-     </fieldset>
+
+    </vista>

@@ -3,10 +3,22 @@
   function ($scope, $uibModalInstance, item,conversordetallesModel,$filter,IdFormato) {
     $scope.item = item;
     $scope.saving = false;
-    if(item){
+    if(!item){
        //add optional code
+        $scope.item = {};
+        $scope.item.TipoRegistro = 'D';
+        $scope.item.PosicionInicio = 0;
+        $scope.item.LongitudCampo = 0;
+        $scope.item.TipoCampo = 'X';
+        $scope.item.SeparadorDecimales = false;
+        $scope.item.NumeroDecimales = 0;
+        $scope.item.IdCampoEquivalente = 0;
+        $scope.item.Obligatorio = false;
+        $scope.item.Tipo_Registro = 'ITEM';
+        $scope.item.OrdenCampo = '-1';
+        $scope.item.ValidaEnMasivas = true;
+        //console.log($scope.item.TipoRegistro);
     }
-    console.log(IdFormato);
     $scope.save = function () {
       if(!item){
         $scope.saving = true;

@@ -8,7 +8,7 @@ var conversorDetalleISO = connectionDb.sequelize.define('Conversor_Cabecera_Deta
   },
   Bitmap: {
       type: connectionDb.Sequelize.INTEGER,
-      autoIncrement: true,
+      //autoIncrement: true,
       primaryKey: true
   },
   Nombre: {
@@ -33,7 +33,7 @@ var conversorDetalleISO = connectionDb.sequelize.define('Conversor_Cabecera_Deta
    updatedAt : false,
    createdAt: false
 }
-
+);
 /*,{
 	    classMethods: {
 		      associate: function(models) {

@@ -506,7 +506,8 @@
       return ({
         testParsing: testParsing,
         eliminarGrabar:  eliminarGrabar,
-        generarFormatoAutomatico : generarFormatoAutomatico
+        generarFormatoAutomatico : generarFormatoAutomatico,
+        obtenerCatalogos:obtenerCatalogos
       });
 
 
@@ -548,6 +549,23 @@
         var deferred = $q.defer();
 
         $http.post('/api/generarFormatosAutomaticos', params)
+          // handle success
+          .success(function (data, status) {
+             deferred.resolve(data);
+          })
+          // handle error
+          .error(function (data) {
+            deferred.reject(data);
+          });
+        return deferred.promise;
+
+      }
+
+      function obtenerCatalogos(params) {
+
+        var deferred = $q.defer();
+
+        $http.post('/api/obtenerCatalogos', params)
           // handle success
           .success(function (data, status) {
              deferred.resolve(data);
@@ -1078,8 +1096,8 @@
     });
  })
 .controller('conversorcabeceraisosController',
-  ['$rootScope','$scope', '$location', 'conversorcabeceraisosModel','$uibModal',
-  function ($rootScope,$scope, $location, conversorcabeceraisosModel,$uibModal) {
+  ['$rootScope','$scope', '$location', 'conversorcabeceraisosModel','$uibModal','factoryParsing',
+  function ($rootScope,$scope, $location, conversorcabeceraisosModel,$uibModal,factoryParsing) {
     $scope.titleController = 'MEAN-CASE SUPER HEROIC';
     $rootScope.titleWeb = 'conversorcabeceraisos';
     $scope.preloader = true;
@@ -1087,6 +1105,9 @@
     $scope.longitud =  128;
     $scope.bitmaps = [];
     $scope.itemsValidos = [];
+    $scope.primeraVista = true;
+    
+    //console.log(plantillaBase);
     var divInputs = function(){
         var cont = 0,flag=false;
         for (var i = 1; i <= $scope.longitud; i++) {
@@ -1100,7 +1121,7 @@
           for(var x = inicio;x < 3 ; x++){
               ceros += '0';
           }
-          $scope.bitmaps.push({name:cont,value:ceros+i}); 
+          $scope.bitmaps.push({name:cont,value:ceros+i,orden:i,check:false}); 
           if(flag){
              flag = false;
              cont = 0;
@@ -1123,8 +1144,31 @@
         }
         
     }
+    $scope.eliminarData = function(item){
+      var idx = $scope.itemsValidos.indexOf(item);
+      $scope.itemsValidos.splice(idx, 1);
+      var idx2 = $scope.bitmaps.indexOf(item);
+      console.log(idx2);
+      //$scope.bitmaps[idx2].check = false;
+    }
     $scope.siguiente = function(){
-      console.log($scope.itemsValidos);
+      factoryParsing.obtenerCatalogos({id:0}).then(function(resp){
+          for (var i=0; i < resp.length; i++) {
+                for (var j=0; j < $scope.itemsValidos.length; j++) {
+                  if (resp[i].Bitmap == $scope.itemsValidos[j].orden) {
+                      $scope.itemsValidos[j].nombre = resp[i].Nombre;
+                      $scope.itemsValidos[j].tipo = resp[i].Tipo;
+                      $scope.itemsValidos[j].longitud = resp[i].Longitud;
+                      $scope.itemsValidos[j].descripcion = resp[i].Descripcion;
+                  }
+                }
+          }
+          $scope.primeraVista = false;
+      });
+     
+    } 
+    $scope.anterior = function(){
+      $scope.primeraVista = true;
     }
     conversorcabeceraisosModel.getAll().then(function(data) {
       $scope.conversorcabeceraisosList = data;
@@ -2010,134 +2054,6 @@
       }
     });
  })
-.controller('conversordetalleisosController',
-  ['$rootScope','$scope', '$location', 'conversordetalleisosModel','$uibModal',
-  function ($rootScope,$scope, $location, conversordetalleisosModel,$uibModal) {
-    $scope.titleController = 'MEAN-CASE SUPER HEROIC';
-    $rootScope.titleWeb = 'conversordetalleisos';
-    $scope.preloader = true;
-    $scope.msjAlert = false;
-    conversordetalleisosModel.getAll().then(function(data) {
-      $scope.conversordetalleisosList = data;
-      $scope.conversordetalleisosTemp = angular.copy($scope.conversordetalleisosList);
-      $scope.preloader = false;
-    });
-    /*  Modal */
-     $scope.open = function (item) {
-       var modalInstance = $uibModal.open({
-        animation: true,
-        templateUrl: 'templates/conversordetalleisos/modalCreate.html',
-        controller: 'modalconversordetalleisosCreateController',
-        size: 'lg',
-        resolve: {
-         item: function () {
-          return item;
-         }
-        }
-      });
-      modalInstance.result.then(function(data) {
-        if(!item) {
-           $scope.conversordetalleisosList.push(data);
-           $scope.conversordetalleisosTemp = angular.copy($scope.conversordetalleisosList);
-        }
-      },function(result){
-      $scope.conversordetalleisosList = $scope.conversordetalleisosTemp;
-      $scope.conversordetalleisosTemp = angular.copy($scope.conversordetalleisosList);
-    });
-  };
-  /*  Delete  */
-  $scope.openDelete = function (item) {
-    var modalInstance = $uibModal.open({
-      animation: true,
-      templateUrl: 'templates/conversordetalleisos/modalDelete.html',
-      controller: 'modalconversordetalleisosDeleteController',
-      size: 'lg',
-      resolve: {
-        item: function () {
-           return item;
-        }
-      }
-    });
-    modalInstance.result.then(function(data) {
-      var idx = $scope.conversordetalleisosList.indexOf(data);
-      $scope.conversordetalleisosList.splice(idx, 1);
-      conversordetalleisosModel
-        .destroy(data._id)
-        .then(function(result) {
-          $scope.msjAlert = true;
-          $scope.alert = 'success';
-          $scope.message = result.message;
-        })
-        .catch(function(err) {
-          $scope.msjAlert = true;
-          $scope.alert = 'danger';
-          $scope.message = 'Error '+err;
-        })
-      });
-    };
-}])
-.controller('modalconversordetalleisosCreateController',
-  ['$scope', '$uibModalInstance', 'item','conversordetalleisosModel','$filter',
-  function ($scope, $uibModalInstance, item,conversordetalleisosModel,$filter) {
-    $scope.item = item;
-    $scope.saving = false;
-    if(item){
-       //add optional code
-    }
-    $scope.save = function () {
-      if(!item){
-        $scope.saving = true;
-        item = {id_operador: $scope.item.id_operador,bitmap: $scope.item.bitmap,nombre: $scope.item.nombre,tipo: $scope.item.tipo,longitud: $scope.item.longitud,descripcion: $scope.item.descripcion,tipodato: $scope.item.tipodato};
-        var conversordetalleisos = conversordetalleisosModel.create();
-        conversordetalleisos.id_operador = $scope.item.id_operador;
-        conversordetalleisos.bitmap = $scope.item.bitmap;
-        conversordetalleisos.nombre = $scope.item.nombre;
-        conversordetalleisos.tipo = $scope.item.tipo;
-        conversordetalleisos.longitud = $scope.item.longitud;
-        conversordetalleisos.descripcion = $scope.item.descripcion;
-        conversordetalleisos.tipodato = $scope.item.tipodato;
-        conversordetalleisos.save().then(function(r){
-          $scope.saving = false;
-          $uibModalInstance.close(r);
-        });
-      }else{
-        conversordetalleisosModel.findById($scope.item._id);
-        conversordetalleisosModel.id_operador = $scope.item.id_operador;
-        conversordetalleisosModel.bitmap = $scope.item.bitmap;
-        conversordetalleisosModel.nombre = $scope.item.nombre;
-        conversordetalleisosModel.tipo = $scope.item.tipo;
-        conversordetalleisosModel.longitud = $scope.item.longitud;
-        conversordetalleisosModel.descripcion = $scope.item.descripcion;
-        conversordetalleisosModel.tipodato = $scope.item.tipodato;
-        conversordetalleisosModel.save().then(function(r){
-          $scope.saving = false;
-          $uibModalInstance.close(r);
-        });
-      }
-    };
-}])
-.controller('modalconversordetalleisosDeleteController',
-  ['$scope', '$uibModalInstance', 'item',
-  function ($scope, $uibModalInstance, item) {
-    $scope.item = item;
-    $scope.ok = function () {
-      $uibModalInstance.close($scope.item);
-    };
-    $scope.cancel = function () {
-       $uibModalInstance.dismiss('cancel');
-     };
-}])
-.config(function ($routeProvider) {
-  $routeProvider
-    .when('/conversordetalleisos', {
-      templateUrl: '/templates/conversordetalleisos/index.html',
-      controller: 'conversordetalleisosController',
-      access: {
-        restricted: false,
-       rol: 1
-      }
-    });
- })
 .controller('conversordetalleplantillasController',
   ['$rootScope','$scope', '$location', 'conversordetalleplantillasModel','$uibModal','$routeParams',
   function ($rootScope,$scope, $location, conversordetalleplantillasModel,$uibModal,$routeParams) {
@@ -2447,10 +2363,22 @@
   function ($scope, $uibModalInstance, item,conversordetallesModel,$filter,IdFormato) {
     $scope.item = item;
     $scope.saving = false;
-    if(item){
+    if(!item){
        //add optional code
+        $scope.item = {};
+        $scope.item.TipoRegistro = 'D';
+        $scope.item.PosicionInicio = 0;
+        $scope.item.LongitudCampo = 0;
+        $scope.item.TipoCampo = 'X';
+        $scope.item.SeparadorDecimales = false;
+        $scope.item.NumeroDecimales = 0;
+        $scope.item.IdCampoEquivalente = 0;
+        $scope.item.Obligatorio = false;
+        $scope.item.Tipo_Registro = 'ITEM';
+        $scope.item.OrdenCampo = '-1';
+        $scope.item.ValidaEnMasivas = true;
+        //console.log($scope.item.TipoRegistro);
     }
-    console.log(IdFormato);
     $scope.save = function () {
       if(!item){
         $scope.saving = true;
@@ -3220,6 +3148,69 @@ require: 'ngModel',
  			}
  		});
  })
+.controller('selectTemplatesController', ['$scope', 'templateFactory','$ngBootbox','$location','$route', function ($scope, templateFactory,$location,$route) {
+    templateFactory.allLayouts().then(function (data) {
+        $scope.layouts = data;
+    });
+    $scope.selectTemplate = function (layout, index) {
+        $scope.template = layout;
+        $scope.index = index;
+        templateFactory.setValue(layout.label).then(function(result){
+            if(result == true){
+                location.reload();
+            }
+        });
+    };
+}])
+    .factory('templateFactory', ['$q', '$http', function ($q, $http) {
+        return ({
+            allLayouts: allLayouts,
+            setValue: setValue
+        });
+
+        function allLayouts() {
+            var defered = $q.defer();
+            var promise = defered.promise;
+
+            $http.get('/setup/layouts')
+                .success(function (data) {
+                    defered.resolve(data);
+                })
+                .error(function (err) {
+                    defered.reject(err)
+                });
+
+            return promise;
+        }
+
+        function setValue(template) {
+            var deferred = $q.defer();
+            $http.put('/config/updateTemplate', {
+                template: template
+            })
+                .success(function (data, status) {
+                    deferred.resolve(data);
+                })
+                .error(function (data) {
+                    deferred.reject();
+                });
+            return deferred.promise;
+
+        }
+    }])
+.config(function ($routeProvider) {
+ 	$routeProvider
+ 		.when('/selectTemplates', {
+ 			templateUrl: '/javascripts/setup/selectTemplates/templates/selectTemplates.html',
+ 			controller: 'selectTemplatesController',
+ 			access: {
+ 				restricted: false,
+ 				rol: 5
+ 			}
+ 		});
+ })
+
+
 .controller('modalRelationshipDeleteController',
   ['$scope', '$uibModalInstance', 'item',
   function ($scope, $uibModalInstance, item) {
@@ -3689,65 +3680,3 @@ require: 'ngModel',
  			}
  		});
  })
-.controller('selectTemplatesController', ['$scope', 'templateFactory','$ngBootbox','$location','$route', function ($scope, templateFactory,$location,$route) {
-    templateFactory.allLayouts().then(function (data) {
-        $scope.layouts = data;
-    });
-    $scope.selectTemplate = function (layout, index) {
-        $scope.template = layout;
-        $scope.index = index;
-        templateFactory.setValue(layout.label).then(function(result){
-            if(result == true){
-                location.reload();
-            }
-        });
-    };
-}])
-    .factory('templateFactory', ['$q', '$http', function ($q, $http) {
-        return ({
-            allLayouts: allLayouts,
-            setValue: setValue
-        });
-
-        function allLayouts() {
-            var defered = $q.defer();
-            var promise = defered.promise;
-
-            $http.get('/setup/layouts')
-                .success(function (data) {
-                    defered.resolve(data);
-                })
-                .error(function (err) {
-                    defered.reject(err)
-                });
-
-            return promise;
-        }
-
-        function setValue(template) {
-            var deferred = $q.defer();
-            $http.put('/config/updateTemplate', {
-                template: template
-            })
-                .success(function (data, status) {
-                    deferred.resolve(data);
-                })
-                .error(function (data) {
-                    deferred.reject();
-                });
-            return deferred.promise;
-
-        }
-    }])
-.config(function ($routeProvider) {
- 	$routeProvider
- 		.when('/selectTemplates', {
- 			templateUrl: '/javascripts/setup/selectTemplates/templates/selectTemplates.html',
- 			controller: 'selectTemplatesController',
- 			access: {
- 				restricted: false,
- 				rol: 5
- 			}
- 		});
- })
-

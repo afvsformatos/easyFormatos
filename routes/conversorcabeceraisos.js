@@ -3,11 +3,22 @@ var express = require('express');
 var router = express.Router();
 var mongoose = require('mongoose');
 var conversorcabeceraisos = mongoose.model('conversorcabeceraisos');
+var conversorCabeceraIso = require('../config/relationalModels/conversorCabeceraISO.js');
+var conversorDetalleIso = require('../config/relationalModels/conversorDetalleISO.js');
+
 router.get('/conversorcabeceraisos/:id', function (req, res) {
   conversorcabeceraisos.findById(req.params.id, function (err, data) {
     res.json(data);
   })
 })
+
+router.post('/obtenerCatalogos', function (req, res) {
+  conversorDetalleIso.findAll({ where: { Id_Operador: req.body.id }}).then(function(plantilla) {
+        res.json(plantilla);
+        meanCaseBase.auditSave(req,'Obtener plantilla base','Catalogo Iso','Obtener plantilla base');
+  });
+})
+
 /* GET conversorcabeceraisos listing. */
 router.get('/conversorcabeceraisos', function(req, res, next) {
    conversorcabeceraisos.find(function(err, models){

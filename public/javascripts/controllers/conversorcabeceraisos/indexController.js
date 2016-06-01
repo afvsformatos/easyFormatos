@@ -1,6 +1,6 @@
 .controller('conversorcabeceraisosController',
-  ['$rootScope','$scope', '$location', 'conversorcabeceraisosModel','$uibModal',
-  function ($rootScope,$scope, $location, conversorcabeceraisosModel,$uibModal) {
+  ['$rootScope','$scope', '$location', 'conversorcabeceraisosModel','$uibModal','factoryParsing',
+  function ($rootScope,$scope, $location, conversorcabeceraisosModel,$uibModal,factoryParsing) {
     $scope.titleController = 'MEAN-CASE SUPER HEROIC';
     $rootScope.titleWeb = 'conversorcabeceraisos';
     $scope.preloader = true;
@@ -8,6 +8,9 @@
     $scope.longitud =  128;
     $scope.bitmaps = [];
     $scope.itemsValidos = [];
+    $scope.primeraVista = true;
+    
+    //console.log(plantillaBase);
     var divInputs = function(){
         var cont = 0,flag=false;
         for (var i = 1; i <= $scope.longitud; i++) {
@@ -21,7 +24,7 @@
           for(var x = inicio;x < 3 ; x++){
               ceros += '0';
           }
-          $scope.bitmaps.push({name:cont,value:ceros+i}); 
+          $scope.bitmaps.push({name:cont,value:ceros+i,orden:i,check:false}); 
           if(flag){
              flag = false;
              cont = 0;
@@ -44,8 +47,31 @@
         }
         
     }
+    $scope.eliminarData = function(item){
+      var idx = $scope.itemsValidos.indexOf(item);
+      $scope.itemsValidos.splice(idx, 1);
+      var idx2 = $scope.bitmaps.indexOf(item);
+      console.log(idx2);
+      //$scope.bitmaps[idx2].check = false;
+    }
     $scope.siguiente = function(){
-      console.log($scope.itemsValidos);
+      factoryParsing.obtenerCatalogos({id:0}).then(function(resp){
+          for (var i=0; i < resp.length; i++) {
+                for (var j=0; j < $scope.itemsValidos.length; j++) {
+                  if (resp[i].Bitmap == $scope.itemsValidos[j].orden) {
+                      $scope.itemsValidos[j].nombre = resp[i].Nombre;
+                      $scope.itemsValidos[j].tipo = resp[i].Tipo;
+                      $scope.itemsValidos[j].longitud = resp[i].Longitud;
+                      $scope.itemsValidos[j].descripcion = resp[i].Descripcion;
+                  }
+                }
+          }
+          $scope.primeraVista = false;
+      });
+     
+    } 
+    $scope.anterior = function(){
+      $scope.primeraVista = true;
     }
     conversorcabeceraisosModel.getAll().then(function(data) {
       $scope.conversorcabeceraisosList = data;

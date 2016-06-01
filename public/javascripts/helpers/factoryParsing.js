@@ -5,7 +5,8 @@
       return ({
         testParsing: testParsing,
         eliminarGrabar:  eliminarGrabar,
-        generarFormatoAutomatico : generarFormatoAutomatico
+        generarFormatoAutomatico : generarFormatoAutomatico,
+        obtenerCatalogos:obtenerCatalogos
       });
 
 
@@ -47,6 +48,23 @@
         var deferred = $q.defer();
 
         $http.post('/api/generarFormatosAutomaticos', params)
+          // handle success
+          .success(function (data, status) {
+             deferred.resolve(data);
+          })
+          // handle error
+          .error(function (data) {
+            deferred.reject(data);
+          });
+        return deferred.promise;
+
+      }
+
+      function obtenerCatalogos(params) {
+
+        var deferred = $q.defer();
+
+        $http.post('/api/obtenerCatalogos', params)
           // handle success
           .success(function (data, status) {
              deferred.resolve(data);
