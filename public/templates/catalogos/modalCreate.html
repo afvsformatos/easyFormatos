@@ -1,0 +1,26 @@
+<div class="modal-header">
+   <div class="pull-right">
+     <button type="button" class="close pull-right" ng-click="$dismiss()">&times;</button>
+   </div>
+<div>
+   <h3 class="modal-title" ng-if="!item._id">Create</h3>
+   <h3 class="modal-title" ng-if="item._id">Edit</h3>
+</div>
+</div>
+<div>
+<form name="myForm" ng-submit="save()" method="POST">
+   <div class="modal-body">
+     <fieldset>
+       <div class="row" ><div class="form-group col-md-12"><label for="IDTabla" class="bold">ID TABLA</label><input  autofocus required name="IDTabla" type="text" class="form-control"  ng-model="item.IDTabla" ></div></div>
+       <div class="row" ><div class="form-group col-md-12"><label for="TABLAArgumento" class="bold">TABLA ARGUMENTO</label><input  autofocus required name="TABLAArgumento" type="text" class="form-control"  ng-model="item.TABLAArgumento" ></div></div>
+       <div class="row" ><div class="form-group col-md-12"><label for="TABLADescripcion" class="bold">TABLA DESCRIPCIÓN</label><input  autofocus required name="TABLADescripcion" type="text" class="form-control"  ng-model="item.TABLADescripcion" ></div></div>
+       <div class="row" ><div class="form-group col-md-12"><label for="TABLAReferencia" class="bold">TABLA REFERENCIA</label><input  autofocus required name="TABLAReferencia" type="text" class="form-control"  ng-model="item.TABLAReferencia" ></div></div>
+       <div class="row" ><div class="form-group col-md-12"><label for="TABLAEstado" class="bold">TABLA ESTADO</label><input  autofocus required name="TABLAEstado" type="text" class="form-control"  ng-model="item.TABLAEstado" ></div></div>
+       
+     </fieldset>
+</div>
+<div class="modal-footer">
+   <button ng-disabled="myForm.$invalid || myForm.$pristine" class="btn btn-primary pull-right" type="submit" title="Save"><span ng-if="saving"><i class="fa fa-spinner fa fa-spin"></i>&nbsp;</span><span>Save</span></button>
+</div>
+</form>
+</div>

@@ -6,7 +6,8 @@
         testParsing: testParsing,
         eliminarGrabar:  eliminarGrabar,
         generarFormatoAutomatico : generarFormatoAutomatico,
-        obtenerCatalogos:obtenerCatalogos
+        obtenerCatalogos:obtenerCatalogos,
+        grabarCatalogosISO:grabarCatalogosISO
       });
 
 
@@ -65,6 +66,23 @@
         var deferred = $q.defer();
 
         $http.post('/api/obtenerCatalogos', params)
+          // handle success
+          .success(function (data, status) {
+             deferred.resolve(data);
+          })
+          // handle error
+          .error(function (data) {
+            deferred.reject(data);
+          });
+        return deferred.promise;
+
+      }
+
+       function grabarCatalogosISO(params) {
+
+        var deferred = $q.defer();
+
+        $http.post('/api/grabarCatalogosISO', params)
           // handle success
           .success(function (data, status) {
              deferred.resolve(data);

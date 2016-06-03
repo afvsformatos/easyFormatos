@@ -1,0 +1,36 @@
+.controller('modalcatalogosCreateController',
+  ['$scope', '$uibModalInstance', 'item','catalogosModel','$filter',
+  function ($scope, $uibModalInstance, item,catalogosModel,$filter) {
+    $scope.item = item;
+    $scope.saving = false;
+    if(item){
+       //add optional code
+    }
+    $scope.save = function () {
+      if(!item){
+        $scope.saving = true;
+        item = {id_tabla: $scope.item.id_tabla,tabla_argumento: $scope.item.tabla_argumento,tabla_descripcion: $scope.item.tabla_descripcion,tabla_referencia: $scope.item.tabla_referencia,tabla_estado: $scope.item.tabla_estado};
+        var catalogos = catalogosModel.create();
+        catalogos.id_tabla = $scope.item.id_tabla;
+        catalogos.tabla_argumento = $scope.item.tabla_argumento;
+        catalogos.tabla_descripcion = $scope.item.tabla_descripcion;
+        catalogos.tabla_referencia = $scope.item.tabla_referencia;
+        catalogos.tabla_estado = $scope.item.tabla_estado;
+        catalogos.save().then(function(r){
+          $scope.saving = false;
+          $uibModalInstance.close(r);
+        });
+      }else{
+        catalogosModel.findById($scope.item._id);
+        catalogosModel.id_tabla = $scope.item.id_tabla;
+        catalogosModel.tabla_argumento = $scope.item.tabla_argumento;
+        catalogosModel.tabla_descripcion = $scope.item.tabla_descripcion;
+        catalogosModel.tabla_referencia = $scope.item.tabla_referencia;
+        catalogosModel.tabla_estado = $scope.item.tabla_estado;
+        catalogosModel.save().then(function(r){
+          $scope.saving = false;
+          $uibModalInstance.close(r);
+        });
+      }
+    };
+}])

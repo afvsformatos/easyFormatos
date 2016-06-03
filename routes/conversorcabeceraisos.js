@@ -29,13 +29,20 @@ router.get('/conversorcabeceraisos', function(req, res, next) {
 });
 /* POST - Add conversorcabeceraisos. */
 router.post('/conversorcabeceraisos', function(req, res, next){
-   var model = new conversorcabeceraisos(req.body);
-   model.save(function(err, data){
-     if(err){return next(err)}
-     res.json(data);
-     meanCaseBase.auditSave(req,'Insert Register','conversorcabeceraisos',data);
-   })
+   conversorDetalleIso.create(req.body).then(function(data) {
+      data.dataValues['message'] = "Registro Exitoso";
+      res.json(data);
+      meanCaseBase.auditSave(req,'Insert Register','Conversor detalle Iso',data);
+    });
 });
+
+router.post('/grabarCatalogosISO', function(req, res, next){
+    for(prop in req.body){
+        conversorDetalleIso.create(req.body[prop]);
+    }
+    res.json({msj:'Success'});
+});
+
 /* PUT - Update conversorcabeceraisos. */
 router.put('/conversorcabeceraisos/:id', function(req, res){
    conversorcabeceraisos.findById(req.params.id, function(err, data){

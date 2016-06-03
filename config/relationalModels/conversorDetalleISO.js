@@ -3,7 +3,7 @@ var connectionDb = require('../../config/connectionDb.js');
 var conversorDetalleISO = connectionDb.sequelize.define('Conversor_Cabecera_Detalle_Catalogo_ISO8583', {
   Id_Operador: {
      type: connectionDb.Sequelize.INTEGER,
-     autoIncrement: true,
+     //autoIncrement: true,
      primaryKey: true
   },
   Bitmap: {

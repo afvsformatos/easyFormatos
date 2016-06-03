@@ -1,0 +1,6 @@
+.service('catalogosModel', function ($optimumModel) {
+  var model = new $optimumModel();
+  model.url = '/api/catalogos';
+  model.constructorModel = ["id_tabla","tabla_argumento","tabla_descripcion","tabla_referencia","tabla_estado"];
+  return model;
+})
