@@ -1360,29 +1360,7 @@
         }
     ];
     $scope.procesSeleccionado = $scope.listaProcesos[0];
-    $scope.cambioProceso = function(item){
-        if(item.value == 'nuevoCatalogoIso'){
-            $scope.nuevoCatalogoIso   =   true;
-            $scope.editarCatalogoIso  =   false;
-            $scope.nuevoFormatoIso    =   false;
-            $scope.editarFormatoIso   =   false;       
-        }else if(item.value == 'editarCatalogoIso'){
-            $scope.nuevoCatalogoIso   =   false;
-            $scope.editarCatalogoIso  =   true;
-            $scope.nuevoFormatoIso    =   false;
-            $scope.editarFormatoIso   =   false;      
-        }else if(item.value == 'nuevoFormatoIso'){
-            $scope.nuevoCatalogoIso   =   false;
-            $scope.editarCatalogoIso  =   false;
-            $scope.nuevoFormatoIso    =   true;
-            $scope.editarFormatoIso   =   false; 
-        }else{
-            $scope.nuevoCatalogoIso   =   false;
-            $scope.editarCatalogoIso  =   false;
-            $scope.nuevoFormatoIso    =   false;
-            $scope.editarFormatoIso   =   true; 
-        }
-    }
+   
     var tramaOperadores = {
                             "Transaccion": {
                               "Cabecera": {
@@ -1444,6 +1422,30 @@
             $scope.datos.formato =  $scope.formatosPorOperador[0];
         });
 
+    }
+     $scope.cambioProceso = function(item){
+        if(item.value == 'nuevoCatalogoIso'){
+            $scope.nuevoCatalogoIso   =   true;
+            $scope.editarCatalogoIso  =   false;
+            $scope.nuevoFormatoIso    =   false;
+            $scope.editarFormatoIso   =   false;       
+        }else if(item.value == 'editarCatalogoIso'){
+            $scope.nuevoCatalogoIso   =   false;
+            $scope.editarCatalogoIso  =   true;
+            $scope.nuevoFormatoIso    =   false;
+            $scope.editarFormatoIso   =   false;      
+        }else if(item.value == 'nuevoFormatoIso'){
+            $scope.nuevoCatalogoIso   =   false;
+            $scope.editarCatalogoIso  =   false;
+            $scope.nuevoFormatoIso    =   true;
+            $scope.editarFormatoIso   =   false; 
+        }else{
+            $scope.mostrarFormatos($scope.otrosOperadores[0]);
+            $scope.nuevoCatalogoIso   =   false;
+            $scope.editarCatalogoIso  =   false;
+            $scope.nuevoFormatoIso    =   false;
+            $scope.editarFormatoIso   =   true; 
+        }
     }
     var divInputs = function(){
         var cont = 0,flag=false;
