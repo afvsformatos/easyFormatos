@@ -5,11 +5,45 @@ var mongoose = require('mongoose');
 var conversorcabeceraisos = mongoose.model('conversorcabeceraisos');
 var conversorCabeceraIso = require('../config/relationalModels/conversorCabeceraISO.js');
 var conversorDetalleIso = require('../config/relationalModels/conversorDetalleISO.js');
+var conversorCabecera = require('../config/relationalModels/conversorCabecera.js');
+var connectionDb = require('../config/connectionDb.js');
 
 router.get('/conversorcabeceraisos/:id', function (req, res) {
   conversorcabeceraisos.findById(req.params.id, function (err, data) {
     res.json(data);
   })
+})
+
+
+router.post('/obtenerOperadoresCabeceraIso', function (req, res) {
+  connectionDb.sequelize.query("SELECT ValorDefault,IdFormato FROM  Conversor_Cabecera_ISO8583 WHERE Nombre = 'Operador'").then(function(data){
+      var array = data[0];
+      var flags = [], output = [], l = array.length, i;
+      for( i=0; i<l; i++) {
+          if( flags[array[i].ValorDefault]) continue;
+          flags[array[i].ValorDefault] = true;
+          output.push({ValorDefault:array[i].ValorDefault,IdFormato:array[i].IdFormato});
+      } 
+      res.json(output);
+  })
+})
+
+
+router.post('/obtenerFormatos', function (req, res) {
+  conversorCabeceraIso.findAll({ where: { ValorDefault: req.body.Id_Operador }}).then(function(idFormatos) {
+          var  datosTemporal = [];
+          var arrayIdsFormatos = [];
+          for(prop in idFormatos){
+              arrayIdsFormatos.push({IdFormato:idFormatos[prop].IdFormato});
+          }
+          conversorCabecera.findAll({
+            where: {
+              $or: arrayIdsFormatos
+            }
+          }).then(function(cabecera) {
+               res.json(cabecera);
+          });
+  });
 })
 
 router.post('/obtenerCatalogos', function (req, res) {

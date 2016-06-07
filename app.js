@@ -106,7 +106,11 @@ app.get('/cookie', function(req, res) {
                 if(req.session.externo){
                     externo = true;
                 }
-                res.json({comp:req.session.us,check:req.session.check,user:{id:req.session.idd,username: req.session.name,rol:req.session.rol},project:{name:req.session.projectName,template:req.session.template,authorName:req.session.authorName,projectType:req.session.projectType,email:req.session.email,schemas:schemas,externo:externo}});
+                var token = false;
+                if(req.session.token){
+                    token = req.session.token;
+                }
+                res.json({comp:req.session.us,check:req.session.check,user:{id:req.session.idd,username: req.session.name,rol:req.session.rol,token:token},project:{name:req.session.projectName,template:req.session.template,authorName:req.session.authorName,projectType:req.session.projectType,email:req.session.email,schemas:schemas,externo:externo}});
         });
     });
 });

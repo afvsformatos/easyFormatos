@@ -118,13 +118,13 @@
 							    { id: 5,      rol: 'root'}
 							  ];
  		/*    Users Labels rols    */
-
  		$http.get('/cookie').
  		success(function (data) {
  			if (!data.comp) {
  				session = false;
  			} else {
  				session = data.comp;
+        $http.defaults.headers.common.AccessToken = data.user.token;  
  				$rootScope.user    = data.user;
         if (next.$$route.originalPath == '/login' && session == true) {
           $location.path('/');
@@ -157,7 +157,7 @@
       }
       
       //Menu Exeptions
-
  		});
+
  	});
  })

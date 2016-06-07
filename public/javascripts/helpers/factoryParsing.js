@@ -7,11 +7,60 @@
         eliminarGrabar:  eliminarGrabar,
         generarFormatoAutomatico : generarFormatoAutomatico,
         obtenerCatalogos:obtenerCatalogos,
-        grabarCatalogosISO:grabarCatalogosISO
+        grabarCatalogosISO:grabarCatalogosISO,
+        obtenerOperadores:obtenerOperadores,
+        obtenerOperadoresCabeceraIso:obtenerOperadoresCabeceraIso,
+        obtenerFormatos:obtenerFormatos
       });
 
+      function obtenerFormatos(params) {
+        var deferred = $q.defer();
+        $http.post('/api/obtenerFormatos',params)
+          // handle success
+          .success(function (data, status) {
+             deferred.resolve(data);
+          })
+          // handle error
+          .error(function (data) {
+            deferred.reject(data);
+          });
+        return deferred.promise;
 
-     function testParsing(params) {
+      }
+
+     function obtenerOperadoresCabeceraIso() {
+        var deferred = $q.defer();
+        $http.post('/api/obtenerOperadoresCabeceraIso')
+          // handle success
+          .success(function (data, status) {
+             deferred.resolve(data);
+          })
+          // handle error
+          .error(function (data) {
+            deferred.reject(data);
+          });
+        return deferred.promise;
+
+      }
+
+       function obtenerOperadores(params) {
+
+        var deferred = $q.defer();
+        $http.post(multicanalGeneral.ip+'processjson', params)
+          // handle success
+          .success(function (data, status) {
+             deferred.resolve(data);
+          })
+          // handle error
+          .error(function (data) {
+            deferred.reject(data);
+          });
+        return deferred.promise;
+
+      }
+
+
+      function testParsing(params) {
 
         var deferred = $q.defer();
         $http.post(multicanalGeneral.ip+'processjson', params)
