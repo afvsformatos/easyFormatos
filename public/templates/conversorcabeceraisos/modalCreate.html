@@ -3,30 +3,31 @@
      <button type="button" class="close pull-right" ng-click="$dismiss()">&times;</button>
    </div>
 <div>
-   <h3 class="modal-title" ng-if="!item._id">Create</h3>
-   <h3 class="modal-title" ng-if="item._id">Edit</h3>
+   <h3 class="modal-title" >Catálogo de {{nombreOperador}}</h3>
 </div>
 </div>
 <div>
-<form name="myForm" ng-submit="save()" method="POST">
    <div class="modal-body">
-     <fieldset>
-       <div class="row" ><div class="form-group col-md-12"><label for="id_transaccion_cabecera" class="bold">ID TRANSACCION CABECERA</label><input  autofocus required name="id_transaccion_cabecera" type="number" class="form-control"  ng-model="item.id_transaccion_cabecera" ></div></div>
-       <div class="row" ><div class="form-group col-md-12"><label for="idformato" class="bold">IDFORMATO</label><input  autofocus required name="idformato" type="number" class="form-control"  ng-model="item.idformato" ></div></div>
-       <div class="row" ><div class="form-group col-md-12"><label for="orden" class="bold">ORDEN</label><input  autofocus required name="orden" type="number" class="form-control"  ng-model="item.orden" ></div></div>
-       <div class="row" ><div class="form-group col-md-12"><label for="nombre" class="bold">NOMBRE</label><input  autofocus required name="nombre" type="text" class="form-control"  ng-model="item.nombre" ></div></div>
-       <div class="row" ><div class="form-group col-md-12"><label for="tipo" class="bold">TIPO</label><input  autofocus required name="tipo" type="text" class="form-control"  ng-model="item.tipo" ></div></div>
-       <div class="row" ><div class="form-group col-md-12"><label for="longitud" class="bold">LONGITUD</label><input  autofocus required name="longitud" type="number" class="form-control"  ng-model="item.longitud" ></div></div>
-       <div class="row" ><div class="form-group col-md-12"><label for="bytes" class="bold">BYTES</label><input  autofocus required name="bytes" type="number" class="form-control"  ng-model="item.bytes" ></div></div>
-       <div class="row" ><div class="form-group col-md-12"><label for="aplicadefault" class="bold">APLICADEFAULT</label><input  autofocus  name="aplicadefault" type="checkbox" class="form-control"  ng-model="item.aplicadefault" ></div></div>
-       <div class="row" ><div class="form-group col-md-12"><label for="valordefault" class="bold">VALORDEFAULT</label><input  autofocus required name="valordefault" type="text" class="form-control"  ng-model="item.valordefault" ></div></div>
-       <div class="row" ><div class="form-group col-md-12"><label for="respuesta" class="bold">RESPUESTA</label><input  autofocus required name="respuesta" type="text" class="form-control"  ng-model="item.respuesta" ></div></div>
-       <div class="row" ><div class="form-group col-md-12"><label for="descripcion" class="bold">DESCRIPCION</label><input  autofocus required name="descripcion" type="text" class="form-control"  ng-model="item.descripcion" ></div></div>
-       
-     </fieldset>
-</div>
-<div class="modal-footer">
-   <button ng-disabled="myForm.$invalid || myForm.$pristine" class="btn btn-primary pull-right" type="submit" title="Save"><span ng-if="saving"><i class="fa fa-spinner fa fa-spin"></i>&nbsp;</span><span>Save</span></button>
-</div>
+          <table  class="table table-bordered table-hover table-striped" at-table at-paginated at-list="showDetalles | filter:searchText" at-config="configTable">
+                <thead></thead>
+                <tbody>
+                     <tr>
+                       <td  at-sortable  at-title='Nombre' width='150'>{{item.Nombre}}</td>
+                       <td  at-sortable  at-title='Descripción' width='150'>{{item.Descripcion}}</td>
+                       <td  at-sortable  at-title='Bitmap' width='150'>{{item.Bitmap}}</td>
+                       <td  at-sortable  at-title='Longitud' width='150'>{{item.Longitud}}</td>
+                       <td  at-sortable  at-title='Tipo Campo' width='150'>{{item.Tipo}}</td>
+                       <td  at-sortable  at-title='Tipo Valor' width='150'>{{item.TipoDato}}</td>           
+                     </tr>
+                </tbody>
+          </table>
+          <div class="col-md-6 col-md-offset-3" >
+            <at-pagination at-list="showDetalles" at-config="configTable"></at-pagination>
+          </div>
+     
+  </div>
+  <div class="modal-footer">
+     
+  </div>
 </form>
 </div>

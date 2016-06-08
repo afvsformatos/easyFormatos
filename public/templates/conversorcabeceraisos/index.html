@@ -26,6 +26,9 @@
           display: table-cell;
 
         }
+        .app-modal-window .modal-dialog {
+          width: 500px;
+        }
         input[type=number]::-webkit-inner-spin-button,
         input[type=number]::-webkit-outer-spin-button {
             -webkit-appearance: none;
@@ -63,55 +66,55 @@
                      </ui-select-choices>
                    </ui-select>
                 </div>
-                <div class="form-group col-md-12">
-                   <label for="id_transaccion_cabecera" class="bold">
-                      Tipo:
-                   </label>
-                   <select 
-                      ng-model="tipoCabecera" 
-                      ng-options="option.name for option in tiposCabecera" ng-change="cambioTipo(tipoCabecera)" class="form-control" >
-                  </select>
-                </div>
               </div>
               <div class="row" >
                 <div class="form-group col-md-12">
-                   <label for="id_transaccion_cabecera" class="bold">
-                      Nombre:
-                   </label>
-                   <input  autofocus required  type="text" class="form-control"  ng-model="nombreCabecera" >
-                </div>
-              </div>
-              <div class="row" >
-                <div class="form-group col-md-12">
-                   <label for="id_transaccion_cabecera" class="bold">
-                      Descripción:
-                   </label>
-                   <textarea class="form-control" ng-model="descripcionCabecera" ></textarea>
-                </div>
-              </div>
-              <div class="row" >
-                <div class="form-group col-md-12">
-                   <button ng-disabled="nombreCabecera == undefined  || descripcionCabecera == undefined || descripcionCabecera == '' || nombreCabecera == ''" ng-click="guardarCabecera()" class="btn btn-primary">Crear <i class="fa fa-floppy-o"></i></button>
+                   <button  ng-click="procesoPrimeraVista()" class="btn btn-primary">Siguiente <i class="fa fa-arrow-right"></i></button>
                 </div>
               </div>      
          </fieldset>
          <fieldset ng-show="editarCatalogoIso">
             <div class="row" >
                 <div class="form-group col-md-12">
-                   <label for="id_transaccion_cabecera" class="bold">
-                     Otro Operador:
-                   </label>
-                   <ui-select  ng-model="datos.otroOperador" theme="bootstrap" ng-disabled="disabled" style="min-width: 300px;" title="Seleccione un Operador">
-                     <ui-select-match placeholder="Seleccione un Operador">{{$select.selected.Operador}}</ui-select-match>
-                     <ui-select-choices repeat="item.Id_Operador as item in otrosOperadores | propsFilter: {Operador: $select.search}">
-                       <div ng-bind-html="item.Operador | highlight: $select.search"></div>
-                     </ui-select-choices>
-                   </ui-select>
-                </div>
-                <div class="form-group col-md-12">
-                   <button ng-click="guardarCabecera()" class="btn btn-primary">Siguiente <i class="fa fa-arrow-right"></i></button>
-                </div>
-
+                    <div class="input-group">
+                       <span class="input-group-addon" id="basic-addon1"><i class="fa fa-search"></i></span>
+                       <input ng-model="searchText.Operador" type="text" class="form-control" placeholder="Search" aria-describedby="basic-addon1">
+                    </div>
+                    <div class="input-group">
+                        <span class="input-group-addon" id="basic-addon1"><i class="fa fa-th"></i></span>
+                        <select 
+                            ng-model="valorPaginacion" 
+                            ng-options="option.name for option in listaPaginados" ng-change="cambioPaginacion(valorPaginacion)" class="form-control" >
+                        </select>
+                    </div>
+                    <br>
+                    <div class="alert alert-{{claseEliminarCatalogo}}" ng-show="msjAlertEliminarCatalogo">{{msjEliminarCatalogo}}</div>
+                    <table ng-hide="preloader" class="table table-bordered table-hover table-striped" at-table at-paginated at-list="otrosOperadores | filter:searchText" at-config="configTable">
+                       <thead></thead>
+                       <tbody>
+                         <tr>
+                           <td  at-sortable  at-title='Operador' width='150'>{{item.Operador}}</td>
+                           <td  at-sortable  at-title='N° Bits' width='150'>{{item.campos}}</td>           
+                           <td  at-title="Acción" width="250">
+                             <button title="Ver más" type="button" class="btn btn-default" ng-click="open(item)">
+                                <i class="fa fa-eye"></i>
+                             </button>
+                             <button title="Editar" type="button" class="btn btn-default" ng-click="procesoPrimeraVista(item)">
+                                <i class="fa fa-pencil-square-o"></i>
+                             </button>
+                             <button title="Eliminar" type="button" class="btn btn-default" ng-click="openDelete(item)">
+                                <i class="fa fa-trash-o"></i>
+                             </button>
+                           </td>
+                         </tr>
+                       </tbody>
+                   </table>
+                   <div class="col-md-6 col-md-offset-3" >
+                      <at-pagination ng-hide="preloader" at-list="catalogosList" at-config="configTable"></at-pagination>
+                   </div>
+                   <div class="row col-lg-offset-6 col-md-offset-6 col-xs-offset-6" ng-hide="!preloader">
+                      <i class="fa fa-spinner fa-spin fa-5x position-spinner"></i></div>
+                   </div>
             </div>
          </fieldset>
          <fieldset ng-show="nuevoFormatoIso">
@@ -193,25 +196,11 @@
     <vista ng-show="primeraVista">
          <fieldset>
             <div class="row" >
-              <div class="form-group col-md-6">
-                 <label for="id_transaccion_cabecera" class="bold">
-                    Longitud:
-                 </label>
-                 <input  disabled="disabled" required  type="text" class="form-control"  ng-model="longitud" ng-change="cambioValoresChecks()">
-              </div>
-              <div class="form-group col-md-6">
-                 <label for="id_transaccion_cabecera" class="bold">
-                    MTI:
-                 </label>
-                 <input  autofocus required  type="text" class="form-control"  ng-model="mti" >
-              </div>
-            </div>
-            <div class="row" >
               <div class="form-group col-md-12">
                  <label for="id_transaccion_cabecera" class="bold">
                     Operador:
                  </label>
-                 <ui-select  ng-model="datos.operador" theme="bootstrap" ng-disabled="disabled" style="min-width: 300px;" title="Seleccione un Operador">
+                 <ui-select  ng-model="datos.operador" theme="bootstrap" ng-disabled="true" style="min-width: 300px;" title="Seleccione un Operador">
                    <ui-select-match placeholder="Seleccione un Operador">{{$select.selected.Operador}}</ui-select-match>
                    <ui-select-choices repeat="item.Id_Operador as item in allOperadores | propsFilter: {Operador: $select.search}">
                      <div ng-bind-html="item.Operador | highlight: $select.search"></div>
@@ -250,13 +239,14 @@
            <br>       
            <div class="row" >
               <div class="form-group col-md-12">
+                 <button class="btn btn-default" ng-click="anteriorProcesos()"><i class="fa fa-arrow-left"></i>  Anterior</button>
                  <button ng-disabled="itemsValidos.length <=0"class="btn btn-primary" ng-click="siguiente()">Siguiente <i class="fa fa-arrow-right"></i></button>
               </div>
            </div>
          </fieldset>
     </vista>
     <vista ng-show="terceraVista">
-        <table id="scrollTabla" ng-hide="preloader" class="table table-bordered table-hover table-striped" at-table at-paginated at-list="itemsValidos | filter:searchText" at-config="configTable">
+      <table id="scrollTabla"  class="table table-bordered table-hover table-striped" at-table at-paginated at-list="itemsValidos | filter:searchText" at-config="configTable">
          <thead></thead>
          <tbody>
            <tr>
@@ -285,14 +275,17 @@
            </tr>
          </tbody>
        </table>
+       <div class="col-md-6 col-md-offset-3" >
+              <at-pagination  at-list="itemsValidos" at-config="configTable"></at-pagination>
+       </div>
        <div class="row" >
           <div class="form-group col-md-12">
              <button class="btn btn-default" ng-click="anterior()"><i class="fa fa-arrow-left"></i>  Anterior</button>
-             <button ng-disabled="itemsValidos.length <= 0"class="btn btn-primary" ng-click="guardarDatos()">Siguiente <i class="fa fa-arrow-right"></i></button>
+             <button ng-disabled="itemsValidos.length <= 0"class="btn btn-primary" ng-click="guardarCatalogo()">Guardar <i class="fa fa-floppy-o"></i></button>
+             <!--<button ng-disabled="itemsValidos.length <= 0"class="btn btn-primary" ng-click="guardarDatos()">Siguiente <i class="fa fa-arrow-right"></i></button>-->
           </div>
        </div>
     </vista>
-
     <vista ng-show="cuartaVista">
        <fieldset>
            <div class="row" >

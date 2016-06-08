@@ -28,7 +28,7 @@
 		</div>
        <div  class="row">
           <div class="form-group col-md-12">
-       		  <button ng-disabled="item.formato == undefined || item.nombreFormato  == undefined || item.descripcionFormato  == undefined" class="btn btn-primary" ng-click="duplicarFormato()">Duplicar Formato</button>
+       		  <button ng-disabled="item.formato == undefined || item.formato == '' || item.nombreFormato  == undefined || item.nombreFormato  == '' || item.descripcionFormato  == undefined || item.descripcionFormato  == ''" class="btn btn-primary" ng-click="duplicarFormato()">Duplicar Formato</button>
           </div>
        </div>
 

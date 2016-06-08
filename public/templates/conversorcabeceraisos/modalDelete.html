@@ -4,7 +4,7 @@
 <div class="modal-body clearfix">
    <i class="pull-left fa fa-trash-o fa-3x" />
    <div class="pull-left">
-     ¿Está seguro que desea borrar el Registro?
+        {{mensaje}}
      <div>
        <h4>{{item.id_transaccion_cabecera}}</h4>
      </div>
@@ -12,5 +12,5 @@
 </div>
 <div class="modal-footer">
    <button ng-hide="deleting" class="btn btn-default" ng-click="$dismiss()">Cancelar</button>
-    <button autoselect class="btn btn-default" type="button" ng-click="ok()"><span ng-hide="deleting">Eliminar</span><i ng-show="deleting" class="fa fa-spinner fa-spin"></i></button>
+   <button ng-disabled="eliminarDisabled" autoselect class="btn btn-default" type="button" ng-click="ok()"><span ng-hide="deleting">Eliminar</span><i ng-show="deleting" class="fa fa-spinner fa-spin"></i></button>
 </div>

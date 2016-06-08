@@ -16,22 +16,20 @@ router.get('/conversorcabeceraisos/:id', function (req, res) {
 
 
 router.post('/obtenerOperadoresCabeceraIso', function (req, res) {
-  connectionDb.sequelize.query("SELECT ValorDefault,IdFormato FROM  Conversor_Cabecera_ISO8583 WHERE Nombre = 'Operador'").then(function(data){
-      var array = data[0];
+  connectionDb.sequelize.query("SELECT DISTINCT Id_Operador FROM  Conversor_Cabecera_Detalle_Catalogo_ISO8583  WHERE  (Id_Operador <> 0)").then(function(data){
+      /*var array = data[0];
       var flags = [], output = [], l = array.length, i;
       for( i=0; i<l; i++) {
           if( flags[array[i].ValorDefault]) continue;
           flags[array[i].ValorDefault] = true;
           output.push({ValorDefault:array[i].ValorDefault,IdFormato:array[i].IdFormato});
-      } 
-      res.json(output);
+      }*/ 
+      res.json(data[0]);
   })
 })
 
-
 router.post('/obtenerFormatos', function (req, res) {
   conversorCabeceraIso.findAll({ where: { ValorDefault: req.body.Id_Operador }}).then(function(idFormatos) {
-          var  datosTemporal = [];
           var arrayIdsFormatos = [];
           for(prop in idFormatos){
               arrayIdsFormatos.push({IdFormato:idFormatos[prop].IdFormato});
@@ -45,6 +43,34 @@ router.post('/obtenerFormatos', function (req, res) {
           });
   });
 })
+
+router.post('/eliminarCatalogo', function (req, res) {
+  conversorDetalleIso.destroy({
+                where: {
+                  Id_Operador: req.body.Id_Operador
+                }
+              }).then(function(data){
+                  res.json(data);
+              });
+  
+})
+
+router.post('/obtenerDetalleCatalogos', function (req, res) {  
+      var arrayIdsFormatos = [];
+      for(prop in req.body){
+          arrayIdsFormatos.push({Id_Operador:req.body[prop].Id_Operador});
+      }
+      conversorDetalleIso.findAll({
+            where: {
+              $or: arrayIdsFormatos
+            },order: 'Id_Operador ASC'
+          }).then(function(catalogos) {
+               res.json(catalogos);
+      });
+      
+})
+
+
 
 router.post('/obtenerCatalogos', function (req, res) {
   conversorDetalleIso.findAll({ where: { Id_Operador: req.body.id }}).then(function(plantilla) {

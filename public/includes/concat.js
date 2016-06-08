@@ -511,8 +511,41 @@
         grabarCatalogosISO:grabarCatalogosISO,
         obtenerOperadores:obtenerOperadores,
         obtenerOperadoresCabeceraIso:obtenerOperadoresCabeceraIso,
-        obtenerFormatos:obtenerFormatos
+        obtenerFormatos:obtenerFormatos,
+        obtenerDetalleCatalogos:obtenerDetalleCatalogos,
+        eliminarCatalogo:eliminarCatalogo
       });
+
+
+      function eliminarCatalogo(params) {
+        var deferred = $q.defer();
+        $http.post('/api/eliminarCatalogo',params)
+          // handle success
+          .success(function (data, status) {
+             deferred.resolve(data);
+          })
+          // handle error
+          .error(function (data) {
+            deferred.reject(data);
+          });
+        return deferred.promise;
+
+      }
+
+      function obtenerDetalleCatalogos(params) {
+        var deferred = $q.defer();
+        $http.post('/api/obtenerDetalleCatalogos',params)
+          // handle success
+          .success(function (data, status) {
+             deferred.resolve(data);
+          })
+          // handle error
+          .error(function (data) {
+            deferred.reject(data);
+          });
+        return deferred.promise;
+
+      }
 
       function obtenerFormatos(params) {
         var deferred = $q.defer();
@@ -1331,6 +1364,31 @@
     $scope.vistaGuardarCabecera = true;
     $scope.datos = {};
     $scope.nuevoCatalogoIso = true;
+    $scope.flagFix = false;
+    $scope.msjAlertEliminarCatalogo = false;
+    $scope.cambioPaginacion = function(dato){
+      $rootScope.configTable.itemsPerPage =  dato.value;
+    }
+    $scope.listaPaginados = [
+        {
+          name: '5',
+          value: '5'
+        }, 
+        {
+          name: '10',
+          value: '10'
+        }, 
+        {
+          name: '15',
+          value: '15'
+        }, 
+        {
+          name: '20',
+          value: '20'
+        }
+    ];
+
+    $scope.valorPaginacion = $scope.listaPaginados[0];
     $scope.listaProcesos = [
         {
           name: 'Nuevo Catalogo ISO',
@@ -1390,8 +1448,9 @@
             $scope.otrosOperadores = [];
             for(prop in $scope.allOperadores){
               for(p in otrosOperadores){
-                if(otrosOperadores[p].ValorDefault == $scope.allOperadores[prop].Id_Operador){
-                   $scope.otrosOperadores.push({Operador:$scope.allOperadores[prop].Operador,Id_Operador:otrosOperadores[p].ValorDefault,IdFormato:otrosOperadores[p].IdFormato});
+                if(otrosOperadores[p].Id_Operador == $scope.allOperadores[prop].Id_Operador){
+                   //console.log(otrosOperadores[p].Id_Operador);
+                   $scope.otrosOperadores.push({Operador:$scope.allOperadores[prop].Operador,Id_Operador:otrosOperadores[p].Id_Operador});
                 }
               }
             }
@@ -1430,10 +1489,29 @@
             $scope.nuevoFormatoIso    =   false;
             $scope.editarFormatoIso   =   false;       
         }else if(item.value == 'editarCatalogoIso'){
-            $scope.nuevoCatalogoIso   =   false;
-            $scope.editarCatalogoIso  =   true;
-            $scope.nuevoFormatoIso    =   false;
-            $scope.editarFormatoIso   =   false;      
+            $scope.preloader = true; 
+            factoryParsing.obtenerDetalleCatalogos($scope.otrosOperadores).then(function(data){
+                $scope.listaCatalogosDetalles = data;
+                $scope.listaCatalogosDetalles.sort(function(a, b) {
+                    return parseFloat(a.Bitmap) - parseFloat(b.Bitmap);
+                });
+                var campos = 0;
+                for(uu in $scope.otrosOperadores){
+                  campos = 0;
+                  for(vv in data){
+                    if(data[vv].Id_Operador == $scope.otrosOperadores[uu].Id_Operador){
+                        campos++;
+                    }
+                  }
+                  $scope.otrosOperadores[uu].campos = campos;
+                }
+                $scope.nuevoCatalogoIso   =   false;
+                $scope.editarCatalogoIso  =   true;
+                $scope.nuevoFormatoIso    =   false;
+                $scope.editarFormatoIso   =   false;
+                $scope.preloader = false; 
+
+            });     
         }else if(item.value == 'nuevoFormatoIso'){
             $scope.nuevoCatalogoIso   =   false;
             $scope.editarCatalogoIso  =   false;
@@ -1446,6 +1524,10 @@
             $scope.nuevoFormatoIso    =   false;
             $scope.editarFormatoIso   =   true; 
         }
+    }
+    $scope.anteriorProcesos = function(){
+        $scope.primeraVista         = false;
+        $scope.vistaGuardarCabecera = true;
     }
     var divInputs = function(){
         var cont = 0,flag=false;
@@ -1500,9 +1582,18 @@
         var idx = $scope.itemsValidos.indexOf(item);
         if(idx != -1){
           $scope.itemsValidos.splice(idx, 1);
+          if($scope.flagFix){
+              for(t in $scope.nuevosChecks){
+                if(item.orden == $scope.nuevosChecks[t].orden){
+                  $scope.nuevosChecks[t].disabled = true;
+                  $scope.nuevosChecks[t].check = false;
+                }
+              }
+          }
         }else{
           $scope.itemsValidos.push(item);
         }
+
         
     }
      $scope.addChecksAsignacion = function(item){
@@ -1524,8 +1615,23 @@
       $scope.itemsValidos.splice(idx, 1);
       var idx2 = $scope.bitmaps.indexOf(item);
       $scope.bitmaps[idx2].check = false;
+      for(t in $scope.nuevosChecks){
+          if(item.orden == $scope.nuevosChecks[t].orden){
+            $scope.nuevosChecks[t].disabled = true;
+            $scope.nuevosChecks[t].check = false;
+          }
+      }
+
     }
-    
+    $scope.guardarCatalogo = function(){
+        $scope.dataEnviar = [];
+        for(prop in $scope.itemsValidos){
+           $scope.dataEnviar.push({Id_Operador:$scope.datos.operador.Id_Operador,Bitmap:$scope.itemsValidos[prop].orden,Nombre:$scope.itemsValidos[prop].nombre,Tipo:$scope.itemsValidos[prop].tipo.value,Longitud:$scope.itemsValidos[prop].longitud,Descripcion:$scope.itemsValidos[prop].descripcion,TipoDato:$scope.itemsValidos[prop].tipoValor.value});
+        }
+        factoryParsing.grabarCatalogosISO($scope.dataEnviar).then(function(r){
+            console.log(r);
+        });
+    }
     $scope.descripcion = true;
     $scope.habilitarEdicion = function(arg,index){
           var execute = '$scope.itemsValidos['+index+'].mostrarLabel'+arg+' = false';
@@ -1543,6 +1649,7 @@
           }
     }
     $scope.siguiente = function(){
+      $scope.flagFix = true;
       $scope.itemsParaDetalle = [];
       factoryParsing.obtenerCatalogos({id:0}).then(function(resp){
           for (var i=0; i < resp.length; i++) {
@@ -1607,7 +1714,12 @@
     $scope.siguienteCuartaVista = function(){
       console.log($scope.itemsParaDetalle);
     }
-    $scope.guardarCabecera = function(){
+    $scope.procesoPrimeraVista = function(item){
+        if(item){
+           //console.log(item);
+           $scope.datos.operador = item.Id_Operador;
+        }
+       
         var conversorCabeceras = conversorcabecerasModel.create();
         conversorCabeceras.NombreFormato = $scope.nombreCabecera;
         conversorCabeceras.DescripcionFormato = $scope.descripcionCabecera;
@@ -1651,23 +1763,14 @@
       }
     }
     $scope.guardarDatos = function(){
-        $scope.dataEnviar = [];
-
-        for(prop in $scope.itemsValidos){
-           $scope.dataEnviar.push({Id_Operador:16,Bitmap:$scope.itemsValidos[prop].orden,Nombre:$scope.itemsValidos[prop].nombre,Tipo:$scope.itemsValidos[prop].tipo.value,Longitud:$scope.itemsValidos[prop].longitud,Descripcion:$scope.itemsValidos[prop].descripcion,TipoDato:$scope.itemsValidos[prop].tipoValor.value});
-        }
-        /*ya hecho no borrar solo descomentar factoryParsing.grabarCatalogosISO(dataEnviar).then(function(r){
-            console.log(r);
-        });*/
-       
+        
         for(xx in $scope.nuevosChecks){
           $scope.nuevosChecks[xx].class = false;
           for(var x = 0; x < $scope.itemsValidos.length; x++){
             if($scope.itemsValidos[x].orden == $scope.nuevosChecks[xx].orden){
                   $scope.nuevosChecks[xx].disabled = false;
                   $scope.nuevosChecks[xx].class = true;
-                  $scope.nuevosChecks[xx].check = true;
-                  $scope.itemsParaDetalle.push($scope.itemsValidos[x]);
+                  //$scope.itemsParaDetalle.push($scope.itemsValidos[x]);
             }
           }
          
@@ -1684,11 +1787,11 @@
       $scope.terceraVista = true;
       $scope.cuartaVista = false;
     }
-    conversorcabeceraisosModel.getAll().then(function(data) {
+    /*conversorcabeceraisosModel.getAll().then(function(data) {
       $scope.conversorcabeceraisosList = data;
       $scope.conversorcabeceraisosTemp = angular.copy($scope.conversorcabeceraisosList);
       $scope.preloader = false;
-    });
+    });*/
     /*  Modal */
      $scope.open = function (item) {
        var modalInstance = $uibModal.open({
@@ -1697,6 +1800,9 @@
         controller: 'modalconversorcabeceraisosCreateController',
         size: 'lg',
         resolve: {
+         datos: function () {
+          return $scope.listaCatalogosDetalles;
+         },
          item: function () {
           return item;
          }
@@ -1714,87 +1820,67 @@
   };
   /*  Delete  */
   $scope.openDelete = function (item) {
-    var modalInstance = $uibModal.open({
-      animation: true,
-      templateUrl: 'templates/conversorcabeceraisos/modalDelete.html',
-      controller: 'modalconversorcabeceraisosDeleteController',
-      size: 'lg',
-      resolve: {
-        item: function () {
-           return item;
-        }
-      }
-    });
-    modalInstance.result.then(function(data) {
-      var idx = $scope.conversorcabeceraisosList.indexOf(data);
-      $scope.conversorcabeceraisosList.splice(idx, 1);
-      conversorcabeceraisosModel
-        .destroy(data._id)
-        .then(function(result) {
-          $scope.msjAlert = true;
-          $scope.alert = 'success';
-          $scope.message = result.message;
-        })
-        .catch(function(err) {
-          $scope.msjAlert = true;
-          $scope.alert = 'danger';
-          $scope.message = 'Error '+err;
-        })
+      factoryParsing.obtenerFormatos(item).then(function(respuestaData){
+            var totalFormatos = respuestaData.length;
+            if(totalFormatos > 0){
+               item.eliminar = false;
+            }else{
+               item.eliminar = true;
+            }
+            var modalInstance = $uibModal.open({
+              animation: true,
+              templateUrl: 'templates/conversorcabeceraisos/modalDelete.html',
+              controller: 'modalconversorcabeceraisosDeleteController',
+              size: 'lg',
+              resolve: {
+                item: function () {
+                   return item;
+                }
+              }
+            });
+            modalInstance.result.then(function(data) {
+              factoryParsing.eliminarCatalogo(data).then(function(r){
+                  if(r == 1){
+                      var idx = $scope.otrosOperadores.indexOf(data); 
+                      $scope.otrosOperadores.splice(idx, 1);
+                      $scope.msjEliminarCatalogo = 'Exito al Eliminar Catálogo'
+                      $scope.claseEliminarCatalogo = 'success';
+                      $scope.msjAlertEliminarCatalogo = true;
+                  }else{
+                      $scope.msjEliminarCatalogo = 'Error al Eliminar Catálogo'
+                      $scope.claseEliminarCatalogo = 'danger';
+                      $scope.msjAlertEliminarCatalogo = true;
+                  }
+              }); 
+            });
       });
-    };
+  };
 }])
 .controller('modalconversorcabeceraisosCreateController',
-  ['$scope', '$uibModalInstance', 'item','conversorcabeceraisosModel','$filter',
-  function ($scope, $uibModalInstance, item,conversorcabeceraisosModel,$filter) {
-    $scope.item = item;
-    $scope.saving = false;
-    if(item){
-       //add optional code
+  ['$scope', '$uibModalInstance', 'datos','conversorcabeceraisosModel','$filter','item','$rootScope',
+  function ($scope, $uibModalInstance, datos,conversorcabeceraisosModel,$filter,item,$rootScope) {
+    $scope.nombreOperador = item.Operador;
+    $scope.showDetalles = [];
+    for (prop in datos) {
+        if(item.Id_Operador == datos[prop].Id_Operador){
+            $scope.showDetalles.push(datos[prop]);
+        }
     }
-    $scope.save = function () {
-      if(!item){
-        $scope.saving = true;
-        item = {id_transaccion_cabecera: $scope.item.id_transaccion_cabecera,idformato: $scope.item.idformato,orden: $scope.item.orden,nombre: $scope.item.nombre,tipo: $scope.item.tipo,longitud: $scope.item.longitud,bytes: $scope.item.bytes,aplicadefault: $scope.item.aplicadefault,valordefault: $scope.item.valordefault,respuesta: $scope.item.respuesta,descripcion: $scope.item.descripcion};
-        var conversorcabeceraisos = conversorcabeceraisosModel.create();
-        conversorcabeceraisos.id_transaccion_cabecera = $scope.item.id_transaccion_cabecera;
-        conversorcabeceraisos.idformato = $scope.item.idformato;
-        conversorcabeceraisos.orden = $scope.item.orden;
-        conversorcabeceraisos.nombre = $scope.item.nombre;
-        conversorcabeceraisos.tipo = $scope.item.tipo;
-        conversorcabeceraisos.longitud = $scope.item.longitud;
-        conversorcabeceraisos.bytes = $scope.item.bytes;
-        conversorcabeceraisos.aplicadefault = $scope.item.aplicadefault;
-        conversorcabeceraisos.valordefault = $scope.item.valordefault;
-        conversorcabeceraisos.respuesta = $scope.item.respuesta;
-        conversorcabeceraisos.descripcion = $scope.item.descripcion;
-        conversorcabeceraisos.save().then(function(r){
-          $scope.saving = false;
-          $uibModalInstance.close(r);
-        });
-      }else{
-        conversorcabeceraisosModel.findById($scope.item._id);
-        conversorcabeceraisosModel.id_transaccion_cabecera = $scope.item.id_transaccion_cabecera;
-        conversorcabeceraisosModel.idformato = $scope.item.idformato;
-        conversorcabeceraisosModel.orden = $scope.item.orden;
-        conversorcabeceraisosModel.nombre = $scope.item.nombre;
-        conversorcabeceraisosModel.tipo = $scope.item.tipo;
-        conversorcabeceraisosModel.longitud = $scope.item.longitud;
-        conversorcabeceraisosModel.bytes = $scope.item.bytes;
-        conversorcabeceraisosModel.aplicadefault = $scope.item.aplicadefault;
-        conversorcabeceraisosModel.valordefault = $scope.item.valordefault;
-        conversorcabeceraisosModel.respuesta = $scope.item.respuesta;
-        conversorcabeceraisosModel.descripcion = $scope.item.descripcion;
-        conversorcabeceraisosModel.save().then(function(r){
-          $scope.saving = false;
-          $uibModalInstance.close(r);
-        });
-      }
-    };
+
+    $rootScope.configTable.itemsPerPage =  5;
+
 }])
 .controller('modalconversorcabeceraisosDeleteController',
   ['$scope', '$uibModalInstance', 'item',
   function ($scope, $uibModalInstance, item) {
     $scope.item = item;
+    if($scope.item.eliminar){
+    	$scope.mensaje = '¿Está seguro que desea borrar el Catálogo?';
+    	$scope.eliminarDisabled = false;
+    }else{
+    	$scope.mensaje = 'Imposible Eliminar,Este Catálogo tiene asociado formatos';
+    	$scope.eliminarDisabled = true;
+    }
     $scope.ok = function () {
       $uibModalInstance.close($scope.item);
     };

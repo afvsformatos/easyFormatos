@@ -10,8 +10,41 @@
         grabarCatalogosISO:grabarCatalogosISO,
         obtenerOperadores:obtenerOperadores,
         obtenerOperadoresCabeceraIso:obtenerOperadoresCabeceraIso,
-        obtenerFormatos:obtenerFormatos
+        obtenerFormatos:obtenerFormatos,
+        obtenerDetalleCatalogos:obtenerDetalleCatalogos,
+        eliminarCatalogo:eliminarCatalogo
       });
+
+
+      function eliminarCatalogo(params) {
+        var deferred = $q.defer();
+        $http.post('/api/eliminarCatalogo',params)
+          // handle success
+          .success(function (data, status) {
+             deferred.resolve(data);
+          })
+          // handle error
+          .error(function (data) {
+            deferred.reject(data);
+          });
+        return deferred.promise;
+
+      }
+
+      function obtenerDetalleCatalogos(params) {
+        var deferred = $q.defer();
+        $http.post('/api/obtenerDetalleCatalogos',params)
+          // handle success
+          .success(function (data, status) {
+             deferred.resolve(data);
+          })
+          // handle error
+          .error(function (data) {
+            deferred.reject(data);
+          });
+        return deferred.promise;
+
+      }
 
       function obtenerFormatos(params) {
         var deferred = $q.defer();

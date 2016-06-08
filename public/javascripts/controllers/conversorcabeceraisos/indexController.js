@@ -14,6 +14,31 @@
     $scope.vistaGuardarCabecera = true;
     $scope.datos = {};
     $scope.nuevoCatalogoIso = true;
+    $scope.flagFix = false;
+    $scope.msjAlertEliminarCatalogo = false;
+    $scope.cambioPaginacion = function(dato){
+      $rootScope.configTable.itemsPerPage =  dato.value;
+    }
+    $scope.listaPaginados = [
+        {
+          name: '5',
+          value: '5'
+        }, 
+        {
+          name: '10',
+          value: '10'
+        }, 
+        {
+          name: '15',
+          value: '15'
+        }, 
+        {
+          name: '20',
+          value: '20'
+        }
+    ];
+
+    $scope.valorPaginacion = $scope.listaPaginados[0];
     $scope.listaProcesos = [
         {
           name: 'Nuevo Catalogo ISO',
@@ -73,8 +98,9 @@
             $scope.otrosOperadores = [];
             for(prop in $scope.allOperadores){
               for(p in otrosOperadores){
-                if(otrosOperadores[p].ValorDefault == $scope.allOperadores[prop].Id_Operador){
-                   $scope.otrosOperadores.push({Operador:$scope.allOperadores[prop].Operador,Id_Operador:otrosOperadores[p].ValorDefault,IdFormato:otrosOperadores[p].IdFormato});
+                if(otrosOperadores[p].Id_Operador == $scope.allOperadores[prop].Id_Operador){
+                   //console.log(otrosOperadores[p].Id_Operador);
+                   $scope.otrosOperadores.push({Operador:$scope.allOperadores[prop].Operador,Id_Operador:otrosOperadores[p].Id_Operador});
                 }
               }
             }
@@ -113,10 +139,29 @@
             $scope.nuevoFormatoIso    =   false;
             $scope.editarFormatoIso   =   false;       
         }else if(item.value == 'editarCatalogoIso'){
-            $scope.nuevoCatalogoIso   =   false;
-            $scope.editarCatalogoIso  =   true;
-            $scope.nuevoFormatoIso    =   false;
-            $scope.editarFormatoIso   =   false;      
+            $scope.preloader = true; 
+            factoryParsing.obtenerDetalleCatalogos($scope.otrosOperadores).then(function(data){
+                $scope.listaCatalogosDetalles = data;
+                $scope.listaCatalogosDetalles.sort(function(a, b) {
+                    return parseFloat(a.Bitmap) - parseFloat(b.Bitmap);
+                });
+                var campos = 0;
+                for(uu in $scope.otrosOperadores){
+                  campos = 0;
+                  for(vv in data){
+                    if(data[vv].Id_Operador == $scope.otrosOperadores[uu].Id_Operador){
+                        campos++;
+                    }
+                  }
+                  $scope.otrosOperadores[uu].campos = campos;
+                }
+                $scope.nuevoCatalogoIso   =   false;
+                $scope.editarCatalogoIso  =   true;
+                $scope.nuevoFormatoIso    =   false;
+                $scope.editarFormatoIso   =   false;
+                $scope.preloader = false; 
+
+            });     
         }else if(item.value == 'nuevoFormatoIso'){
             $scope.nuevoCatalogoIso   =   false;
             $scope.editarCatalogoIso  =   false;
@@ -129,6 +174,10 @@
             $scope.nuevoFormatoIso    =   false;
             $scope.editarFormatoIso   =   true; 
         }
+    }
+    $scope.anteriorProcesos = function(){
+        $scope.primeraVista         = false;
+        $scope.vistaGuardarCabecera = true;
     }
     var divInputs = function(){
         var cont = 0,flag=false;
@@ -183,9 +232,18 @@
         var idx = $scope.itemsValidos.indexOf(item);
         if(idx != -1){
           $scope.itemsValidos.splice(idx, 1);
+          if($scope.flagFix){
+              for(t in $scope.nuevosChecks){
+                if(item.orden == $scope.nuevosChecks[t].orden){
+                  $scope.nuevosChecks[t].disabled = true;
+                  $scope.nuevosChecks[t].check = false;
+                }
+              }
+          }
         }else{
           $scope.itemsValidos.push(item);
         }
+
         
     }
      $scope.addChecksAsignacion = function(item){
@@ -207,8 +265,23 @@
       $scope.itemsValidos.splice(idx, 1);
       var idx2 = $scope.bitmaps.indexOf(item);
       $scope.bitmaps[idx2].check = false;
+      for(t in $scope.nuevosChecks){
+          if(item.orden == $scope.nuevosChecks[t].orden){
+            $scope.nuevosChecks[t].disabled = true;
+            $scope.nuevosChecks[t].check = false;
+          }
+      }
+
     }
-    
+    $scope.guardarCatalogo = function(){
+        $scope.dataEnviar = [];
+        for(prop in $scope.itemsValidos){
+           $scope.dataEnviar.push({Id_Operador:$scope.datos.operador.Id_Operador,Bitmap:$scope.itemsValidos[prop].orden,Nombre:$scope.itemsValidos[prop].nombre,Tipo:$scope.itemsValidos[prop].tipo.value,Longitud:$scope.itemsValidos[prop].longitud,Descripcion:$scope.itemsValidos[prop].descripcion,TipoDato:$scope.itemsValidos[prop].tipoValor.value});
+        }
+        factoryParsing.grabarCatalogosISO($scope.dataEnviar).then(function(r){
+            console.log(r);
+        });
+    }
     $scope.descripcion = true;
     $scope.habilitarEdicion = function(arg,index){
           var execute = '$scope.itemsValidos['+index+'].mostrarLabel'+arg+' = false';
@@ -226,6 +299,7 @@
           }
     }
     $scope.siguiente = function(){
+      $scope.flagFix = true;
       $scope.itemsParaDetalle = [];
       factoryParsing.obtenerCatalogos({id:0}).then(function(resp){
           for (var i=0; i < resp.length; i++) {
@@ -290,7 +364,12 @@
     $scope.siguienteCuartaVista = function(){
       console.log($scope.itemsParaDetalle);
     }
-    $scope.guardarCabecera = function(){
+    $scope.procesoPrimeraVista = function(item){
+        if(item){
+           //console.log(item);
+           $scope.datos.operador = item.Id_Operador;
+        }
+       
         var conversorCabeceras = conversorcabecerasModel.create();
         conversorCabeceras.NombreFormato = $scope.nombreCabecera;
         conversorCabeceras.DescripcionFormato = $scope.descripcionCabecera;
@@ -334,23 +413,14 @@
       }
     }
     $scope.guardarDatos = function(){
-        $scope.dataEnviar = [];
-
-        for(prop in $scope.itemsValidos){
-           $scope.dataEnviar.push({Id_Operador:16,Bitmap:$scope.itemsValidos[prop].orden,Nombre:$scope.itemsValidos[prop].nombre,Tipo:$scope.itemsValidos[prop].tipo.value,Longitud:$scope.itemsValidos[prop].longitud,Descripcion:$scope.itemsValidos[prop].descripcion,TipoDato:$scope.itemsValidos[prop].tipoValor.value});
-        }
-        /*ya hecho no borrar solo descomentar factoryParsing.grabarCatalogosISO(dataEnviar).then(function(r){
-            console.log(r);
-        });*/
-       
+        
         for(xx in $scope.nuevosChecks){
           $scope.nuevosChecks[xx].class = false;
           for(var x = 0; x < $scope.itemsValidos.length; x++){
             if($scope.itemsValidos[x].orden == $scope.nuevosChecks[xx].orden){
                   $scope.nuevosChecks[xx].disabled = false;
                   $scope.nuevosChecks[xx].class = true;
-                  $scope.nuevosChecks[xx].check = true;
-                  $scope.itemsParaDetalle.push($scope.itemsValidos[x]);
+                  //$scope.itemsParaDetalle.push($scope.itemsValidos[x]);
             }
           }
          
@@ -367,11 +437,11 @@
       $scope.terceraVista = true;
       $scope.cuartaVista = false;
     }
-    conversorcabeceraisosModel.getAll().then(function(data) {
+    /*conversorcabeceraisosModel.getAll().then(function(data) {
       $scope.conversorcabeceraisosList = data;
       $scope.conversorcabeceraisosTemp = angular.copy($scope.conversorcabeceraisosList);
       $scope.preloader = false;
-    });
+    });*/
     /*  Modal */
      $scope.open = function (item) {
        var modalInstance = $uibModal.open({
@@ -380,6 +450,9 @@
         controller: 'modalconversorcabeceraisosCreateController',
         size: 'lg',
         resolve: {
+         datos: function () {
+          return $scope.listaCatalogosDetalles;
+         },
          item: function () {
           return item;
          }
@@ -397,32 +470,39 @@
   };
   /*  Delete  */
   $scope.openDelete = function (item) {
-    var modalInstance = $uibModal.open({
-      animation: true,
-      templateUrl: 'templates/conversorcabeceraisos/modalDelete.html',
-      controller: 'modalconversorcabeceraisosDeleteController',
-      size: 'lg',
-      resolve: {
-        item: function () {
-           return item;
-        }
-      }
-    });
-    modalInstance.result.then(function(data) {
-      var idx = $scope.conversorcabeceraisosList.indexOf(data);
-      $scope.conversorcabeceraisosList.splice(idx, 1);
-      conversorcabeceraisosModel
-        .destroy(data._id)
-        .then(function(result) {
-          $scope.msjAlert = true;
-          $scope.alert = 'success';
-          $scope.message = result.message;
-        })
-        .catch(function(err) {
-          $scope.msjAlert = true;
-          $scope.alert = 'danger';
-          $scope.message = 'Error '+err;
-        })
+      factoryParsing.obtenerFormatos(item).then(function(respuestaData){
+            var totalFormatos = respuestaData.length;
+            if(totalFormatos > 0){
+               item.eliminar = false;
+            }else{
+               item.eliminar = true;
+            }
+            var modalInstance = $uibModal.open({
+              animation: true,
+              templateUrl: 'templates/conversorcabeceraisos/modalDelete.html',
+              controller: 'modalconversorcabeceraisosDeleteController',
+              size: 'lg',
+              resolve: {
+                item: function () {
+                   return item;
+                }
+              }
+            });
+            modalInstance.result.then(function(data) {
+              factoryParsing.eliminarCatalogo(data).then(function(r){
+                  if(r == 1){
+                      var idx = $scope.otrosOperadores.indexOf(data); 
+                      $scope.otrosOperadores.splice(idx, 1);
+                      $scope.msjEliminarCatalogo = 'Exito al Eliminar Catálogo'
+                      $scope.claseEliminarCatalogo = 'success';
+                      $scope.msjAlertEliminarCatalogo = true;
+                  }else{
+                      $scope.msjEliminarCatalogo = 'Error al Eliminar Catálogo'
+                      $scope.claseEliminarCatalogo = 'danger';
+                      $scope.msjAlertEliminarCatalogo = true;
+                  }
+              }); 
+            });
       });
-    };
+  };
 }])
