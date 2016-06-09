@@ -17,6 +17,7 @@
     $scope.flagFix = false;
     $scope.msjAlertEliminarCatalogo = false;
     $scope.deshabilitarBtnNuevoCatalogo = true;
+    $scope.tablaConversorDetalleVista = false;
     $scope.cambioPaginacion = function(dato){
       $rootScope.configTable.itemsPerPage =  dato.value;
     }
@@ -450,7 +451,9 @@
       console.log($scope.valorHexadecimal2.result);
     } 
     $scope.siguienteTablaConversorDetalle = function(){
-      console.log($scope.itemsParaDetalle);
+       $scope.cuartaVista = false;
+       $scope.tablaConversorDetalleVista = true;
+       console.log($scope.itemsParaDetalle);//aki
     }
     $scope.procesoPrimeraVista = function(item){
         if(item){
@@ -560,8 +563,16 @@
       $scope.conversorcabeceraisosTemp = angular.copy($scope.conversorcabeceraisosList);
     });
   };
+  var encerarNuevosChecks = function(){
+      for(prop in $scope.nuevosChecks){
+         $scope.nuevosChecks[prop].disabled = true; 
+         $scope.nuevosChecks[prop].check    = false; 
+         $scope.nuevosChecks[prop].class    = false; 
+      }
+  }
   $scope.procesoNuevoFormato = function(){
         //aki
+        encerarNuevosChecks();
         $scope.itemsParaDetalle = [];
         factoryParsing.obtenerCatalogos({id:$scope.datos.otroOperador.Id_Operador}).then(function(resp){
             for(xx in $scope.nuevosChecks){
