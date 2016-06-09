@@ -129,7 +129,7 @@
                    </label>
                    <ui-select  ng-model="datos.otroOperador" theme="bootstrap" ng-disabled="disabled" style="min-width: 300px;" title="Seleccione un Operador">
                      <ui-select-match placeholder="Seleccione un Operador">{{$select.selected.Operador}}</ui-select-match>
-                     <ui-select-choices repeat="item.Id_Operador as item in otrosOperadores | propsFilter: {Operador: $select.search}">
+                     <ui-select-choices repeat="item as item in otrosOperadores | propsFilter: {Operador: $select.search}">
                        <div ng-bind-html="item.Operador | highlight: $select.search"></div>
                      </ui-select-choices>
                    </ui-select>
@@ -162,7 +162,7 @@
               </div>
               <div class="row" >
                 <div class="form-group col-md-12">
-                   <button ng-disabled="nombreCabecera == undefined || nombreCabecera == '' || descripcionCabecera == undefined || descripcionCabecera == ''" ng-click="guardarCabecera()" class="btn btn-primary">Siguiente <i class="fa fa-arrow-right"></i></button>
+                   <button ng-disabled="nombreCabecera == undefined || nombreCabecera == '' || descripcionCabecera == undefined || descripcionCabecera == ''" ng-click="procesoNuevoFormato()" class="btn btn-primary">Siguiente <i class="fa fa-arrow-right"></i></button>
                 </div>
               </div>      
          </fieldset>
@@ -291,74 +291,90 @@
        </div>
     </vista>
     <vista ng-show="cuartaVista">
-       <fieldset>
-           <div class="row" >
-              <div class="form-group col-md-6">
-                 <label for="id_transaccion_cabecera" class="bold">
-                    Operador:
-                 </label>
-                 <input  required  type="text" class="form-control"  ng-model="longitud" ng-change="cambioValoresChecks()">
-              </div>
-              <div class="form-group col-md-6">
-                 <label for="id_transaccion_cabecera" class="bold">
-                    Nombre:
-                 </label>
-                 <input  autofocus required  type="text" class="form-control"  ng-model="mti" >
-              </div>
-           </div>
-           <div class="row" >
-              <div class="form-group col-md-6">
-                 <label for="id_transaccion_cabecera" class="bold">
-                    Descripción:
-                 </label>
-                 <input  required  type="text" class="form-control"  ng-model="longitud" ng-change="cambioValoresChecks()">
-              </div>
-              <div class="form-group col-md-6">
-                 <label for="id_transaccion_cabecera" class="bold">
-                    Tipo:
-                 </label>
-                 <input  autofocus required  type="text" class="form-control"  ng-model="mti" >
-              </div>
-           </div>
-           <div class="row" >
-              <div class="form-group col-md-12">
-                 <label for="id_transaccion_cabecera" class="bold">
-                    Campos:
-                 </label>
-              </div>
-           </div>
-           <div class="contenedor-tabla">
-              <iterador ng-repeat="item in nuevosChecks" style="margin-right: 5px;">
-                <datos ng-show="item.validar">
-                  <div class="contenedor-fila">
-                      <div class="contenedor-columna"> &nbsp;</div>
-                  </div>
-                  <div class="contenedor-fila">
-                      <div class="contenedor-columna" >
-
-                        <div class="checkbox checkbox-primary" ng-if="!item.class">
-                          <input  class="styled" ng-disabled="item.disabled" type="checkbox" ng-model="item.check" ng-click="addChecksAsignacion(item)"><label></label>
+           <fieldset>
+             <legend>Cabecera ISO 8583:</legend>
+             <div class="row" >
+                <div class="form-group col-md-6">
+                   <label for="id_transaccion_cabecera" class="bold">
+                      Longitud:
+                   </label>
+                   <input  autofocus  type="number" class="form-control"  ng-model="longitudInput" ng-change="cambioValoresChecks()">
+                </div>
+                <div class="form-group col-md-6">
+                   <label for="id_transaccion_cabecera" class="bold">
+                      MTI:
+                   </label>
+                   <input  ng-model="mtiInput" type="number" class="form-control"  ng-model="mti" >
+                </div>
+             </div>
+             <div class="row" >
+                <div class="form-group col-md-12">
+                   <label for="id_transaccion_cabecera" class="bold">
+                      Operador:
+                   </label>
+                   <input  disabled  type="text" class="form-control"  ng-model="datos.otroOperador.Operador">
+                </div>
+             </div>
+           </fieldset>
+           <fieldset>
+              <legend>Información de Formato:</legend>
+              <div class="row" >
+                <div class="form-group col-md-6">
+                   <label for="id_transaccion_cabecera" class="bold">
+                      Tipo:
+                   </label>
+                   <input  disabled  type="text" class="form-control"  ng-model="tipoCabecera.name" >
+                </div>
+                <div class="form-group col-md-6">
+                   <label for="id_transaccion_cabecera" class="bold">
+                      Nombre:
+                   </label>
+                   <input disabled type="text" class="form-control"  ng-model="nombreCabecera" >
+                </div>
+             </div>
+             <div class="row" >
+                <div class="form-group col-md-12">
+                   <label for="id_transaccion_cabecera" class="bold">
+                      Deacripción:
+                   </label>
+                   <input  disabled  type="text" class="form-control"  ng-model="descripcionCabecera">
+                </div>
+             </div>
+           </fieldset>
+           <fieldset>
+                 <legend>Selección de bits:</legend>
+                 <div class="contenedor-tabla">
+                    <iterador ng-repeat="item in nuevosChecks" style="margin-right: 5px;">
+                      <datos ng-show="item.validar">
+                        <div class="contenedor-fila">
+                            <div class="contenedor-columna"> &nbsp;</div>
                         </div>
+                        <div class="contenedor-fila">
+                            <div class="contenedor-columna" >
 
-                        <div class="checkbox checkbox-circle checkbox-primary" ng-if="item.class">
-                          <input  class="styled" ng-disabled="item.disabled" type="checkbox" ng-model="item.check" ng-click="addChecksAsignacion(item)"><label></label>
+                              <div class="checkbox checkbox-primary" ng-if="!item.class">
+                                <input  class="styled" ng-disabled="item.disabled" type="checkbox" ng-model="item.check" ng-click="addChecksAsignacion(item)"><label></label>
+                              </div>
+
+                              <div class="checkbox checkbox-circle checkbox-primary" ng-if="item.class">
+                                <input  class="styled" ng-disabled="item.disabled" type="checkbox" ng-model="item.check" ng-click="addChecksAsignacion(item)"><label></label>
+                              </div>
+
+                            </div>
                         </div>
-
-                      </div>
-                  </div>
-                  <div class="contenedor-fila">
-                      <div class="contenedor-columna">{{item.value}}</div>
-                  </div><br ng-if="item.name == 32">
-                </datos>
-              </iterador>
-           </div> 
-           <br>       
-           <br>       
-           <div class="row" >
-              <div class="form-group col-md-12">
-                 <button class="btn btn-default" ng-click="anteriorCuartaVista()"><i class="fa fa-arrow-left"></i>  Anterior</button>
-                 <button ng-disabled="itemsValidos.length <=0"class="btn btn-primary" ng-click="siguienteCuartaVista()">Siguiente <i class="fa fa-arrow-right"></i></button>
-              </div>
-           </div>
-         </fieldset>
+                        <div class="contenedor-fila">
+                            <div class="contenedor-columna">{{item.value}}</div>
+                        </div><br ng-if="item.name == 32">
+                      </datos>
+                    </iterador>
+                 </div> 
+                 <br>       
+                 <br>       
+                 <div class="row" >
+                    <div class="form-group col-md-12">
+                       <button class="btn btn-default" ng-click="anteriorProcesos()"><i class="fa fa-arrow-left"></i>  Anterior</button>
+                       <button ng-disabled="itemsParaDetalle.length <=0"class="btn btn-primary" ng-click="siguienteTablaConversorDetalle()">Siguiente <i class="fa fa-arrow-right"></i></button>
+                    </div>
+                 </div>
+           </fieldset>
     </vista>
