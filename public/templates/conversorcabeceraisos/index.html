@@ -29,6 +29,10 @@
         .app-modal-window .modal-dialog {
           width: 500px;
         }
+        .longitud{
+          height: 68px;
+          width: 200px;
+        }
         input[type=number]::-webkit-inner-spin-button,
         input[type=number]::-webkit-outer-spin-button {
             -webkit-appearance: none;
@@ -69,7 +73,7 @@
               </div>
               <div class="row" >
                 <div class="form-group col-md-12">
-                   <button  ng-click="procesoPrimeraVista()" class="btn btn-primary">Siguiente <i class="fa fa-arrow-right"></i></button>
+                   <button ng-disabled="deshabilitarBtnNuevoCatalogo" ng-click="procesoPrimeraVista()" class="btn btn-primary">Siguiente <i class="fa fa-arrow-right"></i></button>
                 </div>
               </div>      
          </fieldset>
@@ -252,7 +256,7 @@
            <tr>
              <!--<td  at-sortable  at-title='ID FORMATO' width='150'>{{item.IdFormato}}</td>-->
              <td  at-sortable  at-title='BITMAP' width='150'>{{item.orden}}</tdue>
-             <td  at-sortable  at-title='NOMBRE' width='150'><a href=""><valor ng-show="item.mostrarLabelNombre" ng-click="habilitarEdicion('Nombre',$index)">{{item.nombre}}</valor><input type="text" ng-show="item.mostrarTextNombre" ng-model="item.nombre" ng-mouseleave="bloquearEdicion('Nombre',$index)"></a></td>
+             <td  at-sortable  at-title='NOMBRE' width='150'><a href=""><valor ng-show="item.mostrarLabelNombre" ng-click="habilitarEdicion('Nombre',$index)">{{item.nombre}}</valor><textarea  rows="4"  type="text" ng-show="item.mostrarTextNombre" ng-model="item.nombre" ng-mouseleave="bloquearEdicion('Nombre',$index)"></textarea></a></td>
              <td  at-sortable  at-title='TIPO CAMPO' width='150'>
                <select 
                         ng-model="item.tipo" 
@@ -261,7 +265,7 @@
              </td>
              <td  at-sortable  at-title='LONGITUD' width='150'><a href="">
              <valor ng-show="item.mostrarLabelLongitud" ng-click="habilitarEdicion('Longitud',$index)">{{item.longitud}}</valor>
-             <input type="number" ng-show="item.mostrarTextLongitud" ng-model="item.longitud" ng-keyup="validarFormato(item.longitud,$index)" ng-mouseleave="bloquearEdicion('Longitud',$index)"></a>
+             <input class="longitud" type="number" ng-show="item.mostrarTextLongitud" ng-model="item.longitud" ng-keyup="validarFormato(item.longitud,$index)" ng-mouseleave="bloquearEdicion('Longitud',$index)"></a>
              </td>
              <td  at-sortable  at-title='DESCRIPCIÓN' width='150'><a href=""><valor ng-show="item.mostrarLabelDescripcion" ng-click="habilitarEdicion('Descripcion',$index)">{{item.descripcion}}</valor><textarea rows="4" ng-show="item.mostrarTextDescripcion" ng-model="item.descripcion" ng-mouseleave="bloquearEdicion('Descripcion',$index)"></textarea></a></td>
              <td  at-sortable  at-title='TIPO VALOR' width='150'>

@@ -1,4 +1,4 @@
- angular.module('appAngular', ['ngRoute', 'angular-table','ngBootbox','ui.bootstrap','optimumModel','ngSanitize', 'ui.select','dndLists','btford.socket-io','cb.x2js'])
+ angular.module('appAngular', ['ngRoute', 'angular-table','ngBootbox','ui.bootstrap','optimumModel','ngSanitize', 'ui.select','dndLists','btford.socket-io','cb.x2js','angular-click-outside'])
  .config(function ($routeProvider) {
  	$routeProvider
  		.when('/', {
@@ -1349,8 +1349,8 @@
     });
  })
 .controller('conversorcabeceraisosController',
-  ['$rootScope','$scope', '$location', 'conversorcabeceraisosModel','$uibModal','factoryParsing','conversorcabecerasModel','catalogosModel',
-  function ($rootScope,$scope, $location, conversorcabeceraisosModel,$uibModal,factoryParsing,conversorcabecerasModel,catalogosModel) {
+  ['$rootScope','$scope', '$location', 'conversorcabeceraisosModel','$uibModal','factoryParsing','conversorcabecerasModel','catalogosModel','$route','$ngBootbox',
+  function ($rootScope,$scope, $location, conversorcabeceraisosModel,$uibModal,factoryParsing,conversorcabecerasModel,catalogosModel,$route,$ngBootbox) {
     $scope.titleController = 'MEAN-CASE SUPER HEROIC';
     $rootScope.titleWeb = 'conversorcabeceraisos';
     $scope.preloader = true;
@@ -1366,6 +1366,7 @@
     $scope.nuevoCatalogoIso = true;
     $scope.flagFix = false;
     $scope.msjAlertEliminarCatalogo = false;
+    $scope.deshabilitarBtnNuevoCatalogo = true;
     $scope.cambioPaginacion = function(dato){
       $rootScope.configTable.itemsPerPage =  dato.value;
     }
@@ -1442,20 +1443,27 @@
                             }
                           };
     factoryParsing.obtenerOperadores(JSON.stringify(tramaOperadores)).then(function(operadores){
-        $scope.allOperadores = operadores.Respuesta;
-        $scope.datos.operador = $scope.allOperadores[1];
         factoryParsing.obtenerOperadoresCabeceraIso().then(function(otrosOperadores){
             $scope.otrosOperadores = [];
-            for(prop in $scope.allOperadores){
+            $scope.allOperadores = [];
+            var existe = false;
+            for(prop in operadores.Respuesta){
+              existe = false
               for(p in otrosOperadores){
-                if(otrosOperadores[p].Id_Operador == $scope.allOperadores[prop].Id_Operador){
-                   //console.log(otrosOperadores[p].Id_Operador);
-                   $scope.otrosOperadores.push({Operador:$scope.allOperadores[prop].Operador,Id_Operador:otrosOperadores[p].Id_Operador});
+                if(otrosOperadores[p].Id_Operador == operadores.Respuesta[prop].Id_Operador){
+                   $scope.otrosOperadores.push({Operador:operadores.Respuesta[prop].Operador,Id_Operador:otrosOperadores[p].Id_Operador});
                 }
+                if(operadores.Respuesta[prop].Id_Operador == otrosOperadores[p].Id_Operador){
+                   existe = true;
+                }
+              }
+              if(!existe){
+                  $scope.allOperadores.push(operadores.Respuesta[prop]);
               }
             }
             $scope.datos.otroOperador = $scope.otrosOperadores[0];
-            //console.log(otrosOperadores);
+            $scope.datos.operador = $scope.allOperadores[1];
+            $scope.deshabilitarBtnNuevoCatalogo = false;
         });
     });
     
@@ -1482,8 +1490,19 @@
         });
 
     }
+
+    var desCheckBitmaps = function(){
+        for(i in $scope.bitmaps){
+            $scope.bitmaps[i].check = false;  
+        }
+        for(i=64;i < 128;i++){
+            $scope.bitmaps[i].validar = false;  
+        }
+        $scope.itemsValidos = [];
+    } 
      $scope.cambioProceso = function(item){
         if(item.value == 'nuevoCatalogoIso'){
+            desCheckBitmaps();
             $scope.nuevoCatalogoIso   =   true;
             $scope.editarCatalogoIso  =   false;
             $scope.nuevoFormatoIso    =   false;
@@ -1571,7 +1590,12 @@
         }
         if(item.orden == 1 && !item.check){
           for (var i = 64; i < 128; i++) {
-               var tmpIdx = $scope.itemsValidos.indexOf($scope.bitmaps[i]);
+               var tmpIdx = -1;
+               for(xx in $scope.itemsValidos){
+                  if($scope.bitmaps[i].orden ==  $scope.itemsValidos[xx].orden){
+                    tmpIdx = xx;
+                  }
+               }
                if(tmpIdx != -1){
                   $scope.itemsValidos.splice(tmpIdx, 1);
                }
@@ -1579,7 +1603,12 @@
                $scope.bitmaps[i].check = false;
           }
         }
-        var idx = $scope.itemsValidos.indexOf(item);
+        var idx = -1;
+        for(t in $scope.itemsValidos){
+            if(item.orden == $scope.itemsValidos[t].orden){
+              idx = t;
+            }
+        }
         if(idx != -1){
           $scope.itemsValidos.splice(idx, 1);
           if($scope.flagFix){
@@ -1624,12 +1653,27 @@
 
     }
     $scope.guardarCatalogo = function(){
+        var ope = '';
         $scope.dataEnviar = [];
+        if($scope.editarCatalogoIso){
+           ope = $scope.datos.operador
+           $scope.dataEnviar.push({eliminar:true,Id_Operador:$scope.datos.operador});
+        }else if($scope.nuevoCatalogoIso){
+           ope = $scope.datos.operador.Id_Operador;
+        }
         for(prop in $scope.itemsValidos){
-           $scope.dataEnviar.push({Id_Operador:$scope.datos.operador.Id_Operador,Bitmap:$scope.itemsValidos[prop].orden,Nombre:$scope.itemsValidos[prop].nombre,Tipo:$scope.itemsValidos[prop].tipo.value,Longitud:$scope.itemsValidos[prop].longitud,Descripcion:$scope.itemsValidos[prop].descripcion,TipoDato:$scope.itemsValidos[prop].tipoValor.value});
+           $scope.dataEnviar.push({Id_Operador:ope,Bitmap:$scope.itemsValidos[prop].orden,Nombre:$scope.itemsValidos[prop].nombre,Tipo:$scope.itemsValidos[prop].tipo.value,Longitud:$scope.itemsValidos[prop].longitud,Descripcion:$scope.itemsValidos[prop].descripcion,TipoDato:$scope.itemsValidos[prop].tipoValor.value});
         }
         factoryParsing.grabarCatalogosISO($scope.dataEnviar).then(function(r){
-            console.log(r);
+            if(r.msj == 'Success'){
+                 $ngBootbox.alert('¡El Catálogo se guardo con éxito!').then(function() {
+                          $route.reload();
+                 });
+            }else{
+                $ngBootbox.alert('¡Error indeterminado en conexión!').then(function() {
+                        $route.reload();
+                });
+            }
         });
     }
     $scope.descripcion = true;
@@ -1649,31 +1693,76 @@
           }
     }
     $scope.siguiente = function(){
+
       $scope.flagFix = true;
       $scope.itemsParaDetalle = [];
-      factoryParsing.obtenerCatalogos({id:0}).then(function(resp){
-          for (var i=0; i < resp.length; i++) {
-                for (var j=0; j < $scope.itemsValidos.length; j++) {
-                  if (resp[i].Bitmap == $scope.itemsValidos[j].orden) {
-                      $scope.itemsValidos[j].nombre = resp[i].Nombre;
-                      $scope.itemsValidos[j].tipo = $scope.tipoCampo;
-                      $scope.itemsValidos[j].tipoValor = $scope.tipoValor;
-                      $scope.itemsValidos[j].longitud = resp[i].Longitud;
-                      $scope.itemsValidos[j].descripcion = resp[i].Descripcion;
-                      $scope.itemsValidos[j].mostrarTextLongitud = false;
-                      $scope.itemsValidos[j].mostrarLabelLongitud = true;
-                      $scope.itemsValidos[j].mostrarTextDescripcion = false;
-                      $scope.itemsValidos[j].mostrarLabelDescripcion = true;
-                      $scope.itemsValidos[j].mostrarTextNombre = false;
-                      $scope.itemsValidos[j].mostrarLabelNombre = true;
+      var id = 0;
+      if($scope.editarCatalogoIso){
+           id = $scope.datos.operador;
+      }else if($scope.nuevoCatalogoIso){
+           id = 0;
+      }
+      factoryParsing.obtenerCatalogos({id:id}).then(function(resp){
+            var tipoCampo,tipoValor;
+            for (var i=0; i < resp.length; i++) {
+                  for (var j=0; j < $scope.itemsValidos.length; j++) {
+                    if (resp[i].Bitmap == $scope.itemsValidos[j].orden) {
+                        $scope.itemsValidos[j].nombre = resp[i].Nombre;
+                        if($scope.editarCatalogoIso){
+                            for(p in $scope.tiposCampo){
+                                if($scope.tiposCampo[p].value ==  resp[i].Tipo){
+                                    tipoCampo = $scope.tiposCampo[p];
+                                }
+                            }
+                            for(p in $scope.tiposValor){
+                                if($scope.tiposValor[p].value ==  resp[i].TipoDato){
+                                    tipoValor = $scope.tiposValor[p]; 
+                                }
+                            }
+                        }else if($scope.nuevoCatalogoIso){
+                             tipoCampo = $scope.tipoCampo;
+                             tipoValor = $scope.tipoValor;
+                        }
+                        $scope.itemsValidos[j].tipo = tipoCampo;
+                        $scope.itemsValidos[j].tipoValor = tipoValor;
+                        $scope.itemsValidos[j].longitud = resp[i].Longitud;
+                        $scope.itemsValidos[j].descripcion = resp[i].Descripcion;
+                        $scope.itemsValidos[j].mostrarTextLongitud = false;
+                        $scope.itemsValidos[j].mostrarLabelLongitud = true;
+                        $scope.itemsValidos[j].mostrarTextDescripcion = false;
+                        $scope.itemsValidos[j].mostrarLabelDescripcion = true;
+                        $scope.itemsValidos[j].mostrarTextNombre = false;
+                        $scope.itemsValidos[j].mostrarLabelNombre = true;
+                    }
                   }
-                }
-          }
-          $scope.itemsValidos.sort(function(a, b) {
-              return parseFloat(a.orden) - parseFloat(b.orden);
-          });
-          $scope.primeraVista = false;
-          $scope.terceraVista = true;
+            }
+            if($scope.editarCatalogoIso){
+                factoryParsing.obtenerCatalogos({id:0}).then(function(resp){
+                    for (var i=0; i < resp.length; i++) {
+                          for (var j=0; j < $scope.itemsValidos.length; j++) {
+                            if (!$scope.itemsValidos[j].longitud) {
+                                $scope.itemsValidos[j].nombre = resp[i].Nombre;
+                                $scope.itemsValidos[j].tipo = $scope.tipoCampo;
+                                $scope.itemsValidos[j].tipoValor = $scope.tipoValor;
+                                $scope.itemsValidos[j].longitud = resp[i].Longitud;
+                                $scope.itemsValidos[j].descripcion = resp[i].Descripcion;
+                                $scope.itemsValidos[j].mostrarTextLongitud = false;
+                                $scope.itemsValidos[j].mostrarLabelLongitud = true;
+                                $scope.itemsValidos[j].mostrarTextDescripcion = false;
+                                $scope.itemsValidos[j].mostrarLabelDescripcion = true;
+                                $scope.itemsValidos[j].mostrarTextNombre = false;
+                                $scope.itemsValidos[j].mostrarLabelNombre = true;
+                            }
+                          }
+                    }
+
+                });
+            }
+            $scope.itemsValidos.sort(function(a, b) {
+                return parseFloat(a.orden) - parseFloat(b.orden);
+            });
+            $scope.primeraVista = false;
+            $scope.terceraVista = true;
       });
       var tmpBinario1 = '';
       var tmpBinario2 = '';
@@ -1716,8 +1805,27 @@
     }
     $scope.procesoPrimeraVista = function(item){
         if(item){
-           //console.log(item);
+           $scope.itemsValidos = [];
            $scope.datos.operador = item.Id_Operador;
+           factoryParsing.obtenerDetalleCatalogos([{Id_Operador:item.Id_Operador}]).then(function(detalles){
+                for(prop in $scope.bitmaps){
+                  $scope.bitmaps[prop].check = false;
+                  for(p in detalles){
+                    if(detalles[p].Bitmap == 1){
+                        for(i = 64;i < 128;i++){
+                          $scope.bitmaps[i].validar = true;
+                        }
+                    }
+                    if(detalles[p].Bitmap == $scope.bitmaps[prop].orden){
+                       $scope.bitmaps[prop].check = true;
+                       $scope.itemsValidos.push({name:$scope.bitmaps[prop].name,value:$scope.bitmaps[prop].value,orden:$scope.bitmaps[prop].orden,check:$scope.bitmaps[prop].check,validar:$scope.bitmaps[prop].validar,disabled:$scope.bitmaps[prop].disabled});
+                    }
+                  }
+                }
+               
+           });
+        }else{
+          desCheckBitmaps();
         }
        
         var conversorCabeceras = conversorcabecerasModel.create();
@@ -1840,16 +1948,22 @@
             });
             modalInstance.result.then(function(data) {
               factoryParsing.eliminarCatalogo(data).then(function(r){
-                  if(r == 1){
+                  if(r >= 1){
                       var idx = $scope.otrosOperadores.indexOf(data); 
                       $scope.otrosOperadores.splice(idx, 1);
-                      $scope.msjEliminarCatalogo = 'Exito al Eliminar Catálogo'
+                      $scope.msjEliminarCatalogo = '¡El Catálogo se elimino con éxito!'
                       $scope.claseEliminarCatalogo = 'success';
                       $scope.msjAlertEliminarCatalogo = true;
+                      $ngBootbox.alert('¡El Catálogo se elimino con éxito!').then(function() {
+                        $route.reload();
+                      });
                   }else{
-                      $scope.msjEliminarCatalogo = 'Error al Eliminar Catálogo'
+                      $scope.msjEliminarCatalogo = '¡Error indeterminado en conexión!'
                       $scope.claseEliminarCatalogo = 'danger';
                       $scope.msjAlertEliminarCatalogo = true;
+                      $ngBootbox.alert('¡Error indeterminado en conexión!').then(function() {
+                        $route.reload();
+                      });
                   }
               }); 
             });

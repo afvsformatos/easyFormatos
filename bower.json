@@ -27,6 +27,7 @@
     "fullpage.js": "~2.7.4",
     "ngBootbox": "~0.1.2",
     "bootbox.js": "bootbox#~4.4.0",
-    "angular-socket-io": "~0.7.0"
+    "angular-socket-io": "~0.7.0",
+    "angular-click-outside": "^2.8.3"
   }
 }

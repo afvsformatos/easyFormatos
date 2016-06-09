@@ -97,6 +97,10 @@ router.post('/conversorcabeceraisos', function(req, res, next){
 });
 
 router.post('/grabarCatalogosISO', function(req, res, next){
+    if(req.body[0].eliminar){
+      conversorDetalleIso.destroy({where: {Id_Operador: req.body[0].Id_Operador}});
+    }
+
     for(prop in req.body){
         conversorDetalleIso.create(req.body[prop]);
     }

@@ -1,4 +1,4 @@
- angular.module('appAngular', ['ngRoute', 'angular-table','ngBootbox','ui.bootstrap','optimumModel','ngSanitize', 'ui.select','dndLists','btford.socket-io','cb.x2js'])
+ angular.module('appAngular', ['ngRoute', 'angular-table','ngBootbox','ui.bootstrap','optimumModel','ngSanitize', 'ui.select','dndLists','btford.socket-io','cb.x2js','angular-click-outside'])
  .config(function ($routeProvider) {
  	$routeProvider
  		.when('/', {
