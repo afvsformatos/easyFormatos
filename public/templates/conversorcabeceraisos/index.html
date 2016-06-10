@@ -204,12 +204,13 @@
                  <label for="id_transaccion_cabecera" class="bold">
                     Operador:
                  </label>
-                 <ui-select  ng-model="datos.operador" theme="bootstrap" ng-disabled="true" style="min-width: 300px;" title="Seleccione un Operador">
-                   <ui-select-match placeholder="Seleccione un Operador">{{$select.selected.Operador}}</ui-select-match>
-                   <ui-select-choices repeat="item.Id_Operador as item in allOperadores | propsFilter: {Operador: $select.search}">
-                     <div ng-bind-html="item.Operador | highlight: $select.search"></div>
-                   </ui-select-choices>
-                 </ui-select>
+                 <input ng-show="!muestraOper" class="form-control" ng-model="mostrarOperador" disabled>
+                 <ui-select ng-show="muestraOper" ng-model="datos.operador" theme="bootstrap" ng-disabled="true" style="min-width: 300px;" title="Seleccione un Operador">
+                     <ui-select-match placeholder="Seleccione un Operador">{{$select.selected.Operador}}</ui-select-match>
+                     <ui-select-choices repeat="item.Id_Operador as item in allOperadores | propsFilter: {Operador: $select.search}">
+                       <div ng-bind-html="item.Operador | highlight: $select.search"></div>
+                     </ui-select-choices>
+                    </ui-select>
               </div>
            </div>
            <div class="row" >
@@ -298,13 +299,13 @@
                    <label for="id_transaccion_cabecera" class="bold">
                       Longitud:
                    </label>
-                   <input  autofocus  type="number" class="form-control"  ng-model="longitudInput" ng-change="cambioValoresChecks()">
+                   <input  disabled  type="number" class="form-control"  ng-model="longitudInput" >
                 </div>
                 <div class="form-group col-md-6">
                    <label for="id_transaccion_cabecera" class="bold">
                       MTI:
                    </label>
-                   <input  ng-model="mtiInput" type="number" class="form-control"  ng-model="mti" >
+                   <input autofocus ng-model="mtiInput" type="number" class="form-control">
                 </div>
              </div>
              <div class="row" >
@@ -373,22 +374,34 @@
                  <div class="row" >
                     <div class="form-group col-md-12">
                        <button class="btn btn-default" ng-click="anteriorProcesos()"><i class="fa fa-arrow-left"></i>  Anterior</button>
-                       <button ng-disabled="itemsParaDetalle.length <=0"class="btn btn-primary" ng-click="siguienteTablaConversorDetalle()">Siguiente <i class="fa fa-arrow-right"></i></button>
+                       <button ng-disabled="(itemsParaDetalle.length <=0) || (mtiInput == undefined || mtiInput == '')"class="btn btn-primary" ng-click="siguienteTablaConversorDetalle()">Siguiente <i class="fa fa-arrow-right"></i></button>
                     </div>
                  </div>
            </fieldset>
     </vista>
     <vista ng-show="tablaConversorDetalleVista">
-        <table class="table table-bordered table-hover table-striped" at-table at-paginated at-list="arrayConversorDetalle | filter:searchText" at-config="configTable">
+                  <table class="table table-bordered table-hover table-striped" at-table at-paginated at-list="arrayConversorDetalle | filter:searchText" at-config="configTable">
                        <thead></thead>
                        <tbody>
                          <tr>
-                           <td  at-sortable  at-title='Descripción Campo' width='150'>{{item.Operador}}</td>
-                           <td  at-sortable  at-title='Campo Equivalente' width='150'>{{item.campos}}</td>           
+                           <td  at-sortable  at-title='Descripción Campo' width='150'>
+                                <etiqueta ng-show="tipoCabecera.value != 'ENVIO'">{{item.DescripcionCampo}}</etiqueta>
+                                <textarea class="form-control" ng-model="item.DescripcionCampo" ng-show="tipoCabecera.value == 'ENVIO'"></textarea>
+                           </td>
+                           <td  at-sortable  at-title='Campo Equivalente' width='150'>
+                                <etiqueta ng-show="tipoCabecera.value != 'RESPUESTA'">{{item.CampoEquivalente}}</etiqueta>
+                                <textarea class="form-control" ng-model="item.CampoEquivalente" ng-show="tipoCabecera.value == 'RESPUESTA'"></textarea>
+                           </td>           
                          </tr>
                        </tbody>
                    </table>
                    <div class="col-md-6 col-md-offset-3" >
                       <at-pagination  at-list="arrayConversorDetalle" at-config="configTable"></at-pagination>
+                   </div>
+                   <div class="row" >
+                      <div class="form-group col-md-12">
+                         <button class="btn btn-default" ng-click="mostrarCuartaVista()"><i class="fa fa-arrow-left"></i>  Anterior</button>
+                         <button ng-disabled="arrayConversorDetalle.length <=0"class="btn btn-primary" ng-click="guardarConversorDetalle()">Guardar <i class="fa fa-floppy-o"></i></button>
+                      </div>
                    </div>
     </vista>

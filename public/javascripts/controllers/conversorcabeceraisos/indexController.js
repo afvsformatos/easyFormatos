@@ -18,6 +18,7 @@
     $scope.msjAlertEliminarCatalogo = false;
     $scope.deshabilitarBtnNuevoCatalogo = true;
     $scope.tablaConversorDetalleVista = false;
+    $scope.longitudInput = 128;
     $scope.cambioPaginacion = function(dato){
       $rootScope.configTable.itemsPerPage =  dato.value;
     }
@@ -200,6 +201,10 @@
         $scope.cuartaVista          = false;
         $scope.vistaGuardarCabecera = true;
     }
+    $scope.mostrarCuartaVista = function(){
+        $scope.tablaConversorDetalleVista = false;
+        $scope.cuartaVista = true;
+    }
     var divInputs = function(){
         var cont = 0,flag=false;
         for (var i = 1; i <= $scope.longitud; i++) {
@@ -344,119 +349,134 @@
           }
     }
     $scope.siguiente = function(){
-
-      $scope.flagFix = true;
-      var id = 0;
-      if($scope.editarCatalogoIso){
-           id = $scope.datos.operador;
-      }else if($scope.nuevoCatalogoIso){
-           id = 0;
-      }
-      factoryParsing.obtenerCatalogos({id:id}).then(function(resp){
-            var tipoCampo,tipoValor;
-            for (var i=0; i < resp.length; i++) {
-                  for (var j=0; j < $scope.itemsValidos.length; j++) {
-                    if (resp[i].Bitmap == $scope.itemsValidos[j].orden) {
-                        $scope.itemsValidos[j].nombre = resp[i].Nombre;
-                        if($scope.editarCatalogoIso){
-                            for(p in $scope.tiposCampo){
-                                if($scope.tiposCampo[p].value ==  resp[i].Tipo){
-                                    tipoCampo = $scope.tiposCampo[p];
-                                }
-                            }
-                            for(p in $scope.tiposValor){
-                                if($scope.tiposValor[p].value ==  resp[i].TipoDato){
-                                    tipoValor = $scope.tiposValor[p]; 
-                                }
-                            }
-                        }else if($scope.nuevoCatalogoIso){
-                             tipoCampo = $scope.tipoCampo;
-                             tipoValor = $scope.tipoValor;
-                        }
-                        $scope.itemsValidos[j].tipo = tipoCampo;
-                        $scope.itemsValidos[j].tipoValor = tipoValor;
-                        $scope.itemsValidos[j].longitud = resp[i].Longitud;
-                        $scope.itemsValidos[j].descripcion = resp[i].Descripcion;
-                        $scope.itemsValidos[j].mostrarTextLongitud = false;
-                        $scope.itemsValidos[j].mostrarLabelLongitud = true;
-                        $scope.itemsValidos[j].mostrarTextDescripcion = false;
-                        $scope.itemsValidos[j].mostrarLabelDescripcion = true;
-                        $scope.itemsValidos[j].mostrarTextNombre = false;
-                        $scope.itemsValidos[j].mostrarLabelNombre = true;
-                    }
-                  }
-            }
-            if($scope.editarCatalogoIso){
-                factoryParsing.obtenerCatalogos({id:0}).then(function(resp){
-                    for (var i=0; i < resp.length; i++) {
-                          for (var j=0; j < $scope.itemsValidos.length; j++) {
-                            if (!$scope.itemsValidos[j].longitud) {
-                                $scope.itemsValidos[j].nombre = resp[i].Nombre;
-                                $scope.itemsValidos[j].tipo = $scope.tipoCampo;
-                                $scope.itemsValidos[j].tipoValor = $scope.tipoValor;
-                                $scope.itemsValidos[j].longitud = resp[i].Longitud;
-                                $scope.itemsValidos[j].descripcion = resp[i].Descripcion;
-                                $scope.itemsValidos[j].mostrarTextLongitud = false;
-                                $scope.itemsValidos[j].mostrarLabelLongitud = true;
-                                $scope.itemsValidos[j].mostrarTextDescripcion = false;
-                                $scope.itemsValidos[j].mostrarLabelDescripcion = true;
-                                $scope.itemsValidos[j].mostrarTextNombre = false;
-                                $scope.itemsValidos[j].mostrarLabelNombre = true;
-                            }
-                          }
-                    }
-
-                });
-            }
-            $scope.itemsValidos.sort(function(a, b) {
-                return parseFloat(a.orden) - parseFloat(b.orden);
-            });
-            $scope.primeraVista = false;
-            $scope.terceraVista = true;
-      });
-      var tmpBinario1 = '';
-      var tmpBinario2 = '';
-      for(p in $scope.bitmaps){
-        if($scope.bitmaps[p].orden <= 64){
-           if($scope.bitmaps[p].check){
-              tmpBinario1 += '1';
-           }else{
-              tmpBinario1 += '0';
-           }
-        }else{
-           if($scope.bitmaps[0].check){
-              if($scope.bitmaps[p].check){
-                  tmpBinario2 += '1';
-              }else{
-                  tmpBinario2 += '0';
-              }
-              if(tmpBinario2 == '0000000000000000000000000000000000000000000000000000000000000000'){
-                  console.log('esta marcado pero no hay seleccion');
-                  tmpBinario1 = tmpBinario1.replace('1','0'); 
-              }
-           }else{
-              tmpBinario2 = '0000000000000000000000000000000000000000000000000000000000000000'
-              tmpBinario2 = '0000000000000000000000000000000000000000000000000000000000000000'
-              break;
-           }
+        $scope.flagFix = true;
+        var id = 0;
+        if($scope.editarCatalogoIso){
+             id = $scope.datos.operador;
+        }else if($scope.nuevoCatalogoIso){
+             id = 0;
         }
-      }
-     
-      console.log(tmpBinario1);
-      console.log(tmpBinario2);
-      console.log('--------------');
-      $scope.valorHexadecimal1 = ConvertBase.binaryToHex(tmpBinario1);
-      console.log($scope.valorHexadecimal1.result);
-      $scope.valorHexadecimal2 = ConvertBase.binaryToHex(tmpBinario2);
-      console.log($scope.valorHexadecimal2.result);
+        factoryParsing.obtenerCatalogos({id:id}).then(function(resp){
+              var tipoCampo,tipoValor;
+              for (var i=0; i < resp.length; i++) {
+                    for (var j=0; j < $scope.itemsValidos.length; j++) {
+                      if (resp[i].Bitmap == $scope.itemsValidos[j].orden) {
+                          $scope.itemsValidos[j].nombre = resp[i].Nombre;
+                          if($scope.editarCatalogoIso){
+                              for(p in $scope.tiposCampo){
+                                  if($scope.tiposCampo[p].value ==  resp[i].Tipo){
+                                      tipoCampo = $scope.tiposCampo[p];
+                                  }
+                              }
+                              for(p in $scope.tiposValor){
+                                  if($scope.tiposValor[p].value ==  resp[i].TipoDato){
+                                      tipoValor = $scope.tiposValor[p]; 
+                                  }
+                              }
+                          }else if($scope.nuevoCatalogoIso){
+                               tipoCampo = $scope.tipoCampo;
+                               tipoValor = $scope.tipoValor;
+                          }
+                          $scope.itemsValidos[j].tipo = tipoCampo;
+                          $scope.itemsValidos[j].tipoValor = tipoValor;
+                          $scope.itemsValidos[j].longitud = resp[i].Longitud;
+                          $scope.itemsValidos[j].descripcion = resp[i].Descripcion;
+                          $scope.itemsValidos[j].mostrarTextLongitud = false;
+                          $scope.itemsValidos[j].mostrarLabelLongitud = true;
+                          $scope.itemsValidos[j].mostrarTextDescripcion = false;
+                          $scope.itemsValidos[j].mostrarLabelDescripcion = true;
+                          $scope.itemsValidos[j].mostrarTextNombre = false;
+                          $scope.itemsValidos[j].mostrarLabelNombre = true;
+                      }
+                    }
+              }
+              if($scope.editarCatalogoIso){
+                  factoryParsing.obtenerCatalogos({id:0}).then(function(resp){
+                      for (var i=0; i < resp.length; i++) {
+                            for (var j=0; j < $scope.itemsValidos.length; j++) {
+                              if (!$scope.itemsValidos[j].longitud) {
+                                  $scope.itemsValidos[j].nombre = resp[i].Nombre;
+                                  $scope.itemsValidos[j].tipo = $scope.tipoCampo;
+                                  $scope.itemsValidos[j].tipoValor = $scope.tipoValor;
+                                  $scope.itemsValidos[j].longitud = resp[i].Longitud;
+                                  $scope.itemsValidos[j].descripcion = resp[i].Descripcion;
+                                  $scope.itemsValidos[j].mostrarTextLongitud = false;
+                                  $scope.itemsValidos[j].mostrarLabelLongitud = true;
+                                  $scope.itemsValidos[j].mostrarTextDescripcion = false;
+                                  $scope.itemsValidos[j].mostrarLabelDescripcion = true;
+                                  $scope.itemsValidos[j].mostrarTextNombre = false;
+                                  $scope.itemsValidos[j].mostrarLabelNombre = true;
+                              }
+                            }
+                      }
+
+                  });
+              }
+              $scope.itemsValidos.sort(function(a, b) {
+                  return parseFloat(a.orden) - parseFloat(b.orden);
+              });
+              $scope.primeraVista = false;
+              $scope.terceraVista = true;
+        });  
     } 
+    var creacionArrayConversorDetalle  = function(tipo){
+       $scope.arrayConversorDetalle = [];
+       for(prop in $scope.itemsParaDetalle){
+           if($scope.tipoCabecera.value == 'ENVIO'){
+              $scope.arrayConversorDetalle.push({TipoRegistro: 'D',NumeroCampo:$scope.itemsParaDetalle[prop].orden,PosicionInicio: 0,LongitudCampo: 0,TipoCampo: 'X',SeparadorDecimales: 0,NumeroDecimales: 0,DescripcionCampo:'',IdCampoEquivalente: 0,CampoEquivalente:$scope.itemsParaDetalle[prop].Nombre,Obligatorio: 0,Validaciones: '',Tipo_Registro: 'ITEM',Default_Value: '',observacion: '',Rutina_Validacion: '',Rutina_Transformacion: '',CaracterConcatenacion: '',OrdenCampo: -1,Rutina_Conversion: '',ValidaEnMasivas: 1});
+           }else{
+              $scope.arrayConversorDetalle.push({TipoRegistro: 'D',NumeroCampo:$scope.itemsParaDetalle[prop].orden, PosicionInicio: 0,LongitudCampo: 0,TipoCampo: 'X',SeparadorDecimales: 0,NumeroDecimales: 0,DescripcionCampo:$scope.itemsParaDetalle[prop].Nombre,IdCampoEquivalente: 0,CampoEquivalente:'',Obligatorio: 0,Validaciones: '',Tipo_Registro: 'ITEM',Default_Value: '',observacion: '',Rutina_Validacion: '',Rutina_Transformacion: '',CaracterConcatenacion: '',OrdenCampo: -1,Rutina_Conversion: '',ValidaEnMasivas: 1});
+           }
+           
+       }
+    }
+    var crearBitmaps = function(arrayBusqueda){
+          var tmpBinario1 = '';
+          var tmpBinario2 = '';
+          for(p in arrayBusqueda){
+            if(arrayBusqueda[p].orden <= 64){
+               if(arrayBusqueda[p].check){
+                  tmpBinario1 += '1';
+               }else{
+                  tmpBinario1 += '0';
+               }
+            }else{
+               if(arrayBusqueda[0].check){
+                  if(arrayBusqueda[p].check){
+                      tmpBinario2 += '1';
+                  }else{
+                      tmpBinario2 += '0';
+                  }
+                  if(tmpBinario2 == '0000000000000000000000000000000000000000000000000000000000000000'){
+                      //console.log('esta marcado pero no hay seleccion');
+                      tmpBinario1 = tmpBinario1.replace('1','0'); 
+                  }
+               }else{
+                  tmpBinario2 = '0000000000000000000000000000000000000000000000000000000000000000'
+                  tmpBinario2 = '0000000000000000000000000000000000000000000000000000000000000000'
+                  break;
+               }
+            }
+          }
+          /*console.log(tmpBinario1);
+          console.log(tmpBinario2);
+          console.log('--------------');*/
+          $scope.valorHexadecimal1 = ConvertBase.binaryToHex(tmpBinario1);
+          //console.log($scope.valorHexadecimal1.result);
+          $scope.valorHexadecimal2 = ConvertBase.binaryToHex(tmpBinario2);
+          //console.log($scope.valorHexadecimal2.result);
+    }
     $scope.siguienteTablaConversorDetalle = function(){
+       creacionArrayConversorDetalle($scope.tipoCabecera.value);
        $scope.cuartaVista = false;
        $scope.tablaConversorDetalleVista = true;
-       console.log($scope.itemsParaDetalle);//aki
+       crearBitmaps($scope.nuevosChecks);
     }
     $scope.procesoPrimeraVista = function(item){
+        $scope.muestraOper = false;
         if(item){
+           $scope.muestraOper = false;
+           $scope.mostrarOperador = item.Operador;
            $scope.itemsValidos = [];
            $scope.datos.operador = item.Id_Operador;
            factoryParsing.obtenerDetalleCatalogos([{Id_Operador:item.Id_Operador}]).then(function(detalles){
@@ -477,45 +497,11 @@
                
            });
         }else{
+          $scope.muestraOper = true;
           desCheckBitmaps();
         }
-       
-        var conversorCabeceras = conversorcabecerasModel.create();
-        conversorCabeceras.NombreFormato = $scope.nombreCabecera;
-        conversorCabeceras.DescripcionFormato = $scope.descripcionCabecera;
-        conversorCabeceras.Cabecera = false;
-        conversorCabeceras.Pie = false;
-        conversorCabeceras.Separador = '';
-        conversorCabeceras.FormatoConversion = 0;
-        conversorCabeceras.Formato_destino = false;
-        var tipoProceso = '',tipoConversion = '';
-        if($scope.tipoCabecera.name == 'ENVIO'){
-          tipoProceso = 'IN';
-          tipoConversion = 'PROCESO,ISO8583';
-        }else{
-          tipoProceso = 'OUT';
-          tipoConversion = 'ISO8583,PROCESO';
-        }
-        conversorCabeceras.Tipo_Proceso = tipoProceso;
-        conversorCabeceras.NombreObjeto = '';
-        conversorCabeceras.estado = 'ACTIVO';
-        conversorCabeceras.tipo_archivo_salida = 'STRING';
-        conversorCabeceras.ORIENTACION = '';
-        conversorCabeceras.RutinaPrevalidacion = '';
-        conversorCabeceras.Unificador = '|';
-        conversorCabeceras.Check_Totales_Por = '';
-        conversorCabeceras.ValidaIdentificacion = true;
-        conversorCabeceras.RutinaPreconversion = '';
-        conversorCabeceras.InfiereTipoIdCliente = false;
-        conversorCabeceras.MuestraCabeceraColumna = false;
-        conversorCabeceras.TipoConversion = tipoConversion;
-        /*conversorCabeceras.save().then(function(r){
-            $scope.primeraVista = true;
-            $scope.vistaGuardarCabecera = false;
-            console.log(r);
-        });*/
-         $scope.primeraVista = true;
-            $scope.vistaGuardarCabecera = false;
+        $scope.primeraVista = true;
+        $scope.vistaGuardarCabecera = false;
     }
     $scope.validarFormato = function(arg,index){
       if(arg <= 0 || arg > 999){
@@ -571,7 +557,6 @@
       }
   }
   $scope.procesoNuevoFormato = function(){
-        //aki
         encerarNuevosChecks();
         $scope.itemsParaDetalle = [];
         factoryParsing.obtenerCatalogos({id:$scope.datos.otroOperador.Id_Operador}).then(function(resp){
@@ -581,6 +566,12 @@
                   if(resp[x].Bitmap == $scope.nuevosChecks[xx].orden){
                         $scope.nuevosChecks[xx].disabled = false;
                         $scope.nuevosChecks[xx].class = true;
+                        $scope.nuevosChecks[xx].Descripcion = resp[x].Descripcion;
+                        $scope.nuevosChecks[xx].Id_Operador = resp[x].Id_Operador;
+                        $scope.nuevosChecks[xx].Longitud    = resp[x].Longitud;
+                        $scope.nuevosChecks[xx].Nombre      = resp[x].Nombre;
+                        $scope.nuevosChecks[xx].Tipo        = resp[x].Tipo;
+                        $scope.nuevosChecks[xx].TipoDato    = resp[x].TipoDato;
                   }
                 }
             }
@@ -589,6 +580,77 @@
             $scope.vistaGuardarCabecera = false;
             $scope.cuartaVista  = true;
         });
+  }
+
+  var agregarIdFormato = function(IdFormato){
+      for(prop in $scope.arrayConversorDetalle){
+          $scope.arrayConversorDetalle[prop].IdFormato = IdFormato;
+      }
+  }
+  var crearCabeceraIso = function(IdFormato,idOperador,bitmap1,bitmap2){
+      var arrayCabeceraIso = [
+          {IdFormato:IdFormato,Orden:1,Nombre:'Longitud',Tipo:'H',Longitud:4,Bytes:2,AplicaDefault:false,ValorDefault:128,Respuesta:'',Descripcion:'Longitud de la trama. Constante'},
+          {IdFormato:IdFormato,Orden:2,Nombre:'MTI',Tipo:'N',Longitud:4,Bytes:4,AplicaDefault:true,ValorDefault:$scope.mtiInput,Respuesta:'',Descripcion:'Codigo del tipo de mensaje'},
+          {IdFormato:IdFormato,Orden:3,Nombre:'BitMap Primario',Tipo:'H',Longitud:16,Bytes:8,AplicaDefault:false,ValorDefault:bitmap1,Respuesta:'',Descripcion:'Valor hexadecimal representativo del BitMap primario con una longitud de 64 bit'},
+          {IdFormato:IdFormato,Orden:4,Nombre:'BitMap Secundario',Tipo:'H',Longitud:16,Bytes:8,AplicaDefault:true,ValorDefault:bitmap2,Respuesta:'',Descripcion:'Valor hexadecimal representativo del BitMap secundario con una longitud de 64 bit. (Opcional)'},
+          {IdFormato:IdFormato,Orden:5,Nombre:'Operador',Tipo:'N',Longitud:6,Bytes:6,AplicaDefault:true,ValorDefault:idOperador,Respuesta:'',Descripcion:'Identificador del operador insertado en esta tabla'}
+
+      ]; 
+
+
+      return arrayCabeceraIso;
+  }
+  $scope.guardarConversorDetalle = function(){
+        var conversorCabeceras = conversorcabecerasModel.create();
+        conversorCabeceras.NombreFormato = $scope.nombreCabecera;
+        conversorCabeceras.DescripcionFormato = $scope.descripcionCabecera;
+        conversorCabeceras.Cabecera = false;
+        conversorCabeceras.Pie = false;
+        conversorCabeceras.Separador = '';
+        conversorCabeceras.FormatoConversion = 0;
+        conversorCabeceras.Formato_destino = false;
+        var tipoProceso = '',tipoConversion = '';
+        if($scope.tipoCabecera.value == 'ENVIO'){
+          tipoProceso = 'IN';
+          tipoConversion = 'PROCESO,ISO8583';
+        }else{
+          tipoProceso = 'OUT';
+          tipoConversion = 'ISO8583,PROCESO';
+        }
+        conversorCabeceras.Tipo_Proceso = tipoProceso;
+        conversorCabeceras.NombreObjeto = '';
+        conversorCabeceras.estado = 'ACTIVO';
+        conversorCabeceras.tipo_archivo_salida = 'STRING';
+        conversorCabeceras.ORIENTACION = '';
+        conversorCabeceras.RutinaPrevalidacion = '';
+        conversorCabeceras.Unificador = '|';
+        conversorCabeceras.Check_Totales_Por = '';
+        conversorCabeceras.ValidaIdentificacion = true;
+        conversorCabeceras.RutinaPreconversion = '';
+        conversorCabeceras.InfiereTipoIdCliente = false;
+        conversorCabeceras.MuestraCabeceraColumna = false;
+        conversorCabeceras.TipoConversion = tipoConversion;
+        conversorCabeceras.save().then(function(r){
+            if(r.message){
+                var arrayEnviar = [];
+                agregarIdFormato(r.IdFormato);
+                var datosCabeceraIso = crearCabeceraIso(r.IdFormato,$scope.datos.otroOperador.Id_Operador,$scope.valorHexadecimal1.result,$scope.valorHexadecimal2.result);
+                arrayEnviar.push(datosCabeceraIso);
+                arrayEnviar.push($scope.arrayConversorDetalle);
+                factoryParsing.guardarFormatoISO(arrayEnviar).then(function(resultDta){
+                    if(resultDta.msj){
+                      $ngBootbox.alert('¡El Formato se creo con éxito!').then(function() {
+                        $route.reload();
+                      });
+                    }else{
+                      $ngBootbox.alert('¡Error indeterminado en conexión!').then(function() {
+                        $route.reload();
+                      });
+                    }
+                });
+            } 
+        });
+     
   }
   /*  Delete  */
   $scope.openDelete = function (item) {

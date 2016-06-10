@@ -6,6 +6,7 @@ var conversorcabeceraisos = mongoose.model('conversorcabeceraisos');
 var conversorCabeceraIso = require('../config/relationalModels/conversorCabeceraISO.js');
 var conversorDetalleIso = require('../config/relationalModels/conversorDetalleISO.js');
 var conversorCabecera = require('../config/relationalModels/conversorCabecera.js');
+var conversorDetalle = require('../config/relationalModels/conversorDetalle.js');
 var connectionDb = require('../config/connectionDb.js');
 
 router.get('/conversorcabeceraisos/:id', function (req, res) {
@@ -17,13 +18,6 @@ router.get('/conversorcabeceraisos/:id', function (req, res) {
 
 router.post('/obtenerOperadoresCabeceraIso', function (req, res) {
   connectionDb.sequelize.query("SELECT DISTINCT Id_Operador FROM  Conversor_Cabecera_Detalle_Catalogo_ISO8583  WHERE  (Id_Operador <> 0)").then(function(data){
-      /*var array = data[0];
-      var flags = [], output = [], l = array.length, i;
-      for( i=0; i<l; i++) {
-          if( flags[array[i].ValorDefault]) continue;
-          flags[array[i].ValorDefault] = true;
-          output.push({ValorDefault:array[i].ValorDefault,IdFormato:array[i].IdFormato});
-      }*/ 
       res.json(data[0]);
   })
 })
@@ -77,6 +71,18 @@ router.post('/obtenerCatalogos', function (req, res) {
         res.json(plantilla);
         meanCaseBase.auditSave(req,'Obtener plantilla base','Catalogo Iso','Obtener plantilla base');
   });
+})
+
+router.post('/guardarFormatoISO', function (req, res) {
+  var datosCabeceraIso = req.body[0];
+  var arrayConversorDetalle = req.body[1];
+  for(prop in datosCabeceraIso){
+    conversorCabeceraIso.create(datosCabeceraIso[prop]);
+  }
+  for(prop in arrayConversorDetalle){
+    conversorDetalle.create(arrayConversorDetalle[prop]);
+  }
+  res.json({msj:true});
 })
 
 /* GET conversorcabeceraisos listing. */

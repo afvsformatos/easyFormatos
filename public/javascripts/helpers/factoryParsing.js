@@ -12,9 +12,25 @@
         obtenerOperadoresCabeceraIso:obtenerOperadoresCabeceraIso,
         obtenerFormatos:obtenerFormatos,
         obtenerDetalleCatalogos:obtenerDetalleCatalogos,
-        eliminarCatalogo:eliminarCatalogo
+        eliminarCatalogo:eliminarCatalogo,
+        guardarFormatoISO:guardarFormatoISO
       });
 
+
+      function guardarFormatoISO(params) {
+        var deferred = $q.defer();
+        $http.post('/api/guardarFormatoISO',params)
+          // handle success
+          .success(function (data, status) {
+             deferred.resolve(data);
+          })
+          // handle error
+          .error(function (data) {
+            deferred.reject(data);
+          });
+        return deferred.promise;
+
+      }
 
       function eliminarCatalogo(params) {
         var deferred = $q.defer();

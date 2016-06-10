@@ -39,7 +39,7 @@ router.post('/conversorcabeceras', function(req, res, next){
    delete req.body.url;
    delete req.body.IdFormato;
    conversorCabecera.create(req.body).then(function(data) {
-      data.dataValues['message'] = "Registro Exitoso";
+      data.dataValues['message'] = true;
       res.json(data);
       meanCaseBase.auditSave(req,'Insert Register','conversorcabeceras',data);
     });
