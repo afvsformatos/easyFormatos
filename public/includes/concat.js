@@ -518,8 +518,26 @@
         obtenerMTI:obtenerMTI,
         obtenerDetallesFormatos:obtenerDetallesFormatos,
         eliminarCDetalleCabeceraIso:eliminarCDetalleCabeceraIso,
-        eliminarFormatoIso:eliminarFormatoIso
+        eliminarFormatoIso:eliminarFormatoIso,
+        comprobarCamposRelacionados:comprobarCamposRelacionados
       });
+
+
+
+      function comprobarCamposRelacionados(params) {
+        var deferred = $q.defer();
+        $http.post('/api/comprobarCamposRelacionados',params)
+          // handle success
+          .success(function (data, status) {
+             deferred.resolve(data);
+          })
+          // handle error
+          .error(function (data) {
+            deferred.reject(data);
+          });
+        return deferred.promise;
+
+      }
 
 
       function eliminarFormatoIso(params) {
@@ -1022,83 +1040,6 @@
       }
     });
  })
-.controller('AuditController',
-  ['$rootScope','$scope', '$location', 'AuditService','$uibModal',
-  function ($rootScope,$scope, $location, AuditService,$uibModal) {
-    $scope.titleController = 'MEAN-CASE SUPER HEROIC';
-    $rootScope.titleWeb = 'Audit';
-    $scope.preloader = true;
-    $scope.msjAlert = false;
-    AuditService.allAudit().then(function(data) {
-      $scope.AuditList = data;
-      $scope.AuditTemp = angular.copy($scope.AuditList);
-      $scope.preloader = false;
-    });
-    /*  Modal */
-     $scope.open = function (item) {
-       var modalInstance = $uibModal.open({
-        animation: true,
-        templateUrl: 'templates/Audit/modalCreate.html',
-        controller: 'modalAuditCreateController',
-        size: 'lg',
-        resolve: {
-         item: function () {
-          return item;
-         }
-        }
-      });
-      modalInstance.result.then(function(data) {
-        if(!item) {
-           $scope.AuditList.push(data);
-           $scope.AuditTemp = angular.copy($scope.AuditList);
-        }
-      },function(result){
-      $scope.AuditList = $scope.AuditTemp;
-      $scope.AuditTemp = angular.copy($scope.AuditList);
-    });
-  };
-  /*  Delete  */
-  $scope.openDelete = function (item) {
-    var modalInstance = $uibModal.open({
-      animation: true,
-      templateUrl: 'templates/Audit/modalDelete.html',
-      controller: 'modalAuditDeleteController',
-      size: 'lg',
-      resolve: {
-        item: function () {
-           return item;
-        }
-      }
-    });
-    modalInstance.result.then(function(data) {
-      var idx = $scope.AuditList.indexOf(data);
-      $scope.AuditList.splice(idx, 1);
-      AuditService
-        .del(data._id)
-        .then(function(result) {
-          $scope.msjAlert = true;
-          $scope.alert = 'success';
-          $scope.message = result.message;
-        })
-        .catch(function(err) {
-          $scope.msjAlert = true;
-          $scope.alert = 'danger';
-          $scope.message = 'Error '+err;
-        })
-      });
-    };
-}])
-.config(function ($routeProvider) {
-  $routeProvider
-    .when('/Audit', {
-      templateUrl: '/templates/Audit/auditIndex.html',
-      controller: 'AuditController',
-      access: {
-        restricted: false,
-       rol: 4
-      }
-    });
- })
 .controller('habilitarAmbienteController',
   ['$scope', '$uibModalInstance', 'ambientes','ambientesModel','$filter',
   function ($scope, $uibModalInstance, ambientes,ambientesModel,$filter) {
@@ -1278,6 +1219,83 @@
       access: {
         restricted: false,
         rol: 5
+      }
+    });
+ })
+.controller('AuditController',
+  ['$rootScope','$scope', '$location', 'AuditService','$uibModal',
+  function ($rootScope,$scope, $location, AuditService,$uibModal) {
+    $scope.titleController = 'MEAN-CASE SUPER HEROIC';
+    $rootScope.titleWeb = 'Audit';
+    $scope.preloader = true;
+    $scope.msjAlert = false;
+    AuditService.allAudit().then(function(data) {
+      $scope.AuditList = data;
+      $scope.AuditTemp = angular.copy($scope.AuditList);
+      $scope.preloader = false;
+    });
+    /*  Modal */
+     $scope.open = function (item) {
+       var modalInstance = $uibModal.open({
+        animation: true,
+        templateUrl: 'templates/Audit/modalCreate.html',
+        controller: 'modalAuditCreateController',
+        size: 'lg',
+        resolve: {
+         item: function () {
+          return item;
+         }
+        }
+      });
+      modalInstance.result.then(function(data) {
+        if(!item) {
+           $scope.AuditList.push(data);
+           $scope.AuditTemp = angular.copy($scope.AuditList);
+        }
+      },function(result){
+      $scope.AuditList = $scope.AuditTemp;
+      $scope.AuditTemp = angular.copy($scope.AuditList);
+    });
+  };
+  /*  Delete  */
+  $scope.openDelete = function (item) {
+    var modalInstance = $uibModal.open({
+      animation: true,
+      templateUrl: 'templates/Audit/modalDelete.html',
+      controller: 'modalAuditDeleteController',
+      size: 'lg',
+      resolve: {
+        item: function () {
+           return item;
+        }
+      }
+    });
+    modalInstance.result.then(function(data) {
+      var idx = $scope.AuditList.indexOf(data);
+      $scope.AuditList.splice(idx, 1);
+      AuditService
+        .del(data._id)
+        .then(function(result) {
+          $scope.msjAlert = true;
+          $scope.alert = 'success';
+          $scope.message = result.message;
+        })
+        .catch(function(err) {
+          $scope.msjAlert = true;
+          $scope.alert = 'danger';
+          $scope.message = 'Error '+err;
+        })
+      });
+    };
+}])
+.config(function ($routeProvider) {
+  $routeProvider
+    .when('/Audit', {
+      templateUrl: '/templates/Audit/auditIndex.html',
+      controller: 'AuditController',
+      access: {
+        restricted: false,
+       rol: 4
       }
     });
  })
@@ -1703,14 +1721,44 @@
             }
         }
         if(idx != -1){
-          $scope.itemsValidos.splice(idx, 1);
-          if($scope.flagFix){
-              for(t in $scope.nuevosChecks){
-                if(item.orden == $scope.nuevosChecks[t].orden){
-                  $scope.nuevosChecks[t].disabled = true;
-                  $scope.nuevosChecks[t].check = false;
-                }
+          if($scope.nuevoCatalogoIso){
+              $scope.itemsValidos.splice(idx, 1);
+              if($scope.flagFix){
+                  for(t in $scope.nuevosChecks){
+                    if(item.orden == $scope.nuevosChecks[t].orden){
+                      $scope.nuevosChecks[t].disabled = true;
+                      $scope.nuevosChecks[t].check = false;
+                    }
+                  }
               }
+          }else if($scope.editarCatalogoIso){
+              factoryParsing.comprobarCamposRelacionados({idOperador:$scope.idOperadorComprobar,bit:item.orden}).then(function(respuesta){
+                  var cad = '';
+                  for(x in respuesta){
+                    cad += respuesta[x].NombreFormato+',';
+                  }
+                  cad = cad.slice(0,-1);
+                  if(respuesta.length > 0){
+                     $ngBootbox.alert('¡Imposible remover el bit seleccionado!, ya que tienen adjunto '+respuesta.length+' formatos: '+cad).then(function(){
+                        for(t in $scope.bitmaps){
+                            if(item.orden == $scope.bitmaps[t].orden){
+                               $scope.bitmaps[t].check = true;
+                            }
+                          }
+                     });
+                  }else{
+                      $scope.itemsValidos.splice(idx, 1);
+                      if($scope.flagFix){
+                          for(t in $scope.nuevosChecks){
+                            if(item.orden == $scope.nuevosChecks[t].orden){
+                              $scope.nuevosChecks[t].disabled = true;
+                              $scope.nuevosChecks[t].check = false;
+                            }
+                          }
+                      }
+                  }
+                  
+              });
           }
         }else{
           $scope.itemsValidos.push(item);
@@ -1751,7 +1799,7 @@
            ope = $scope.datos.operador
            $scope.dataEnviar.push({eliminar:true,Id_Operador:$scope.datos.operador});
         }else if($scope.nuevoCatalogoIso){
-           ope = $scope.datos.operador.Id_Operador;
+           ope = $scope.datos.operador;
         }
         for(prop in $scope.itemsValidos){
            $scope.dataEnviar.push({Id_Operador:ope,Bitmap:$scope.itemsValidos[prop].orden,Nombre:$scope.itemsValidos[prop].nombre,Tipo:$scope.itemsValidos[prop].tipo.value,Longitud:$scope.itemsValidos[prop].longitud,Descripcion:$scope.itemsValidos[prop].descripcion,TipoDato:$scope.itemsValidos[prop].tipoValor.value});
@@ -1957,6 +2005,7 @@
     $scope.procesoPrimeraVista = function(item){
         $scope.muestraOper = false;
         if(item){
+           $scope.idOperadorComprobar = item.Id_Operador;
            $scope.muestraOper = false;
            $scope.mostrarOperador = item.Operador;
            $scope.itemsValidos = [];
@@ -2197,8 +2246,6 @@
             });
           
         }else if($scope.editarFormatoIso){
-          // to do
-          console.log($scope.arrayConversorDetalle);
           factoryParsing.eliminarCDetalleCabeceraIso({IdFormato:$scope.itemIdFormato}).then(function(resp){
               if(resp.msj){
                     var arrayEnviar = [];

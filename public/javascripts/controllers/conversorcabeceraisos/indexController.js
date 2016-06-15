@@ -273,14 +273,44 @@
             }
         }
         if(idx != -1){
-          $scope.itemsValidos.splice(idx, 1);
-          if($scope.flagFix){
-              for(t in $scope.nuevosChecks){
-                if(item.orden == $scope.nuevosChecks[t].orden){
-                  $scope.nuevosChecks[t].disabled = true;
-                  $scope.nuevosChecks[t].check = false;
-                }
+          if($scope.nuevoCatalogoIso){
+              $scope.itemsValidos.splice(idx, 1);
+              if($scope.flagFix){
+                  for(t in $scope.nuevosChecks){
+                    if(item.orden == $scope.nuevosChecks[t].orden){
+                      $scope.nuevosChecks[t].disabled = true;
+                      $scope.nuevosChecks[t].check = false;
+                    }
+                  }
               }
+          }else if($scope.editarCatalogoIso){
+              factoryParsing.comprobarCamposRelacionados({idOperador:$scope.idOperadorComprobar,bit:item.orden}).then(function(respuesta){
+                  var cad = '';
+                  for(x in respuesta){
+                    cad += respuesta[x].NombreFormato+',';
+                  }
+                  cad = cad.slice(0,-1);
+                  if(respuesta.length > 0){
+                     $ngBootbox.alert('¡Imposible remover el bit seleccionado!, ya que tienen adjunto '+respuesta.length+' formatos: '+cad).then(function(){
+                        for(t in $scope.bitmaps){
+                            if(item.orden == $scope.bitmaps[t].orden){
+                               $scope.bitmaps[t].check = true;
+                            }
+                          }
+                     });
+                  }else{
+                      $scope.itemsValidos.splice(idx, 1);
+                      if($scope.flagFix){
+                          for(t in $scope.nuevosChecks){
+                            if(item.orden == $scope.nuevosChecks[t].orden){
+                              $scope.nuevosChecks[t].disabled = true;
+                              $scope.nuevosChecks[t].check = false;
+                            }
+                          }
+                      }
+                  }
+                  
+              });
           }
         }else{
           $scope.itemsValidos.push(item);
@@ -321,7 +351,7 @@
            ope = $scope.datos.operador
            $scope.dataEnviar.push({eliminar:true,Id_Operador:$scope.datos.operador});
         }else if($scope.nuevoCatalogoIso){
-           ope = $scope.datos.operador.Id_Operador;
+           ope = $scope.datos.operador;
         }
         for(prop in $scope.itemsValidos){
            $scope.dataEnviar.push({Id_Operador:ope,Bitmap:$scope.itemsValidos[prop].orden,Nombre:$scope.itemsValidos[prop].nombre,Tipo:$scope.itemsValidos[prop].tipo.value,Longitud:$scope.itemsValidos[prop].longitud,Descripcion:$scope.itemsValidos[prop].descripcion,TipoDato:$scope.itemsValidos[prop].tipoValor.value});
@@ -527,6 +557,7 @@
     $scope.procesoPrimeraVista = function(item){
         $scope.muestraOper = false;
         if(item){
+           $scope.idOperadorComprobar = item.Id_Operador;
            $scope.muestraOper = false;
            $scope.mostrarOperador = item.Operador;
            $scope.itemsValidos = [];
@@ -767,8 +798,6 @@
             });
           
         }else if($scope.editarFormatoIso){
-          // to do
-          console.log($scope.arrayConversorDetalle);
           factoryParsing.eliminarCDetalleCabeceraIso({IdFormato:$scope.itemIdFormato}).then(function(resp){
               if(resp.msj){
                     var arrayEnviar = [];

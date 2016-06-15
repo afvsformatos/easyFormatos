@@ -17,8 +17,26 @@
         obtenerMTI:obtenerMTI,
         obtenerDetallesFormatos:obtenerDetallesFormatos,
         eliminarCDetalleCabeceraIso:eliminarCDetalleCabeceraIso,
-        eliminarFormatoIso:eliminarFormatoIso
+        eliminarFormatoIso:eliminarFormatoIso,
+        comprobarCamposRelacionados:comprobarCamposRelacionados
       });
+
+
+
+      function comprobarCamposRelacionados(params) {
+        var deferred = $q.defer();
+        $http.post('/api/comprobarCamposRelacionados',params)
+          // handle success
+          .success(function (data, status) {
+             deferred.resolve(data);
+          })
+          // handle error
+          .error(function (data) {
+            deferred.reject(data);
+          });
+        return deferred.promise;
+
+      }
 
 
       function eliminarFormatoIso(params) {

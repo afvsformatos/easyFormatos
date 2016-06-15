@@ -89,6 +89,41 @@ router.post('/eliminarFormatoIso', function (req, res) {
 })
 
 
+router.post('/comprobarCamposRelacionados', function (req, res) {
+  conversorCabeceraIso.findAll({
+                where: {
+                  Nombre: 'Operador',
+                  ValorDefault : req.body.idOperador
+
+                }
+              }).then(function(data){
+                  var arrayIdsFormatos = [];
+                  for(p in data){
+                    arrayIdsFormatos.push({IdFormato:data[p].IdFormato});
+                  }
+                  conversorDetalle.findAll({
+                        where: {
+                          $or: arrayIdsFormatos,
+                          NumeroCampo:req.body.bit
+                        }
+                      }).then(function(coincidencias) {
+                           var arrayCoincidencias = [];
+                           for(p in coincidencias){
+                              arrayCoincidencias.push({IdFormato:coincidencias[p].IdFormato});
+                           }
+                          conversorCabecera.findAll({
+                                where: {
+                                  $or: arrayCoincidencias
+                                }
+                              }).then(function(formatos) {
+                                   res.json(formatos);
+                          });
+                  });
+              });
+
+  
+})
+
 router.post('/obtenerDetallesFormatos', function (req, res) {
   conversorDetalle.findAll({
                 where: {
