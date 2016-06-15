@@ -1,0 +1,33 @@
+<div class="modal-header">
+   <div class="pull-right">
+     <button type="button" class="close pull-right" ng-click="$dismiss()">&times;</button>
+   </div>
+<div>
+   <h3 class="modal-title" >Formato: {{cabecera.NombreFormato}} | N° Bits: {{numeroBits}}</h3>
+</div>
+</div>
+<div>
+   <div class="modal-body">
+          <table  class="table table-bordered table-hover table-striped" at-table at-paginated at-list="conversorDetalles | filter:searchText" at-config="configTable">
+                <thead></thead>
+                <tbody>
+                     <tr>
+                       <td  at-sortable  at-title='Número de Campo' width='150'>{{item.NumeroCampo}}</td>
+                       <td  at-sortable  at-title='Descripción Campo' width='150'>{{item.DescripcionCampo}}</td>
+                       <td  at-sortable  at-title='Campo Equivalente' width='150'>{{item.CampoEquivalente}}</td>
+                       <td  at-sortable  at-title='Rutina Validación' width='150'>{{item.Rutina_Validacion}}</td>
+                       <td  at-sortable  at-title='Rutina Transformación' width='150'>{{item.Rutina_Transformacion}}</td>
+                       <td  at-sortable  at-title='Rutina Conversión' width='150'>{{item.Rutina_Conversion}}</td>           
+                     </tr>
+                </tbody>
+          </table>
+          <div class="col-md-6 col-md-offset-3" >
+            <at-pagination at-list="conversorDetalles" at-config="configTable"></at-pagination>
+          </div>
+     
+  </div>
+  <div class="modal-footer">
+     
+  </div>
+</form>
+</div>

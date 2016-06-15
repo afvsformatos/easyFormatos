@@ -514,9 +514,42 @@
         obtenerFormatos:obtenerFormatos,
         obtenerDetalleCatalogos:obtenerDetalleCatalogos,
         eliminarCatalogo:eliminarCatalogo,
-        guardarFormatoISO:guardarFormatoISO
+        guardarFormatoISO:guardarFormatoISO,
+        obtenerMTI:obtenerMTI,
+        obtenerDetallesFormatos:obtenerDetallesFormatos
       });
 
+
+
+      function obtenerDetallesFormatos(params) {
+        var deferred = $q.defer();
+        $http.post('/api/obtenerDetallesFormatos',params)
+          // handle success
+          .success(function (data, status) {
+             deferred.resolve(data);
+          })
+          // handle error
+          .error(function (data) {
+            deferred.reject(data);
+          });
+        return deferred.promise;
+
+      }
+
+      function obtenerMTI(params) {
+        var deferred = $q.defer();
+        $http.post('/api/obtenerMTI',params)
+          // handle success
+          .success(function (data, status) {
+             deferred.resolve(data);
+          })
+          // handle error
+          .error(function (data) {
+            deferred.reject(data);
+          });
+        return deferred.promise;
+
+      }
 
       function guardarFormatoISO(params) {
         var deferred = $q.defer();
@@ -836,6 +869,128 @@
 	return model;
 })
 
+.controller('almacentramasController',
+  ['$rootScope','$scope', '$location', 'almacentramasModel','$uibModal',
+  function ($rootScope,$scope, $location, almacentramasModel,$uibModal) {
+    $scope.titleController = 'MEAN-CASE SUPER HEROIC';
+    $rootScope.titleWeb = 'almacentramas';
+    $scope.preloader = true;
+    $scope.msjAlert = false;
+    almacentramasModel.getAll().then(function(data) {
+      $scope.almacentramasList = data;
+      $scope.almacentramasTemp = angular.copy($scope.almacentramasList);
+      $scope.preloader = false;
+    });
+    /*  Modal */
+     $scope.open = function (item) {
+       var modalInstance = $uibModal.open({
+        animation: true,
+        templateUrl: 'templates/almacentramas/modalCreate.html',
+        controller: 'modalalmacentramasCreateController',
+        size: 'lg',
+        resolve: {
+         item: function () {
+          return item;
+         }
+        }
+      });
+      modalInstance.result.then(function(data) {
+        if(!item) {
+           $scope.almacentramasList.push(data);
+           $scope.almacentramasTemp = angular.copy($scope.almacentramasList);
+        }
+      },function(result){
+      $scope.almacentramasList = $scope.almacentramasTemp;
+      $scope.almacentramasTemp = angular.copy($scope.almacentramasList);
+    });
+  };
+  /*  Delete  */
+  $scope.openDelete = function (item) {
+    var modalInstance = $uibModal.open({
+      animation: true,
+      templateUrl: 'templates/almacentramas/modalDelete.html',
+      controller: 'modalalmacentramasDeleteController',
+      size: 'lg',
+      resolve: {
+        item: function () {
+           return item;
+        }
+      }
+    });
+    modalInstance.result.then(function(data) {
+      var idx = $scope.almacentramasList.indexOf(data);
+      $scope.almacentramasList.splice(idx, 1);
+      almacentramasModel
+        .destroy(data._id)
+        .then(function(result) {
+          $scope.msjAlert = true;
+          $scope.alert = 'success';
+          $scope.message = result.message;
+        })
+        .catch(function(err) {
+          $scope.msjAlert = true;
+          $scope.alert = 'danger';
+          $scope.message = 'Error '+err;
+        })
+      });
+    };
+}])
+.controller('modalalmacentramasCreateController',
+  ['$scope', '$uibModalInstance', 'item','almacentramasModel','$filter',
+  function ($scope, $uibModalInstance, item,almacentramasModel,$filter) {
+    $scope.item = item;
+    $scope.saving = false;
+    if(item){
+       //add optional code
+    }
+    $scope.save = function () {
+      if(!item){
+        $scope.saving = true;
+        item = {id_formato: $scope.item.id_formato,nombre_formato: $scope.item.nombre_formato,trama: $scope.item.trama,aprobo: $scope.item.aprobo};
+        var almacentramas = almacentramasModel.create();
+        almacentramas.id_formato = $scope.item.id_formato;
+        almacentramas.nombre_formato = $scope.item.nombre_formato;
+        almacentramas.trama = $scope.item.trama;
+        almacentramas.aprobo = $scope.item.aprobo;
+        almacentramas.save().then(function(r){
+          $scope.saving = false;
+          $uibModalInstance.close(r);
+        });
+      }else{
+        almacentramasModel.findById($scope.item._id);
+        almacentramasModel.id_formato = $scope.item.id_formato;
+        almacentramasModel.nombre_formato = $scope.item.nombre_formato;
+        almacentramasModel.trama = $scope.item.trama;
+        almacentramasModel.aprobo = $scope.item.aprobo;
+        almacentramasModel.save().then(function(r){
+          $scope.saving = false;
+          $uibModalInstance.close(r);
+        });
+      }
+    };
+}])
+.controller('modalalmacentramasDeleteController',
+  ['$scope', '$uibModalInstance', 'item',
+  function ($scope, $uibModalInstance, item) {
+    $scope.item = item;
+    $scope.ok = function () {
+      $uibModalInstance.close($scope.item);
+    };
+    $scope.cancel = function () {
+       $uibModalInstance.dismiss('cancel');
+     };
+}])
+.config(function ($routeProvider) {
+  $routeProvider
+    .when('/almacentramas', {
+      templateUrl: '/templates/almacentramas/index.html',
+      controller: 'almacentramasController',
+      access: {
+        restricted: false,
+       	rol: 5
+      }
+    });
+ })
 .controller('habilitarAmbienteController',
   ['$scope', '$uibModalInstance', 'ambientes','ambientesModel','$filter',
   function ($scope, $uibModalInstance, ambientes,ambientesModel,$filter) {
@@ -1015,128 +1170,6 @@
       access: {
         restricted: false,
         rol: 5
-      }
-    });
- })
-.controller('almacentramasController',
-  ['$rootScope','$scope', '$location', 'almacentramasModel','$uibModal',
-  function ($rootScope,$scope, $location, almacentramasModel,$uibModal) {
-    $scope.titleController = 'MEAN-CASE SUPER HEROIC';
-    $rootScope.titleWeb = 'almacentramas';
-    $scope.preloader = true;
-    $scope.msjAlert = false;
-    almacentramasModel.getAll().then(function(data) {
-      $scope.almacentramasList = data;
-      $scope.almacentramasTemp = angular.copy($scope.almacentramasList);
-      $scope.preloader = false;
-    });
-    /*  Modal */
-     $scope.open = function (item) {
-       var modalInstance = $uibModal.open({
-        animation: true,
-        templateUrl: 'templates/almacentramas/modalCreate.html',
-        controller: 'modalalmacentramasCreateController',
-        size: 'lg',
-        resolve: {
-         item: function () {
-          return item;
-         }
-        }
-      });
-      modalInstance.result.then(function(data) {
-        if(!item) {
-           $scope.almacentramasList.push(data);
-           $scope.almacentramasTemp = angular.copy($scope.almacentramasList);
-        }
-      },function(result){
-      $scope.almacentramasList = $scope.almacentramasTemp;
-      $scope.almacentramasTemp = angular.copy($scope.almacentramasList);
-    });
-  };
-  /*  Delete  */
-  $scope.openDelete = function (item) {
-    var modalInstance = $uibModal.open({
-      animation: true,
-      templateUrl: 'templates/almacentramas/modalDelete.html',
-      controller: 'modalalmacentramasDeleteController',
-      size: 'lg',
-      resolve: {
-        item: function () {
-           return item;
-        }
-      }
-    });
-    modalInstance.result.then(function(data) {
-      var idx = $scope.almacentramasList.indexOf(data);
-      $scope.almacentramasList.splice(idx, 1);
-      almacentramasModel
-        .destroy(data._id)
-        .then(function(result) {
-          $scope.msjAlert = true;
-          $scope.alert = 'success';
-          $scope.message = result.message;
-        })
-        .catch(function(err) {
-          $scope.msjAlert = true;
-          $scope.alert = 'danger';
-          $scope.message = 'Error '+err;
-        })
-      });
-    };
-}])
-.controller('modalalmacentramasCreateController',
-  ['$scope', '$uibModalInstance', 'item','almacentramasModel','$filter',
-  function ($scope, $uibModalInstance, item,almacentramasModel,$filter) {
-    $scope.item = item;
-    $scope.saving = false;
-    if(item){
-       //add optional code
-    }
-    $scope.save = function () {
-      if(!item){
-        $scope.saving = true;
-        item = {id_formato: $scope.item.id_formato,nombre_formato: $scope.item.nombre_formato,trama: $scope.item.trama,aprobo: $scope.item.aprobo};
-        var almacentramas = almacentramasModel.create();
-        almacentramas.id_formato = $scope.item.id_formato;
-        almacentramas.nombre_formato = $scope.item.nombre_formato;
-        almacentramas.trama = $scope.item.trama;
-        almacentramas.aprobo = $scope.item.aprobo;
-        almacentramas.save().then(function(r){
-          $scope.saving = false;
-          $uibModalInstance.close(r);
-        });
-      }else{
-        almacentramasModel.findById($scope.item._id);
-        almacentramasModel.id_formato = $scope.item.id_formato;
-        almacentramasModel.nombre_formato = $scope.item.nombre_formato;
-        almacentramasModel.trama = $scope.item.trama;
-        almacentramasModel.aprobo = $scope.item.aprobo;
-        almacentramasModel.save().then(function(r){
-          $scope.saving = false;
-          $uibModalInstance.close(r);
-        });
-      }
-    };
-}])
-.controller('modalalmacentramasDeleteController',
-  ['$scope', '$uibModalInstance', 'item',
-  function ($scope, $uibModalInstance, item) {
-    $scope.item = item;
-    $scope.ok = function () {
-      $uibModalInstance.close($scope.item);
-    };
-    $scope.cancel = function () {
-       $uibModalInstance.dismiss('cancel');
-     };
-}])
-.config(function ($routeProvider) {
-  $routeProvider
-    .when('/almacentramas', {
-      templateUrl: '/templates/almacentramas/index.html',
-      controller: 'almacentramasController',
-      access: {
-        restricted: false,
-       	rol: 5
       }
     });
  })
@@ -1385,6 +1418,8 @@
     $scope.deshabilitarBtnNuevoCatalogo = true;
     $scope.tablaConversorDetalleVista = false;
     $scope.longitudInput = 128;
+    $scope.mostrarTablaEditarFormato = false;
+    $scope.mostrarSpinerTablaEditarFormato = false;
     $scope.cambioPaginacion = function(dato){
       $rootScope.configTable.itemsPerPage =  dato.value;
     }
@@ -1502,7 +1537,10 @@
         $scope.tipoCampo = $scope.tiposCampo[0];
     });
     $scope.mostrarFormatos = function(items){
+        $scope.mostrarSpinerTablaEditarFormato = true;
         factoryParsing.obtenerFormatos({Id_Operador:items.Id_Operador}).then(function(result){
+            $scope.mostrarSpinerTablaEditarFormato = false;
+            $scope.mostrarTablaEditarFormato = true;
             $scope.formatosPorOperador = result;
             $scope.datos.formato =  $scope.formatosPorOperador[0];
         });
@@ -1563,6 +1601,7 @@
         }
     }
     $scope.anteriorProcesos = function(){
+        encerarNuevosChecks();
         $scope.primeraVista         = false;
         $scope.cuartaVista          = false;
         $scope.vistaGuardarCabecera = true;
@@ -1785,17 +1824,7 @@
               $scope.terceraVista = true;
         });  
     } 
-    var creacionArrayConversorDetalle  = function(tipo){
-       $scope.arrayConversorDetalle = [];
-       for(prop in $scope.itemsParaDetalle){
-           if($scope.tipoCabecera.value == 'ENVIO'){
-              $scope.arrayConversorDetalle.push({TipoRegistro: 'D',NumeroCampo:$scope.itemsParaDetalle[prop].orden,PosicionInicio: 0,LongitudCampo: 0,TipoCampo: 'X',SeparadorDecimales: 0,NumeroDecimales: 0,DescripcionCampo:'',IdCampoEquivalente: 0,CampoEquivalente:$scope.itemsParaDetalle[prop].Nombre,Obligatorio: 0,Validaciones: '',Tipo_Registro: 'ITEM',Default_Value: '',observacion: '',Rutina_Validacion: '',Rutina_Transformacion: '',CaracterConcatenacion: '',OrdenCampo: -1,Rutina_Conversion: '',ValidaEnMasivas: 1});
-           }else{
-              $scope.arrayConversorDetalle.push({TipoRegistro: 'D',NumeroCampo:$scope.itemsParaDetalle[prop].orden, PosicionInicio: 0,LongitudCampo: 0,TipoCampo: 'X',SeparadorDecimales: 0,NumeroDecimales: 0,DescripcionCampo:$scope.itemsParaDetalle[prop].Nombre,IdCampoEquivalente: 0,CampoEquivalente:'',Obligatorio: 0,Validaciones: '',Tipo_Registro: 'ITEM',Default_Value: '',observacion: '',Rutina_Validacion: '',Rutina_Transformacion: '',CaracterConcatenacion: '',OrdenCampo: -1,Rutina_Conversion: '',ValidaEnMasivas: 1});
-           }
-           
-       }
-    }
+    
     var crearBitmaps = function(arrayBusqueda){
           var tmpBinario1 = '';
           var tmpBinario2 = '';
@@ -1832,8 +1861,64 @@
           $scope.valorHexadecimal2 = ConvertBase.binaryToHex(tmpBinario2);
           //console.log($scope.valorHexadecimal2.result);
     }
+
+    var creacionArrayConversorDetalle  = function(tipo){
+       $scope.arrayConversorDetalle = [];
+       for(prop in $scope.itemsParaDetalle){
+           if($scope.tipoCabecera.value == 'ENVIO'){
+              $scope.arrayConversorDetalle.push({TipoRegistro: 'D',NumeroCampo:$scope.itemsParaDetalle[prop].orden,PosicionInicio: 0,LongitudCampo: 0,TipoCampo: 'X',SeparadorDecimales: 0,NumeroDecimales: 0,DescripcionCampo:'',IdCampoEquivalente: 0,CampoEquivalente:$scope.itemsParaDetalle[prop].Nombre,Obligatorio: 0,Validaciones: '',Tipo_Registro: 'ITEM',Default_Value: '',observacion: '',Rutina_Validacion: '',Rutina_Transformacion: '',CaracterConcatenacion: '',OrdenCampo: -1,Rutina_Conversion: '',ValidaEnMasivas: 1});
+           }else{
+              $scope.arrayConversorDetalle.push({TipoRegistro: 'D',NumeroCampo:$scope.itemsParaDetalle[prop].orden, PosicionInicio: 0,LongitudCampo: 0,TipoCampo: 'X',SeparadorDecimales: 0,NumeroDecimales: 0,DescripcionCampo:$scope.itemsParaDetalle[prop].Nombre,IdCampoEquivalente: 0,CampoEquivalente:'',Obligatorio: 0,Validaciones: '',Tipo_Registro: 'ITEM',Default_Value: '',observacion: '',Rutina_Validacion: '',Rutina_Transformacion: '',CaracterConcatenacion: '',OrdenCampo: -1,Rutina_Conversion: '',ValidaEnMasivas: 1});
+           }
+           
+       }
+    }
+
+    var creacionArrayConversorDetalleEditar  = function(){
+       $scope.arrayConversorDetalle = [];
+       for(prop in $scope.itemsParaDetalle){
+            if($scope.tipoCabecera.value == 'ENVIO'){
+              $scope.arrayConversorDetalle.push({TipoRegistro: 'D',NumeroCampo:$scope.itemsParaDetalle[prop].orden,PosicionInicio: 0,LongitudCampo: 0,TipoCampo: 'X',SeparadorDecimales: 0,NumeroDecimales: 0,DescripcionCampo:'',IdCampoEquivalente: 0,CampoEquivalente:$scope.itemsParaDetalle[prop].Nombre,Obligatorio: 0,Validaciones: '',Tipo_Registro: 'ITEM',Default_Value: '',observacion: '',Rutina_Validacion: '',Rutina_Transformacion: '',CaracterConcatenacion: '',OrdenCampo: -1,Rutina_Conversion: '',ValidaEnMasivas: 1});
+           }else{
+              $scope.arrayConversorDetalle.push({TipoRegistro: 'D',NumeroCampo:$scope.itemsParaDetalle[prop].orden, PosicionInicio: 0,LongitudCampo: 0,TipoCampo: 'X',SeparadorDecimales: 0,NumeroDecimales: 0,DescripcionCampo:$scope.itemsParaDetalle[prop].Nombre,IdCampoEquivalente: 0,CampoEquivalente:'',Obligatorio: 0,Validaciones: '',Tipo_Registro: 'ITEM',Default_Value: '',observacion: '',Rutina_Validacion: '',Rutina_Transformacion: '',CaracterConcatenacion: '',OrdenCampo: -1,Rutina_Conversion: '',ValidaEnMasivas: 1});
+           }
+       }
+       for(prop in $scope.arrayConversorDetalle){
+           for(p in  $scope.detallesFormatos){
+              if($scope.arrayConversorDetalle[prop].NumeroCampo == $scope.detallesFormatos[p].NumeroCampo){
+                  $scope.arrayConversorDetalle[prop].TipoRegistro = $scope.detallesFormatos[p].TipoRegistro;
+                  $scope.arrayConversorDetalle[prop].NumeroCampo = $scope.detallesFormatos[p].NumeroCampo;
+                  $scope.arrayConversorDetalle[prop].PosicionInicio = $scope.detallesFormatos[p].PosicionInicio;
+                  $scope.arrayConversorDetalle[prop].LongitudCampo = $scope.detallesFormatos[p].LongitudCampo;
+                  $scope.arrayConversorDetalle[prop].TipoCampo = $scope.detallesFormatos[p].TipoCampo;
+                  $scope.arrayConversorDetalle[prop].SeparadorDecimales = $scope.detallesFormatos[p].SeparadorDecimales;
+                  $scope.arrayConversorDetalle[prop].NumeroDecimales = $scope.detallesFormatos[p].NumeroDecimales;
+                  $scope.arrayConversorDetalle[prop].DescripcionCampo = $scope.detallesFormatos[p].DescripcionCampo;
+                  $scope.arrayConversorDetalle[prop].IdCampoEquivalente = $scope.detallesFormatos[p].IdCampoEquivalente;
+                  $scope.arrayConversorDetalle[prop].CampoEquivalente = $scope.detallesFormatos[p].CampoEquivalente;
+                  $scope.arrayConversorDetalle[prop].Obligatorio = $scope.detallesFormatos[p].Obligatorio;
+                  $scope.arrayConversorDetalle[prop].Validaciones = $scope.detallesFormatos[p].Validaciones;
+                  $scope.arrayConversorDetalle[prop].Tipo_Registro = $scope.detallesFormatos[p].Tipo_Registro;
+                  $scope.arrayConversorDetalle[prop].Default_Value = $scope.detallesFormatos[p].Default_Value;
+                  $scope.arrayConversorDetalle[prop].observacion = $scope.detallesFormatos[p].observacion;
+                  $scope.arrayConversorDetalle[prop].Rutina_Validacion = $scope.detallesFormatos[p].Rutina_Validacion;
+                  $scope.arrayConversorDetalle[prop].Rutina_Transformacion = $scope.detallesFormatos[p].Rutina_Transformacion;
+                  $scope.arrayConversorDetalle[prop].CaracterConcatenacion = $scope.detallesFormatos[p].CaracterConcatenacion;
+                  $scope.arrayConversorDetalle[prop].OrdenCampo = $scope.detallesFormatos[p].OrdenCampo;
+                  $scope.arrayConversorDetalle[prop].Rutina_Conversion = $scope.detallesFormatos[p].Rutina_Conversion;
+                  $scope.arrayConversorDetalle[prop].ValidaEnMasivas = $scope.detallesFormatos[p].ValidaEnMasivas;
+
+              }
+           } 
+       }
+    }
+
     $scope.siguienteTablaConversorDetalle = function(){
-       creacionArrayConversorDetalle($scope.tipoCabecera.value);
+       if($scope.nuevoFormatoIso){
+           creacionArrayConversorDetalle($scope.tipoCabecera.value);
+       }else if($scope.editarFormatoIso){
+           creacionArrayConversorDetalleEditar(); // to do  
+       }
        $scope.cuartaVista = false;
        $scope.tablaConversorDetalleVista = true;
        crearBitmaps($scope.nuevosChecks);
@@ -1891,41 +1976,68 @@
     });*/
     /*  Modal */
      $scope.open = function (item) {
-       var modalInstance = $uibModal.open({
-        animation: true,
-        templateUrl: 'templates/conversorcabeceraisos/modalCreate.html',
-        controller: 'modalconversorcabeceraisosCreateController',
-        size: 'lg',
-        resolve: {
-         datos: function () {
-          return $scope.listaCatalogosDetalles;
-         },
-         item: function () {
-          return item;
-         }
-        }
-      });
-      modalInstance.result.then(function(data) {
-        if(!item) {
-           $scope.conversorcabeceraisosList.push(data);
-           $scope.conversorcabeceraisosTemp = angular.copy($scope.conversorcabeceraisosList);
-        }
-      },function(result){
-      $scope.conversorcabeceraisosList = $scope.conversorcabeceraisosTemp;
-      $scope.conversorcabeceraisosTemp = angular.copy($scope.conversorcabeceraisosList);
-    });
-  };
+            var modalInstance = $uibModal.open({
+            animation: true,
+            templateUrl: 'templates/conversorcabeceraisos/modalCreate.html',
+            controller: 'modalconversorcabeceraisosCreateController',
+            size: 'lg',
+            resolve: {
+             datos: function () {
+              return $scope.listaCatalogosDetalles;
+             },
+             item: function () {
+              return item;
+             }
+            }
+            });
+          modalInstance.result.then(function(data) {
+            if(!item) {
+               $scope.conversorcabeceraisosList.push(data);
+               $scope.conversorcabeceraisosTemp = angular.copy($scope.conversorcabeceraisosList);
+            }
+          },function(result){
+          $scope.conversorcabeceraisosList = $scope.conversorcabeceraisosTemp;
+          $scope.conversorcabeceraisosTemp = angular.copy($scope.conversorcabeceraisosList);
+        });
+    };
+
+    $scope.openFormato = function (item) {
+            var modalInstance = $uibModal.open({
+            animation: true,
+            templateUrl: 'templates/conversorcabeceraisos/modalListaDetallesForatos.html',
+            controller: 'modalconversorcabeceraisosCreateController',
+            size: 'lg',
+            resolve: {
+             datos: function () {
+              return $scope.listaCatalogosDetalles;
+             },
+             item: function () {
+              return item;
+             }
+            }
+            });
+          modalInstance.result.then(function(data) {
+            if(!item) {
+               $scope.conversorcabeceraisosList.push(data);
+               $scope.conversorcabeceraisosTemp = angular.copy($scope.conversorcabeceraisosList);
+            }
+          },function(result){
+          $scope.conversorcabeceraisosList = $scope.conversorcabeceraisosTemp;
+          $scope.conversorcabeceraisosTemp = angular.copy($scope.conversorcabeceraisosList);
+        });
+    };
   var encerarNuevosChecks = function(){
       for(prop in $scope.nuevosChecks){
          $scope.nuevosChecks[prop].disabled = true; 
          $scope.nuevosChecks[prop].check    = false; 
          $scope.nuevosChecks[prop].class    = false; 
       }
+      $scope.nombreCabecera = '';
+      $scope.descripcionCabecera = '';
+      $scope.mtiInput = '';
   }
-  $scope.procesoNuevoFormato = function(){
-        encerarNuevosChecks();
-        $scope.itemsParaDetalle = [];
-        factoryParsing.obtenerCatalogos({id:$scope.datos.otroOperador.Id_Operador}).then(function(resp){
+  var obtenerDetallesVisibles  = function(idOperador){
+      factoryParsing.obtenerCatalogos({id:idOperador}).then(function(resp){
             for(xx in $scope.nuevosChecks){
                 $scope.nuevosChecks[xx].class = false;
                 for(var x = 0; x < resp.length; x++){
@@ -1941,11 +2053,46 @@
                   }
                 }
             }
-            $scope.terceraVista  = false;
-            $scope.cuartaVista  = true;
-            $scope.vistaGuardarCabecera = false;
-            $scope.cuartaVista  = true;
-        });
+         });
+  };
+  $scope.procesoNuevoFormato = function(){
+        $scope.itemsParaDetalle = [];
+        obtenerDetallesVisibles($scope.datos.otroOperador.Id_Operador);
+        $scope.terceraVista  = false;
+        $scope.cuartaVista  = true;
+        $scope.vistaGuardarCabecera = false;
+        $scope.cuartaVista  = true;      
+  }
+
+  var pintarChecksNuevos = function(IdFormato){
+    factoryParsing.obtenerDetallesFormatos({IdFormato:IdFormato}).then(function(resp){
+        $scope.detallesFormatos = resp;
+        for(p in $scope.nuevosChecks){
+            for(prop in resp){
+                if(resp[prop].NumeroCampo == $scope.nuevosChecks[p].orden){
+                   $scope.nuevosChecks[p].check = true;
+                   $scope.itemsParaDetalle.push($scope.nuevosChecks[p]);
+                }
+            }
+        }
+    });
+  }
+  $scope.procesoEditarFormato = function(item){ 
+      $scope.itemsParaDetalle = [];
+      factoryParsing.obtenerMTI({IdFormato:item.IdFormato,Nombre:'MTI'}).then(function(r){
+          $scope.nombreCabecera = item.NombreFormato;
+          $scope.descripcionCabecera = item.DescripcionFormato;
+          if(item.Tipo_Proceso == 'IN'){
+              $scope.tipoCabecera = $scope.tiposCabecera[0];
+          }else{
+              $scope.tipoCabecera = $scope.tiposCabecera[1];
+          }
+          $scope.mtiInput = parseInt(r[0].ValorDefault);
+          obtenerDetallesVisibles($scope.datos.otroOperador.Id_Operador);
+          pintarChecksNuevos(item.IdFormato);
+          $scope.vistaGuardarCabecera = false;
+          $scope.cuartaVista  = true;
+      });
   }
 
   var agregarIdFormato = function(IdFormato){
@@ -2016,6 +2163,10 @@
                 });
             } 
         });
+
+        if($scope.editarFormatoIso){
+          console.log($scope.arrayConversorDetalle);
+        }
      
   }
   /*  Delete  */
@@ -2063,8 +2214,8 @@
   };
 }])
 .controller('modalconversorcabeceraisosCreateController',
-  ['$scope', '$uibModalInstance', 'datos','conversorcabeceraisosModel','$filter','item','$rootScope',
-  function ($scope, $uibModalInstance, datos,conversorcabeceraisosModel,$filter,item,$rootScope) {
+  ['$scope', '$uibModalInstance', 'datos','conversorcabeceraisosModel','$filter','item','$rootScope','conversorcabecerasModel',
+  function ($scope, $uibModalInstance, datos,conversorcabeceraisosModel,$filter,item,$rootScope,conversorcabecerasModel) {
     $scope.nombreOperador = item.Operador;
     $scope.showDetalles = [];
     for (prop in datos) {
@@ -2072,8 +2223,18 @@
             $scope.showDetalles.push(datos[prop]);
         }
     }
-
     $rootScope.configTable.itemsPerPage =  5;
+    if(item.IdFormato){
+          $scope.cabecera = item;
+          conversorcabecerasModel.url = '/api/conversorcabeceras/detalles';
+          conversorcabecerasModel.findById(item.IdFormato).then(function(detalles){
+            $scope.numeroBits = detalles.length;
+            $scope.conversorDetalles = detalles;
+            $scope.conversorDetalles.sort(function(a, b) {
+                    return parseFloat(a.NumeroCampo) - parseFloat(b.NumeroCampo);
+            });
+          });
+    }
 
 }])
 .controller('modalconversorcabeceraisosDeleteController',

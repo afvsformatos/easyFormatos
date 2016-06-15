@@ -180,20 +180,43 @@
                    </ui-select>
                 </div>
                 <div class="form-group col-md-12">
-                   <label for="id_transaccion_cabecera" class="bold">
+                   <!--<label for="id_transaccion_cabecera" class="bold">
                      Formato:
                    </label>
                    <ui-select  ng-model="datos.formato" theme="bootstrap" ng-disabled="disabled" style="min-width: 300px;" title="Seleccione un Formato" >
                      <ui-select-match placeholder="Seleccione un Formato">{{$select.selected.NombreFormato}}</ui-select-match>
-                     <ui-select-choices repeat="item.IdFormato as item in formatosPorOperador | propsFilter: {NombreFormato: $select.search}">
+                     <ui-select-choices repeat="item as item in formatosPorOperador | propsFilter: {NombreFormato: $select.search}">
                        <div ng-bind-html="item.NombreFormato | highlight: $select.search"></div>
                      </ui-select-choices>
-                   </ui-select>
+                   </ui-select>-->
+                   <table ng-show="mostrarTablaEditarFormato" class="table table-bordered table-hover table-striped" at-table at-paginated at-list="formatosPorOperador | filter:searchText" at-config="configTable">
+                       <thead></thead>
+                       <tbody>
+                           <tr>
+                             <td  at-sortable  at-title='Formato' width='150'>{{item.NombreFormato}}</td>
+                             <td  at-sortable  at-title='Descripción Formato' width='150'>{{item.DescripcionFormato}}</td>           
+                             <td  at-title="Acción" width="250">
+                               <button title="Ver más" type="button" class="btn btn-default" ng-click="openFormato(item)">
+                                  <i class="fa fa-eye"></i>
+                               </button>
+                               <button title="Editar" type="button" class="btn btn-default" ng-click="procesoEditarFormato(item)">
+                                  <i class="fa fa-pencil-square-o"></i>
+                               </button>
+                               <button title="Eliminar" type="button" class="btn btn-default" ng-click="openDelete(item)">
+                                  <i class="fa fa-trash-o"></i>
+                               </button>
+                             </td>
+                           </tr>
+                       </tbody>
+                   </table>
+                   <div class="col-md-6 col-md-offset-3" >
+                      <at-pagination ng-show="mostrarTablaEditarFormato" at-list="formatosPorOperador" at-config="configTable"></at-pagination>
+                   </div>
+                   <div class="col-md-6 col-md-offset-5" ng-show="mostrarSpinerTablaEditarFormato">
+                      <i class="fa fa-spinner fa-spin fa-5x position-spinner"></i></div>
+                   </div>
                 </div>
-                <div class="form-group col-md-12">
-                   <button  ng-click="guardarCabecera()" class="btn btn-primary">Siguiente <i class="fa fa-arrow-right"></i></button>
-                </div>
-
+                
             </div>
          </fieldset>
     </vista>

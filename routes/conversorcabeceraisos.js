@@ -49,6 +49,18 @@ router.post('/eliminarCatalogo', function (req, res) {
   
 })
 
+
+router.post('/obtenerDetallesFormatos', function (req, res) {
+  conversorDetalle.findAll({
+                where: {
+                  IdFormato: req.body.IdFormato
+                },order: 'NumeroCampo ASC'
+              }).then(function(data){
+                  res.json(data);
+              });
+  
+})
+
 router.post('/obtenerDetalleCatalogos', function (req, res) {  
       var arrayIdsFormatos = [];
       for(prop in req.body){
@@ -68,6 +80,13 @@ router.post('/obtenerDetalleCatalogos', function (req, res) {
 
 router.post('/obtenerCatalogos', function (req, res) {
   conversorDetalleIso.findAll({ where: { Id_Operador: req.body.id }}).then(function(plantilla) {
+        res.json(plantilla);
+        meanCaseBase.auditSave(req,'Obtener plantilla base','Catalogo Iso','Obtener plantilla base');
+  });
+})
+
+router.post('/obtenerMTI', function (req, res) {
+  conversorCabeceraIso.findAll({ where: req.body}).then(function(plantilla) {
         res.json(plantilla);
         meanCaseBase.auditSave(req,'Obtener plantilla base','Catalogo Iso','Obtener plantilla base');
   });

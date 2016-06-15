@@ -13,9 +13,42 @@
         obtenerFormatos:obtenerFormatos,
         obtenerDetalleCatalogos:obtenerDetalleCatalogos,
         eliminarCatalogo:eliminarCatalogo,
-        guardarFormatoISO:guardarFormatoISO
+        guardarFormatoISO:guardarFormatoISO,
+        obtenerMTI:obtenerMTI,
+        obtenerDetallesFormatos:obtenerDetallesFormatos
       });
 
+
+
+      function obtenerDetallesFormatos(params) {
+        var deferred = $q.defer();
+        $http.post('/api/obtenerDetallesFormatos',params)
+          // handle success
+          .success(function (data, status) {
+             deferred.resolve(data);
+          })
+          // handle error
+          .error(function (data) {
+            deferred.reject(data);
+          });
+        return deferred.promise;
+
+      }
+
+      function obtenerMTI(params) {
+        var deferred = $q.defer();
+        $http.post('/api/obtenerMTI',params)
+          // handle success
+          .success(function (data, status) {
+             deferred.resolve(data);
+          })
+          // handle error
+          .error(function (data) {
+            deferred.reject(data);
+          });
+        return deferred.promise;
+
+      }
 
       function guardarFormatoISO(params) {
         var deferred = $q.defer();

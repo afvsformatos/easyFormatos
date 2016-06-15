@@ -118,7 +118,7 @@ router.post('/login', function (req, res, next) {
 				req.session.cookie.maxAge;
 				req.session.check = req.body.check;
 			} else {
-				var time = 60000 * 15; //15 minets in session
+				var time = 60000 * 60; //15 minets in session
 				req.session.cookie.expires = new Date(Date.now() + time);
 				req.session.cookie.maxAge = time;
 				req.session.cookie.maxAge;
