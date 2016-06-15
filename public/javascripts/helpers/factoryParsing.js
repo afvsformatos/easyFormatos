@@ -15,10 +15,41 @@
         eliminarCatalogo:eliminarCatalogo,
         guardarFormatoISO:guardarFormatoISO,
         obtenerMTI:obtenerMTI,
-        obtenerDetallesFormatos:obtenerDetallesFormatos
+        obtenerDetallesFormatos:obtenerDetallesFormatos,
+        eliminarCDetalleCabeceraIso:eliminarCDetalleCabeceraIso,
+        eliminarFormatoIso:eliminarFormatoIso
       });
 
 
+      function eliminarFormatoIso(params) {
+        var deferred = $q.defer();
+        $http.post('/api/eliminarFormatoIso',params)
+          // handle success
+          .success(function (data, status) {
+             deferred.resolve(data);
+          })
+          // handle error
+          .error(function (data) {
+            deferred.reject(data);
+          });
+        return deferred.promise;
+
+      }
+
+      function eliminarCDetalleCabeceraIso(params) {
+        var deferred = $q.defer();
+        $http.post('/api/eliminarCDetalleCabeceraIso',params)
+          // handle success
+          .success(function (data, status) {
+             deferred.resolve(data);
+          })
+          // handle error
+          .error(function (data) {
+            deferred.reject(data);
+          });
+        return deferred.promise;
+
+      }
 
       function obtenerDetallesFormatos(params) {
         var deferred = $q.defer();

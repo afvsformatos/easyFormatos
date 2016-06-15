@@ -516,10 +516,41 @@
         eliminarCatalogo:eliminarCatalogo,
         guardarFormatoISO:guardarFormatoISO,
         obtenerMTI:obtenerMTI,
-        obtenerDetallesFormatos:obtenerDetallesFormatos
+        obtenerDetallesFormatos:obtenerDetallesFormatos,
+        eliminarCDetalleCabeceraIso:eliminarCDetalleCabeceraIso,
+        eliminarFormatoIso:eliminarFormatoIso
       });
 
 
+      function eliminarFormatoIso(params) {
+        var deferred = $q.defer();
+        $http.post('/api/eliminarFormatoIso',params)
+          // handle success
+          .success(function (data, status) {
+             deferred.resolve(data);
+          })
+          // handle error
+          .error(function (data) {
+            deferred.reject(data);
+          });
+        return deferred.promise;
+
+      }
+
+      function eliminarCDetalleCabeceraIso(params) {
+        var deferred = $q.defer();
+        $http.post('/api/eliminarCDetalleCabeceraIso',params)
+          // handle success
+          .success(function (data, status) {
+             deferred.resolve(data);
+          })
+          // handle error
+          .error(function (data) {
+            deferred.reject(data);
+          });
+        return deferred.promise;
+
+      }
 
       function obtenerDetallesFormatos(params) {
         var deferred = $q.defer();
@@ -991,6 +1022,83 @@
       }
     });
  })
+.controller('AuditController',
+  ['$rootScope','$scope', '$location', 'AuditService','$uibModal',
+  function ($rootScope,$scope, $location, AuditService,$uibModal) {
+    $scope.titleController = 'MEAN-CASE SUPER HEROIC';
+    $rootScope.titleWeb = 'Audit';
+    $scope.preloader = true;
+    $scope.msjAlert = false;
+    AuditService.allAudit().then(function(data) {
+      $scope.AuditList = data;
+      $scope.AuditTemp = angular.copy($scope.AuditList);
+      $scope.preloader = false;
+    });
+    /*  Modal */
+     $scope.open = function (item) {
+       var modalInstance = $uibModal.open({
+        animation: true,
+        templateUrl: 'templates/Audit/modalCreate.html',
+        controller: 'modalAuditCreateController',
+        size: 'lg',
+        resolve: {
+         item: function () {
+          return item;
+         }
+        }
+      });
+      modalInstance.result.then(function(data) {
+        if(!item) {
+           $scope.AuditList.push(data);
+           $scope.AuditTemp = angular.copy($scope.AuditList);
+        }
+      },function(result){
+      $scope.AuditList = $scope.AuditTemp;
+      $scope.AuditTemp = angular.copy($scope.AuditList);
+    });
+  };
+  /*  Delete  */
+  $scope.openDelete = function (item) {
+    var modalInstance = $uibModal.open({
+      animation: true,
+      templateUrl: 'templates/Audit/modalDelete.html',
+      controller: 'modalAuditDeleteController',
+      size: 'lg',
+      resolve: {
+        item: function () {
+           return item;
+        }
+      }
+    });
+    modalInstance.result.then(function(data) {
+      var idx = $scope.AuditList.indexOf(data);
+      $scope.AuditList.splice(idx, 1);
+      AuditService
+        .del(data._id)
+        .then(function(result) {
+          $scope.msjAlert = true;
+          $scope.alert = 'success';
+          $scope.message = result.message;
+        })
+        .catch(function(err) {
+          $scope.msjAlert = true;
+          $scope.alert = 'danger';
+          $scope.message = 'Error '+err;
+        })
+      });
+    };
+}])
+.config(function ($routeProvider) {
+  $routeProvider
+    .when('/Audit', {
+      templateUrl: '/templates/Audit/auditIndex.html',
+      controller: 'AuditController',
+      access: {
+        restricted: false,
+       rol: 4
+      }
+    });
+ })
 .controller('habilitarAmbienteController',
   ['$scope', '$uibModalInstance', 'ambientes','ambientesModel','$filter',
   function ($scope, $uibModalInstance, ambientes,ambientesModel,$filter) {
@@ -1170,83 +1278,6 @@
       access: {
         restricted: false,
         rol: 5
-      }
-    });
- })
-.controller('AuditController',
-  ['$rootScope','$scope', '$location', 'AuditService','$uibModal',
-  function ($rootScope,$scope, $location, AuditService,$uibModal) {
-    $scope.titleController = 'MEAN-CASE SUPER HEROIC';
-    $rootScope.titleWeb = 'Audit';
-    $scope.preloader = true;
-    $scope.msjAlert = false;
-    AuditService.allAudit().then(function(data) {
-      $scope.AuditList = data;
-      $scope.AuditTemp = angular.copy($scope.AuditList);
-      $scope.preloader = false;
-    });
-    /*  Modal */
-     $scope.open = function (item) {
-       var modalInstance = $uibModal.open({
-        animation: true,
-        templateUrl: 'templates/Audit/modalCreate.html',
-        controller: 'modalAuditCreateController',
-        size: 'lg',
-        resolve: {
-         item: function () {
-          return item;
-         }
-        }
-      });
-      modalInstance.result.then(function(data) {
-        if(!item) {
-           $scope.AuditList.push(data);
-           $scope.AuditTemp = angular.copy($scope.AuditList);
-        }
-      },function(result){
-      $scope.AuditList = $scope.AuditTemp;
-      $scope.AuditTemp = angular.copy($scope.AuditList);
-    });
-  };
-  /*  Delete  */
-  $scope.openDelete = function (item) {
-    var modalInstance = $uibModal.open({
-      animation: true,
-      templateUrl: 'templates/Audit/modalDelete.html',
-      controller: 'modalAuditDeleteController',
-      size: 'lg',
-      resolve: {
-        item: function () {
-           return item;
-        }
-      }
-    });
-    modalInstance.result.then(function(data) {
-      var idx = $scope.AuditList.indexOf(data);
-      $scope.AuditList.splice(idx, 1);
-      AuditService
-        .del(data._id)
-        .then(function(result) {
-          $scope.msjAlert = true;
-          $scope.alert = 'success';
-          $scope.message = result.message;
-        })
-        .catch(function(err) {
-          $scope.msjAlert = true;
-          $scope.alert = 'danger';
-          $scope.message = 'Error '+err;
-        })
-      });
-    };
-}])
-.config(function ($routeProvider) {
-  $routeProvider
-    .when('/Audit', {
-      templateUrl: '/templates/Audit/auditIndex.html',
-      controller: 'AuditController',
-      access: {
-        restricted: false,
-       rol: 4
       }
     });
  })
@@ -1853,13 +1884,13 @@
                }
             }
           }
-          /*console.log(tmpBinario1);
+          console.log(tmpBinario1);
           console.log(tmpBinario2);
-          console.log('--------------');*/
+          console.log('--------------');
           $scope.valorHexadecimal1 = ConvertBase.binaryToHex(tmpBinario1);
-          //console.log($scope.valorHexadecimal1.result);
+          console.log($scope.valorHexadecimal1.result);
           $scope.valorHexadecimal2 = ConvertBase.binaryToHex(tmpBinario2);
-          //console.log($scope.valorHexadecimal2.result);
+          console.log($scope.valorHexadecimal2.result);
     }
 
     var creacionArrayConversorDetalle  = function(tipo){
@@ -2078,6 +2109,7 @@
     });
   }
   $scope.procesoEditarFormato = function(item){ 
+      $scope.itemIdFormato = item.IdFormato;
       $scope.itemsParaDetalle = [];
       factoryParsing.obtenerMTI({IdFormato:item.IdFormato,Nombre:'MTI'}).then(function(r){
           $scope.nombreCabecera = item.NombreFormato;
@@ -2109,63 +2141,89 @@
           {IdFormato:IdFormato,Orden:5,Nombre:'Operador',Tipo:'N',Longitud:6,Bytes:6,AplicaDefault:true,ValorDefault:idOperador,Respuesta:'',Descripcion:'Identificador del operador insertado en esta tabla'}
 
       ]; 
-
-
       return arrayCabeceraIso;
   }
   $scope.guardarConversorDetalle = function(){
-        var conversorCabeceras = conversorcabecerasModel.create();
-        conversorCabeceras.NombreFormato = $scope.nombreCabecera;
-        conversorCabeceras.DescripcionFormato = $scope.descripcionCabecera;
-        conversorCabeceras.Cabecera = false;
-        conversorCabeceras.Pie = false;
-        conversorCabeceras.Separador = '';
-        conversorCabeceras.FormatoConversion = 0;
-        conversorCabeceras.Formato_destino = false;
-        var tipoProceso = '',tipoConversion = '';
-        if($scope.tipoCabecera.value == 'ENVIO'){
-          tipoProceso = 'IN';
-          tipoConversion = 'PROCESO,ISO8583';
-        }else{
-          tipoProceso = 'OUT';
-          tipoConversion = 'ISO8583,PROCESO';
-        }
-        conversorCabeceras.Tipo_Proceso = tipoProceso;
-        conversorCabeceras.NombreObjeto = '';
-        conversorCabeceras.estado = 'ACTIVO';
-        conversorCabeceras.tipo_archivo_salida = 'STRING';
-        conversorCabeceras.ORIENTACION = '';
-        conversorCabeceras.RutinaPrevalidacion = '';
-        conversorCabeceras.Unificador = '|';
-        conversorCabeceras.Check_Totales_Por = '';
-        conversorCabeceras.ValidaIdentificacion = true;
-        conversorCabeceras.RutinaPreconversion = '';
-        conversorCabeceras.InfiereTipoIdCliente = false;
-        conversorCabeceras.MuestraCabeceraColumna = false;
-        conversorCabeceras.TipoConversion = tipoConversion;
-        conversorCabeceras.save().then(function(r){
-            if(r.message){
-                var arrayEnviar = [];
-                agregarIdFormato(r.IdFormato);
-                var datosCabeceraIso = crearCabeceraIso(r.IdFormato,$scope.datos.otroOperador.Id_Operador,$scope.valorHexadecimal1.result,$scope.valorHexadecimal2.result);
-                arrayEnviar.push(datosCabeceraIso);
-                arrayEnviar.push($scope.arrayConversorDetalle);
-                factoryParsing.guardarFormatoISO(arrayEnviar).then(function(resultDta){
-                    if(resultDta.msj){
-                      $ngBootbox.alert('¡El Formato se creo con éxito!').then(function() {
-                        $route.reload();
-                      });
-                    }else{
-                      $ngBootbox.alert('¡Error indeterminado en conexión!').then(function() {
-                        $route.reload();
-                      });
-                    }
-                });
-            } 
-        });
-
-        if($scope.editarFormatoIso){
+        
+        if($scope.nuevoFormatoIso){
+            var conversorCabeceras = conversorcabecerasModel.create();
+            conversorCabeceras.NombreFormato = $scope.nombreCabecera;
+            conversorCabeceras.DescripcionFormato = $scope.descripcionCabecera;
+            conversorCabeceras.Cabecera = false;
+            conversorCabeceras.Pie = false;
+            conversorCabeceras.Separador = '';
+            conversorCabeceras.FormatoConversion = 0;
+            conversorCabeceras.Formato_destino = false;
+            var tipoProceso = '',tipoConversion = '';
+            if($scope.tipoCabecera.value == 'ENVIO'){
+              tipoProceso = 'IN';
+              tipoConversion = 'PROCESO,ISO8583';
+            }else{
+              tipoProceso = 'OUT';
+              tipoConversion = 'ISO8583,PROCESO';
+            }
+            conversorCabeceras.Tipo_Proceso = tipoProceso;
+            conversorCabeceras.NombreObjeto = '';
+            conversorCabeceras.estado = 'ACTIVO';
+            conversorCabeceras.tipo_archivo_salida = 'STRING';
+            conversorCabeceras.ORIENTACION = '';
+            conversorCabeceras.RutinaPrevalidacion = '';
+            conversorCabeceras.Unificador = '|';
+            conversorCabeceras.Check_Totales_Por = '';
+            conversorCabeceras.ValidaIdentificacion = true;
+            conversorCabeceras.RutinaPreconversion = '';
+            conversorCabeceras.InfiereTipoIdCliente = false;
+            conversorCabeceras.MuestraCabeceraColumna = false;
+            conversorCabeceras.TipoConversion = tipoConversion;
+            conversorCabeceras.save().then(function(r){
+                if(r.message){
+                    var arrayEnviar = [];
+                    agregarIdFormato(r.IdFormato);
+                    var datosCabeceraIso = crearCabeceraIso(r.IdFormato,$scope.datos.otroOperador.Id_Operador,$scope.valorHexadecimal1.result,$scope.valorHexadecimal2.result);
+                    arrayEnviar.push(datosCabeceraIso);
+                    arrayEnviar.push($scope.arrayConversorDetalle);
+                    factoryParsing.guardarFormatoISO(arrayEnviar).then(function(resultDta){
+                        if(resultDta.msj){
+                          $ngBootbox.alert('¡El Formato se creo con éxito!').then(function() {
+                            $route.reload();
+                          });
+                        }else{
+                          $ngBootbox.alert('¡Error indeterminado en conexión!').then(function() {
+                            $route.reload();
+                          });
+                        }
+                    });
+                } 
+            });
+          
+        }else if($scope.editarFormatoIso){
+          // to do
           console.log($scope.arrayConversorDetalle);
+          factoryParsing.eliminarCDetalleCabeceraIso({IdFormato:$scope.itemIdFormato}).then(function(resp){
+              if(resp.msj){
+                    var arrayEnviar = [];
+                    agregarIdFormato($scope.itemIdFormato);
+                    var datosCabeceraIso = crearCabeceraIso($scope.itemIdFormato,$scope.datos.otroOperador.Id_Operador,$scope.valorHexadecimal1.result,$scope.valorHexadecimal2.result);
+                    arrayEnviar.push(datosCabeceraIso);
+                    arrayEnviar.push($scope.arrayConversorDetalle);
+                    factoryParsing.guardarFormatoISO(arrayEnviar).then(function(resultDta){
+                        if(resultDta.msj){
+                          $ngBootbox.alert('¡El Formato se edito con éxito!').then(function() {
+                            $route.reload();
+                          });
+                        }else{
+                          $ngBootbox.alert('¡Error indeterminado en conexión!').then(function() {
+                            $route.reload();
+                          });
+                        }
+                    });
+              }else{
+                  $ngBootbox.alert('¡Error indeterminado en conexión!').then(function() {
+                            $route.reload();
+                  });
+              }
+              
+          });
         }
      
   }
@@ -2212,6 +2270,39 @@
             });
       });
   };
+  /*  Delete  Formato*/
+  $scope.openDeleteFormato = function (item) {
+      var modalInstance = $uibModal.open({
+          animation: true,
+          templateUrl: 'templates/conversorcabeceraisos/modalDelete.html',
+          controller: 'modalconversorcabeceraisosDeleteController',
+          size: 'lg',
+          resolve: {
+            item: function () {
+              return item;
+            }
+          }
+        });
+
+        modalInstance.result.then(function(data) { 
+          var idx = $scope.formatosPorOperador.indexOf(data); 
+          $scope.formatosPorOperador.splice(idx, 1);  
+          factoryParsing.eliminarFormatoIso({IdFormato:data.IdFormato}).then(function(r){
+              if(r.msj){
+                  $ngBootbox.alert('¡El Formato se guardo con éxito!').then(function() {
+                          $route.reload();
+                  });
+              }else{
+                  $ngBootbox.alert('¡Error indeterminado en conexión!').then(function() {
+                        $route.reload();
+                  });
+              }
+          });   
+        });
+  };
+
+
+
 }])
 .controller('modalconversorcabeceraisosCreateController',
   ['$scope', '$uibModalInstance', 'datos','conversorcabeceraisosModel','$filter','item','$rootScope','conversorcabecerasModel',
@@ -2254,6 +2345,11 @@
     $scope.cancel = function () {
        $uibModalInstance.dismiss('cancel');
      };
+     if(item.IdFormato){
+          $scope.mensaje = '¿Está seguro que desea borrar el Formato?';
+          $scope.eliminarDisabled = false;
+     }
+
 }])
 .config(function ($routeProvider) {
   $routeProvider

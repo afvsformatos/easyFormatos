@@ -15,4 +15,9 @@
     $scope.cancel = function () {
        $uibModalInstance.dismiss('cancel');
      };
+     if(item.IdFormato){
+          $scope.mensaje = '¿Está seguro que desea borrar el Formato?';
+          $scope.eliminarDisabled = false;
+     }
+
 }])

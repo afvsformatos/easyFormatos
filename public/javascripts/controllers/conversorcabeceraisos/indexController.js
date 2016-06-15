@@ -454,13 +454,13 @@
                }
             }
           }
-          /*console.log(tmpBinario1);
+          console.log(tmpBinario1);
           console.log(tmpBinario2);
-          console.log('--------------');*/
+          console.log('--------------');
           $scope.valorHexadecimal1 = ConvertBase.binaryToHex(tmpBinario1);
-          //console.log($scope.valorHexadecimal1.result);
+          console.log($scope.valorHexadecimal1.result);
           $scope.valorHexadecimal2 = ConvertBase.binaryToHex(tmpBinario2);
-          //console.log($scope.valorHexadecimal2.result);
+          console.log($scope.valorHexadecimal2.result);
     }
 
     var creacionArrayConversorDetalle  = function(tipo){
@@ -679,6 +679,7 @@
     });
   }
   $scope.procesoEditarFormato = function(item){ 
+      $scope.itemIdFormato = item.IdFormato;
       $scope.itemsParaDetalle = [];
       factoryParsing.obtenerMTI({IdFormato:item.IdFormato,Nombre:'MTI'}).then(function(r){
           $scope.nombreCabecera = item.NombreFormato;
@@ -710,63 +711,89 @@
           {IdFormato:IdFormato,Orden:5,Nombre:'Operador',Tipo:'N',Longitud:6,Bytes:6,AplicaDefault:true,ValorDefault:idOperador,Respuesta:'',Descripcion:'Identificador del operador insertado en esta tabla'}
 
       ]; 
-
-
       return arrayCabeceraIso;
   }
   $scope.guardarConversorDetalle = function(){
-        var conversorCabeceras = conversorcabecerasModel.create();
-        conversorCabeceras.NombreFormato = $scope.nombreCabecera;
-        conversorCabeceras.DescripcionFormato = $scope.descripcionCabecera;
-        conversorCabeceras.Cabecera = false;
-        conversorCabeceras.Pie = false;
-        conversorCabeceras.Separador = '';
-        conversorCabeceras.FormatoConversion = 0;
-        conversorCabeceras.Formato_destino = false;
-        var tipoProceso = '',tipoConversion = '';
-        if($scope.tipoCabecera.value == 'ENVIO'){
-          tipoProceso = 'IN';
-          tipoConversion = 'PROCESO,ISO8583';
-        }else{
-          tipoProceso = 'OUT';
-          tipoConversion = 'ISO8583,PROCESO';
-        }
-        conversorCabeceras.Tipo_Proceso = tipoProceso;
-        conversorCabeceras.NombreObjeto = '';
-        conversorCabeceras.estado = 'ACTIVO';
-        conversorCabeceras.tipo_archivo_salida = 'STRING';
-        conversorCabeceras.ORIENTACION = '';
-        conversorCabeceras.RutinaPrevalidacion = '';
-        conversorCabeceras.Unificador = '|';
-        conversorCabeceras.Check_Totales_Por = '';
-        conversorCabeceras.ValidaIdentificacion = true;
-        conversorCabeceras.RutinaPreconversion = '';
-        conversorCabeceras.InfiereTipoIdCliente = false;
-        conversorCabeceras.MuestraCabeceraColumna = false;
-        conversorCabeceras.TipoConversion = tipoConversion;
-        conversorCabeceras.save().then(function(r){
-            if(r.message){
-                var arrayEnviar = [];
-                agregarIdFormato(r.IdFormato);
-                var datosCabeceraIso = crearCabeceraIso(r.IdFormato,$scope.datos.otroOperador.Id_Operador,$scope.valorHexadecimal1.result,$scope.valorHexadecimal2.result);
-                arrayEnviar.push(datosCabeceraIso);
-                arrayEnviar.push($scope.arrayConversorDetalle);
-                factoryParsing.guardarFormatoISO(arrayEnviar).then(function(resultDta){
-                    if(resultDta.msj){
-                      $ngBootbox.alert('¡El Formato se creo con éxito!').then(function() {
-                        $route.reload();
-                      });
-                    }else{
-                      $ngBootbox.alert('¡Error indeterminado en conexión!').then(function() {
-                        $route.reload();
-                      });
-                    }
-                });
-            } 
-        });
-
-        if($scope.editarFormatoIso){
+        
+        if($scope.nuevoFormatoIso){
+            var conversorCabeceras = conversorcabecerasModel.create();
+            conversorCabeceras.NombreFormato = $scope.nombreCabecera;
+            conversorCabeceras.DescripcionFormato = $scope.descripcionCabecera;
+            conversorCabeceras.Cabecera = false;
+            conversorCabeceras.Pie = false;
+            conversorCabeceras.Separador = '';
+            conversorCabeceras.FormatoConversion = 0;
+            conversorCabeceras.Formato_destino = false;
+            var tipoProceso = '',tipoConversion = '';
+            if($scope.tipoCabecera.value == 'ENVIO'){
+              tipoProceso = 'IN';
+              tipoConversion = 'PROCESO,ISO8583';
+            }else{
+              tipoProceso = 'OUT';
+              tipoConversion = 'ISO8583,PROCESO';
+            }
+            conversorCabeceras.Tipo_Proceso = tipoProceso;
+            conversorCabeceras.NombreObjeto = '';
+            conversorCabeceras.estado = 'ACTIVO';
+            conversorCabeceras.tipo_archivo_salida = 'STRING';
+            conversorCabeceras.ORIENTACION = '';
+            conversorCabeceras.RutinaPrevalidacion = '';
+            conversorCabeceras.Unificador = '|';
+            conversorCabeceras.Check_Totales_Por = '';
+            conversorCabeceras.ValidaIdentificacion = true;
+            conversorCabeceras.RutinaPreconversion = '';
+            conversorCabeceras.InfiereTipoIdCliente = false;
+            conversorCabeceras.MuestraCabeceraColumna = false;
+            conversorCabeceras.TipoConversion = tipoConversion;
+            conversorCabeceras.save().then(function(r){
+                if(r.message){
+                    var arrayEnviar = [];
+                    agregarIdFormato(r.IdFormato);
+                    var datosCabeceraIso = crearCabeceraIso(r.IdFormato,$scope.datos.otroOperador.Id_Operador,$scope.valorHexadecimal1.result,$scope.valorHexadecimal2.result);
+                    arrayEnviar.push(datosCabeceraIso);
+                    arrayEnviar.push($scope.arrayConversorDetalle);
+                    factoryParsing.guardarFormatoISO(arrayEnviar).then(function(resultDta){
+                        if(resultDta.msj){
+                          $ngBootbox.alert('¡El Formato se creo con éxito!').then(function() {
+                            $route.reload();
+                          });
+                        }else{
+                          $ngBootbox.alert('¡Error indeterminado en conexión!').then(function() {
+                            $route.reload();
+                          });
+                        }
+                    });
+                } 
+            });
+          
+        }else if($scope.editarFormatoIso){
+          // to do
           console.log($scope.arrayConversorDetalle);
+          factoryParsing.eliminarCDetalleCabeceraIso({IdFormato:$scope.itemIdFormato}).then(function(resp){
+              if(resp.msj){
+                    var arrayEnviar = [];
+                    agregarIdFormato($scope.itemIdFormato);
+                    var datosCabeceraIso = crearCabeceraIso($scope.itemIdFormato,$scope.datos.otroOperador.Id_Operador,$scope.valorHexadecimal1.result,$scope.valorHexadecimal2.result);
+                    arrayEnviar.push(datosCabeceraIso);
+                    arrayEnviar.push($scope.arrayConversorDetalle);
+                    factoryParsing.guardarFormatoISO(arrayEnviar).then(function(resultDta){
+                        if(resultDta.msj){
+                          $ngBootbox.alert('¡El Formato se edito con éxito!').then(function() {
+                            $route.reload();
+                          });
+                        }else{
+                          $ngBootbox.alert('¡Error indeterminado en conexión!').then(function() {
+                            $route.reload();
+                          });
+                        }
+                    });
+              }else{
+                  $ngBootbox.alert('¡Error indeterminado en conexión!').then(function() {
+                            $route.reload();
+                  });
+              }
+              
+          });
         }
      
   }
@@ -813,4 +840,37 @@
             });
       });
   };
+  /*  Delete  Formato*/
+  $scope.openDeleteFormato = function (item) {
+      var modalInstance = $uibModal.open({
+          animation: true,
+          templateUrl: 'templates/conversorcabeceraisos/modalDelete.html',
+          controller: 'modalconversorcabeceraisosDeleteController',
+          size: 'lg',
+          resolve: {
+            item: function () {
+              return item;
+            }
+          }
+        });
+
+        modalInstance.result.then(function(data) { 
+          var idx = $scope.formatosPorOperador.indexOf(data); 
+          $scope.formatosPorOperador.splice(idx, 1);  
+          factoryParsing.eliminarFormatoIso({IdFormato:data.IdFormato}).then(function(r){
+              if(r.msj){
+                  $ngBootbox.alert('¡El Formato se guardo con éxito!').then(function() {
+                          $route.reload();
+                  });
+              }else{
+                  $ngBootbox.alert('¡Error indeterminado en conexión!').then(function() {
+                        $route.reload();
+                  });
+              }
+          });   
+        });
+  };
+
+
+
 }])

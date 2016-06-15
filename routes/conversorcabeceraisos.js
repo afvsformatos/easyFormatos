@@ -49,6 +49,45 @@ router.post('/eliminarCatalogo', function (req, res) {
   
 })
 
+router.post('/eliminarCDetalleCabeceraIso', function (req, res) {
+  conversorCabeceraIso.destroy({
+                where: {
+                  IdFormato: req.body.IdFormato
+                }
+              }).then(function(data){
+                  conversorDetalle.destroy({
+                                    where: {
+                                      IdFormato: req.body.IdFormato
+                                    }
+                                  }).then(function(data){
+                                      res.json({msj:true});
+                                  });
+              });
+})
+
+
+router.post('/eliminarFormatoIso', function (req, res) {
+  conversorCabeceraIso.destroy({
+                where: {
+                  IdFormato: req.body.IdFormato
+                }
+              }).then(function(data){
+                  conversorDetalle.destroy({
+                                    where: {
+                                      IdFormato: req.body.IdFormato
+                                    }
+                                  }).then(function(data){
+                                      conversorCabecera.destroy({
+                                        where: {
+                                          IdFormato: req.body.IdFormato
+                                        }
+                                      }).then(function(data){
+                                          res.json({msj:true});
+                                      });
+                                  });
+              });
+})
+
 
 router.post('/obtenerDetallesFormatos', function (req, res) {
   conversorDetalle.findAll({
