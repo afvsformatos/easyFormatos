@@ -32,6 +32,7 @@
     }
     
     $scope.NombreFormato = $routeParams.NombreFormato;
+    $scope.tipoConversion = $routeParams.tipoConversion;
   
      $scope.options = [
         {
@@ -57,7 +58,7 @@
       $rootScope.configTable.itemsPerPage =  dato.value;
     }
     /*  Modal */
-     $scope.open = function (item) {
+     $scope.open = function (item,tipoConversion) {
       if($routeParams.idFormato)
         var IdFormato = $routeParams.idFormato;
        var modalInstance = $uibModal.open({
@@ -68,6 +69,9 @@
         resolve: {
          item: function () {
           return item;
+         },
+         tipoConversion: function () {
+          return tipoConversion;
          },
          IdFormato: function(){
           return IdFormato;

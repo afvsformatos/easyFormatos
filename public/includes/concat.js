@@ -1699,19 +1699,21 @@
                $scope.bitmaps[i].validar = true;
           }
         }
-        if(item.orden == 1 && !item.check){
-          for (var i = 64; i < 128; i++) {
-               var tmpIdx = -1;
-               for(xx in $scope.itemsValidos){
-                  if($scope.bitmaps[i].orden ==  $scope.itemsValidos[xx].orden){
-                    tmpIdx = xx;
-                  }
-               }
-               if(tmpIdx != -1){
-                  $scope.itemsValidos.splice(tmpIdx, 1);
-               }
-               $scope.bitmaps[i].validar = false;
-               $scope.bitmaps[i].check = false;
+        if($scope.nuevoCatalogoIso){
+          if(item.orden == 1 && !item.check){
+            for (var i = 64; i < 128; i++) {
+                 var tmpIdx = -1;
+                 for(xx in $scope.itemsValidos){
+                    if($scope.bitmaps[i].orden ==  $scope.itemsValidos[xx].orden){
+                      tmpIdx = xx;
+                    }
+                 }
+                 if(tmpIdx != -1){
+                    $scope.itemsValidos.splice(tmpIdx, 1);
+                 }
+                 $scope.bitmaps[i].validar = false;
+                 $scope.bitmaps[i].check = false;
+            }
           }
         }
         var idx = -1;
@@ -1747,6 +1749,21 @@
                           }
                      });
                   }else{
+                      if(item.orden == 1 && !item.check){
+                        for (var i = 64; i < 128; i++) {
+                             var tmpIdx = -1;
+                             for(xx in $scope.itemsValidos){
+                                if($scope.bitmaps[i].orden ==  $scope.itemsValidos[xx].orden){
+                                  tmpIdx = xx;
+                                }
+                             }
+                             if(tmpIdx != -1){
+                                $scope.itemsValidos.splice(tmpIdx, 1);
+                             }
+                             $scope.bitmaps[i].validar = false;
+                             $scope.bitmaps[i].check = false;
+                        }
+                      }
                       $scope.itemsValidos.splice(idx, 1);
                       if($scope.flagFix){
                           for(t in $scope.nuevosChecks){
@@ -1767,14 +1784,33 @@
         
     }
      $scope.addChecksAsignacion = function(item){
-        var idx = -1;
-        for (l in  $scope.itemsParaDetalle) {
+        var arrayTmp = [];
+        if(item.orden == 1 && !item.check){
+            for (var i = 64; i < 128; i++) {
+                 for(xx in $scope.itemsParaDetalle){
+                    if($scope.nuevosChecks[i].orden ==  $scope.itemsParaDetalle[xx].orden){
+                      arrayTmp.push($scope.itemsParaDetalle[xx]);
+                    }
+                 }
+
+                 $scope.nuevosChecks[i].check = false;
+            }
+            for(var q = 0;q < arrayTmp.length;q++){
+                var idxPlus = $scope.itemsParaDetalle.indexOf(arrayTmp[q]);
+                $scope.itemsParaDetalle.splice(idxPlus,1);
+            }
+        }
+        var arrayIdx = [];
+        for(var l = 0;l < $scope.itemsParaDetalle.length;l++){
               if(item.orden == $scope.itemsParaDetalle[l].orden){
-                  idx = l;
+                  arrayIdx.push($scope.itemsParaDetalle[l]);
               } 
         }
-        if(idx != -1){
-          $scope.itemsParaDetalle.splice(idx, 1);
+        if(arrayIdx.length > 0){
+          for(var l = 0;l < arrayIdx.length;l++){
+              var idx = $scope.itemsParaDetalle.indexOf(arrayIdx[l]);
+              $scope.itemsParaDetalle.splice(idx, 1);
+          }
         }else{
           $scope.itemsParaDetalle.push(item);
         }         
@@ -1799,7 +1835,11 @@
            ope = $scope.datos.operador
            $scope.dataEnviar.push({eliminar:true,Id_Operador:$scope.datos.operador});
         }else if($scope.nuevoCatalogoIso){
-           ope = $scope.datos.operador;
+          if($scope.datos.operador instanceof Object){
+            ope = $scope.datos.operador.Id_Operador;
+          }else{
+            ope = $scope.datos.operador;
+          }
         }
         for(prop in $scope.itemsValidos){
            $scope.dataEnviar.push({Id_Operador:ope,Bitmap:$scope.itemsValidos[prop].orden,Nombre:$scope.itemsValidos[prop].nombre,Tipo:$scope.itemsValidos[prop].tipo.value,Longitud:$scope.itemsValidos[prop].longitud,Descripcion:$scope.itemsValidos[prop].descripcion,TipoDato:$scope.itemsValidos[prop].tipoValor.value});
@@ -1932,15 +1972,21 @@
                }
             }
           }
-          console.log(tmpBinario1);
+          /*console.log(tmpBinario1);
           console.log(tmpBinario2);
-          console.log('--------------');
+          console.log('--------------');*/
           $scope.valorHexadecimal1 = ConvertBase.binaryToHex(tmpBinario1);
-          console.log($scope.valorHexadecimal1.result);
+          //console.log($scope.valorHexadecimal1.result);
           $scope.valorHexadecimal2 = ConvertBase.binaryToHex(tmpBinario2);
-          console.log($scope.valorHexadecimal2.result);
+          //console.log($scope.valorHexadecimal2.result);
     }
-
+    $scope.duplicarItemDetalle = function(item){
+      $scope.arrayConversorDetalle.push({TipoRegistro: item.TipoRegistro,NumeroCampo:item.NumeroCampo,PosicionInicio: item.PosicionInicio,LongitudCampo: item.LongitudCampo,TipoCampo: item.TipoCampo,SeparadorDecimales: item.SeparadorDecimales,NumeroDecimales: item.NumeroDecimales,DescripcionCampo:item.DescripcionCampo,IdCampoEquivalente: item.IdCampoEquivalente,CampoEquivalente:item.CampoEquivalente,Obligatorio: item.Obligatorio,Validaciones: item.Validaciones,Tipo_Registro: item.Tipo_Registro,Default_Value: item.Default_Value,observacion: item.observacion,Rutina_Validacion: item.Rutina_Validacion,Rutina_Transformacion: item.Rutina_Transformacion,CaracterConcatenacion: item.CaracterConcatenacion,OrdenCampo: item.OrdenCampo,Rutina_Conversion: item.Rutina_Conversion,ValidaEnMasivas: item.ValidaEnMasivas,eliminar:true});
+    }
+    $scope.eliminarDuplicado = function(item){
+        idx = $scope.arrayConversorDetalle.indexOf(item);
+        $scope.arrayConversorDetalle.splice(idx, 1);
+    }
     var creacionArrayConversorDetalle  = function(tipo){
        $scope.arrayConversorDetalle = [];
        for(prop in $scope.itemsParaDetalle){
@@ -1993,6 +2039,7 @@
     }
 
     $scope.siguienteTablaConversorDetalle = function(){
+      //console.log($scope.detallesFormatos);
        if($scope.nuevoFormatoIso){
            creacionArrayConversorDetalle($scope.tipoCabecera.value);
        }else if($scope.editarFormatoIso){
@@ -2336,7 +2383,7 @@
           $scope.formatosPorOperador.splice(idx, 1);  
           factoryParsing.eliminarFormatoIso({IdFormato:data.IdFormato}).then(function(r){
               if(r.msj){
-                  $ngBootbox.alert('¡El Formato se guardo con éxito!').then(function() {
+                  $ngBootbox.alert('¡El Formato se elimino con éxito!').then(function() {
                           $route.reload();
                   });
               }else{
@@ -2957,7 +3004,7 @@
       $rootScope.configTable.itemsPerPage =  dato.value;
     }
     $scope.obtenerDetalles = function(item){
-      $location.url('/conversordetalles/'+item.IdFormato+'/'+item.NombreFormato);
+      $location.url('/conversordetalles/'+item.IdFormato+'/'+item.NombreFormato+'/'+item.TipoConversion);
       /*conversorcabecerasModel.url = '/api/conversorcabeceras/detalles';
       conversorcabecerasModel.findById(idFormato).then(function(detalles){
         
@@ -3044,7 +3091,9 @@
     $scope.item = item;
     $scope.saving = false;
     if(item){
-       //add optional code
+       $scope.validarCampos = item.TipoConversion.indexOf('ISO8583') != -1;
+    }else{
+       $scope.validarCampos = false;
     }
     $scope.save = function () {
       if(!item){
@@ -3370,6 +3419,7 @@
     }
     
     $scope.NombreFormato = $routeParams.NombreFormato;
+    $scope.tipoConversion = $routeParams.tipoConversion;
   
      $scope.options = [
         {
@@ -3395,7 +3445,7 @@
       $rootScope.configTable.itemsPerPage =  dato.value;
     }
     /*  Modal */
-     $scope.open = function (item) {
+     $scope.open = function (item,tipoConversion) {
       if($routeParams.idFormato)
         var IdFormato = $routeParams.idFormato;
        var modalInstance = $uibModal.open({
@@ -3406,6 +3456,9 @@
         resolve: {
          item: function () {
           return item;
+         },
+         tipoConversion: function () {
+          return tipoConversion;
          },
          IdFormato: function(){
           return IdFormato;
@@ -3469,8 +3522,8 @@
     };
 }])
 .controller('modalconversordetallesCreateController',
-  ['$scope', '$uibModalInstance', 'item','conversordetallesModel','$filter','IdFormato',
-  function ($scope, $uibModalInstance, item,conversordetallesModel,$filter,IdFormato) {
+  ['$scope', '$uibModalInstance', 'item','conversordetallesModel','$filter','IdFormato','tipoConversion',
+  function ($scope, $uibModalInstance, item,conversordetallesModel,$filter,IdFormato,tipoConversion) {
     $scope.item = item;
     $scope.saving = false;
     if(!item){
@@ -3487,7 +3540,9 @@
         $scope.item.Tipo_Registro = 'ITEM';
         $scope.item.OrdenCampo = '-1';
         $scope.item.ValidaEnMasivas = true;
-        //console.log($scope.item.TipoRegistro);
+        $scope.validarCampos = false;
+    }else{
+        $scope.validarCampos = tipoConversion.indexOf('ISO8583') != -1;
     }
     $scope.save = function () {
       if(!item){
@@ -3572,7 +3627,7 @@
 }])
 .config(function ($routeProvider) {
   $routeProvider
-    .when('/conversordetalles/:idFormato/:NombreFormato', {
+    .when('/conversordetalles/:idFormato/:NombreFormato/:tipoConversion', {
       templateUrl: '/templates/conversordetalles/index.html',
       controller: 'conversordetallesController',
       access: {

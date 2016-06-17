@@ -52,7 +52,7 @@
       $rootScope.configTable.itemsPerPage =  dato.value;
     }
     $scope.obtenerDetalles = function(item){
-      $location.url('/conversordetalles/'+item.IdFormato+'/'+item.NombreFormato);
+      $location.url('/conversordetalles/'+item.IdFormato+'/'+item.NombreFormato+'/'+item.TipoConversion);
       /*conversorcabecerasModel.url = '/api/conversorcabeceras/detalles';
       conversorcabecerasModel.findById(idFormato).then(function(detalles){
         

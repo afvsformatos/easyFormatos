@@ -2,7 +2,7 @@
   "ambiente":{
     "username":"sa",
     "password":"E@sysoft",
-    "database":"pruebas",
+    "database":"Easy_CS_MultiCanal",
     "host":"10.0.1.34",
     "dialect":"mssql"
   }

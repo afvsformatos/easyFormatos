@@ -4,7 +4,9 @@
     $scope.item = item;
     $scope.saving = false;
     if(item){
-       //add optional code
+       $scope.validarCampos = item.TipoConversion.indexOf('ISO8583') != -1;
+    }else{
+       $scope.validarCampos = false;
     }
     $scope.save = function () {
       if(!item){

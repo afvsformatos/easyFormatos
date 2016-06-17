@@ -1,6 +1,6 @@
 .controller('modalconversordetallesCreateController',
-  ['$scope', '$uibModalInstance', 'item','conversordetallesModel','$filter','IdFormato',
-  function ($scope, $uibModalInstance, item,conversordetallesModel,$filter,IdFormato) {
+  ['$scope', '$uibModalInstance', 'item','conversordetallesModel','$filter','IdFormato','tipoConversion',
+  function ($scope, $uibModalInstance, item,conversordetallesModel,$filter,IdFormato,tipoConversion) {
     $scope.item = item;
     $scope.saving = false;
     if(!item){
@@ -17,7 +17,9 @@
         $scope.item.Tipo_Registro = 'ITEM';
         $scope.item.OrdenCampo = '-1';
         $scope.item.ValidaEnMasivas = true;
-        //console.log($scope.item.TipoRegistro);
+        $scope.validarCampos = false;
+    }else{
+        $scope.validarCampos = tipoConversion.indexOf('ISO8583') != -1;
     }
     $scope.save = function () {
       if(!item){

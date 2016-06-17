@@ -1,6 +1,6 @@
 <div class="container-fluid">
    <div class="row div-padding">
-     <button ng-click="open()" class="btn btn-default "><i class="fa fa-plus"></i> Nuevo</button>
+     <button ng-hide="tipoConversion.indexOf('ISO8583') != -1" ng-click="open()" class="btn btn-default "><i class="fa fa-plus"></i> Nuevo</button>
      <div class="alert alert-{{alert}}" ng-show="msjAlert">{{message}}</div>
    </div>
    <a ng-click="regresarFormato()" href=""><h2 class="formatoSubtitulos">{{NombreFormato}}</h2></a>
@@ -45,7 +45,7 @@
            <td  at-sortable  at-title='Rutina Conversión' width='150'>{{item.Rutina_Conversion}}</td>
            <td  at-sortable  at-title='Valida en Masivas' width='150'>{{item.ValidaEnMasivas}}</td>
            
-           <td  at-title="Acción" width="250"><button type="button" class="btn btn-default" ng-click="open(item)"><i class="fa fa-pencil-square-o"></i></button><button type="button" class="btn btn-default" ng-click="openDelete(item)"><i class="fa fa-trash-o"></i></button></td>
+           <td  at-title="Acción" width="250"><button type="button" class="btn btn-default" ng-click="open(item,tipoConversion)"><i class="fa fa-pencil-square-o"></i></button><button type="button" class="btn btn-default" ng-click="openDelete(item)"><i class="fa fa-trash-o"></i></button></td>
          </tr>
        </tbody>
      </table>
