@@ -4,6 +4,7 @@
     "password":"E@sysoft",
     "database":"Easy_CS_MultiCanal",
     "host":"10.0.1.34",
-    "dialect":"mssql"
+    "dialect":"mssql",
+    "configuration": "true"
   }
 }
