@@ -2,6 +2,7 @@
      overflow:scroll;
      height: auto;
      width: auto;
+     margin-bottom:2em;
 }
 
 table tr th {
@@ -60,6 +61,7 @@ a {
 
 .duplicarFormato{
   margin-top:2em;
+  margin-bottom:2em;
 }
 
 .cabecera{
