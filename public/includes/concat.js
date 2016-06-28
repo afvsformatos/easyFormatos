@@ -1642,6 +1642,7 @@
             $scope.nuevoFormatoIso    =   true;
             $scope.editarFormatoIso   =   false; 
         }else{
+            $scope.datos.otroOperador = $scope.otrosOperadores[0];
             $scope.mostrarFormatos($scope.otrosOperadores[0]);
             $scope.nuevoCatalogoIso   =   false;
             $scope.editarCatalogoIso  =   false;
@@ -1873,6 +1874,10 @@
           }
     }
     $scope.siguiente = function(){
+        $scope.configTableValidos = {
+          itemsPerPage:  $scope.itemsValidos.length,
+          fillLastPage: "yes"
+        };
         $scope.flagFix = true;
         var id = 0;
         if($scope.editarCatalogoIso){
@@ -3636,6 +3641,143 @@
       }
     });
  })
+.controller('modalUserCreateController',
+  ['$scope', '$uibModalInstance', 'item','AuthService','userService',
+  function ($scope, $uibModalInstance, item,AuthService,userService) {
+  
+    $scope.item = item;
+    $scope.saving = false;
+    if(item){
+     $scope.tmpUsername = angular.copy(item.username);
+    }
+     
+    $scope.save = function () {
+
+      if(!item){
+        $scope.saving = true;
+        item = {username:$scope.item.username,rol:$scope.item.rol,flat:true};
+        AuthService.register($scope.item.username,$scope.item.password,$scope.item.rol).then(function(r){
+          $scope.saving = false;
+        });
+      }else{
+        userService.editUser($scope.tmpUsername,item.username,$scope.item.password,$scope.item.rol).then(function(r){
+          $scope.saving = false;
+        });
+      }
+      $uibModalInstance.close(item);
+    };
+
+}])
+
+.controller('modalUserDeleteController',
+  ['$scope', '$modalInstance', 'item',
+  function ($scope, $modalInstance, item) {
+    
+  $scope.item = item;
+  $scope.ok = function () {
+    $modalInstance.close($scope.item);
+  };
+
+  $scope.cancel = function () {
+    $modalInstance.dismiss('cancel');
+  };
+    
+
+}])
+.controller('userController',
+  ['$rootScope','$scope', '$location', 'userService','$timeout','$uibModal','UsersModel',
+  function ($rootScope,$scope, $location, userService,$timeout,$uibModal,UsersModel) {
+    $scope.titleLoginController = "MEAN-CASE SUPER HEROIC";
+    $rootScope.titleWeb = "Users";
+    $scope.preloader = true;
+    $scope.msjAlert = false;
+    UsersModel.getAll().then(function(data){
+            $scope.usersList = data; 
+            $scope.usersTemp = angular.copy($scope.usersList);
+            $scope.preloader = false;
+    })
+    /*  Modal*/
+
+    /*  Create    */
+     $scope.open = function (size,item) {
+        var modalInstance = $uibModal.open({
+          animation: true,
+          templateUrl: 'templates/users/modalUserCreate.html',
+          controller: 'modalUserCreateController',
+          size: size,
+          resolve: {
+            item: function () {
+              return item;
+            }
+          }
+        });
+
+        modalInstance.result.then(function(data) {
+          if(!data._id) {
+         
+                $scope.usersList.push(data); 
+                $scope.usersTemp = angular.copy($scope.usersList);
+            }      
+        },function(result){
+          $scope.usersList = $scope.usersTemp;
+          $scope.usersTemp = angular.copy($scope.usersList);  
+        });
+    };
+
+    /*  Create    */
+    /*  Delete    */
+    $scope.openDelete = function (size,item) {
+        var modalInstance = $uibModal.open({
+          animation: true,
+          templateUrl: 'templates/users/modalUserDelete.html',
+          controller: 'modalUserDeleteController',
+          size: size,
+          resolve: {
+            item: function () {
+              return item;
+            }
+          }
+        });
+
+        modalInstance.result.then(function(data) { 
+          var idx = $scope.usersList.indexOf(data); 
+          $scope.usersList.splice(idx, 1);
+          userService
+            .deleteUser(data._id)
+            .then(function(result) {
+                $scope.msjAlert = true;
+                $scope.alert = "success";
+                $scope.message = result.message;
+            })
+            .catch(function(err) {
+                //error
+                $scope.msjAlert = true;
+                $scope.alert = "danger";
+                $scope.message = "Error "+err;
+            })            
+        });
+    };
+
+    /*  Delete    */
+
+    /*  Modal*/
+
+    /*    Configuration Watch  Change Serch    */
+         /* $scope.filterText = '';
+          // Instantiate these variables outside the watch
+          var tempFilterText = '',
+          filterTextTimeout;
+          $scope.$watch('searchText', function (val) {
+              if (filterTextTimeout) $timeout.cancel(filterTextTimeout);
+              tempFilterText = val;
+              filterTextTimeout = $timeout(function() {
+                  $scope.filterText = tempFilterText;
+              }, 1500); // delay 250 ms
+          })*/
+    /*    Configuration Watch Change Serch     */
+        
+
+}])
 .controller('parsingController',
   ['$rootScope','$scope', '$location', 'conversorcabecerasModel','$uibModal','$routeParams','factoryParsing','almacentramasModel',
   function ($rootScope,$scope, $location, conversorcabecerasModel,$uibModal,$routeParams,factoryParsing,almacentramasModel) {
@@ -3798,143 +3940,6 @@
       }
     });
  })
-.controller('modalUserCreateController',
-  ['$scope', '$uibModalInstance', 'item','AuthService','userService',
-  function ($scope, $uibModalInstance, item,AuthService,userService) {
-  
-    $scope.item = item;
-    $scope.saving = false;
-    if(item){
-     $scope.tmpUsername = angular.copy(item.username);
-    }
-     
-    $scope.save = function () {
-
-      if(!item){
-        $scope.saving = true;
-        item = {username:$scope.item.username,rol:$scope.item.rol,flat:true};
-        AuthService.register($scope.item.username,$scope.item.password,$scope.item.rol).then(function(r){
-          $scope.saving = false;
-        });
-      }else{
-        userService.editUser($scope.tmpUsername,item.username,$scope.item.password,$scope.item.rol).then(function(r){
-          $scope.saving = false;
-        });
-      }
-      $uibModalInstance.close(item);
-    };
-
-}])
-
-.controller('modalUserDeleteController',
-  ['$scope', '$modalInstance', 'item',
-  function ($scope, $modalInstance, item) {
-    
-  $scope.item = item;
-  $scope.ok = function () {
-    $modalInstance.close($scope.item);
-  };
-
-  $scope.cancel = function () {
-    $modalInstance.dismiss('cancel');
-  };
-    
-
-}])
-.controller('userController',
-  ['$rootScope','$scope', '$location', 'userService','$timeout','$uibModal','UsersModel',
-  function ($rootScope,$scope, $location, userService,$timeout,$uibModal,UsersModel) {
-    $scope.titleLoginController = "MEAN-CASE SUPER HEROIC";
-    $rootScope.titleWeb = "Users";
-    $scope.preloader = true;
-    $scope.msjAlert = false;
-    UsersModel.getAll().then(function(data){
-            $scope.usersList = data; 
-            $scope.usersTemp = angular.copy($scope.usersList);
-            $scope.preloader = false;
-    })
-    /*  Modal*/
-
-    /*  Create    */
-     $scope.open = function (size,item) {
-        var modalInstance = $uibModal.open({
-          animation: true,
-          templateUrl: 'templates/users/modalUserCreate.html',
-          controller: 'modalUserCreateController',
-          size: size,
-          resolve: {
-            item: function () {
-              return item;
-            }
-          }
-        });
-
-        modalInstance.result.then(function(data) {
-          if(!data._id) {
-         
-                $scope.usersList.push(data); 
-                $scope.usersTemp = angular.copy($scope.usersList);
-            }      
-        },function(result){
-          $scope.usersList = $scope.usersTemp;
-          $scope.usersTemp = angular.copy($scope.usersList);  
-        });
-    };
-
-    /*  Create    */
-    /*  Delete    */
-    $scope.openDelete = function (size,item) {
-        var modalInstance = $uibModal.open({
-          animation: true,
-          templateUrl: 'templates/users/modalUserDelete.html',
-          controller: 'modalUserDeleteController',
-          size: size,
-          resolve: {
-            item: function () {
-              return item;
-            }
-          }
-        });
-
-        modalInstance.result.then(function(data) { 
-          var idx = $scope.usersList.indexOf(data); 
-          $scope.usersList.splice(idx, 1);
-          userService
-            .deleteUser(data._id)
-            .then(function(result) {
-                $scope.msjAlert = true;
-                $scope.alert = "success";
-                $scope.message = result.message;
-            })
-            .catch(function(err) {
-                //error
-                $scope.msjAlert = true;
-                $scope.alert = "danger";
-                $scope.message = "Error "+err;
-            })            
-        });
-    };
-
-    /*  Delete    */
-
-    /*  Modal*/
-
-    /*    Configuration Watch  Change Serch    */
-         /* $scope.filterText = '';
-          // Instantiate these variables outside the watch
-          var tempFilterText = '',
-          filterTextTimeout;
-          $scope.$watch('searchText', function (val) {
-              if (filterTextTimeout) $timeout.cancel(filterTextTimeout);
-              tempFilterText = val;
-              filterTextTimeout = $timeout(function() {
-                  $scope.filterText = tempFilterText;
-              }, 1500); // delay 250 ms
-          })*/
-    /*    Configuration Watch Change Serch     */
-        
-
-}])
 .controller('crudController',
     ['$scope', 'crudService',
         function ($scope, crudService) {

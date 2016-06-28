@@ -194,6 +194,7 @@
             $scope.nuevoFormatoIso    =   true;
             $scope.editarFormatoIso   =   false; 
         }else{
+            $scope.datos.otroOperador = $scope.otrosOperadores[0];
             $scope.mostrarFormatos($scope.otrosOperadores[0]);
             $scope.nuevoCatalogoIso   =   false;
             $scope.editarCatalogoIso  =   false;
@@ -425,6 +426,10 @@
           }
     }
     $scope.siguiente = function(){
+        $scope.configTableValidos = {
+          itemsPerPage:  $scope.itemsValidos.length,
+          fillLastPage: "yes"
+        };
         $scope.flagFix = true;
         var id = 0;
         if($scope.editarCatalogoIso){
