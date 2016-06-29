@@ -560,14 +560,15 @@
        $scope.arrayConversorDetalle = [];
        for(prop in $scope.itemsParaDetalle){
             if($scope.tipoCabecera.value == 'ENVIO'){
-              $scope.arrayConversorDetalle.push({TipoRegistro: 'D',NumeroCampo:$scope.itemsParaDetalle[prop].orden,PosicionInicio: 0,LongitudCampo: 0,TipoCampo: 'X',SeparadorDecimales: 0,NumeroDecimales: 0,DescripcionCampo:'',IdCampoEquivalente: 0,CampoEquivalente:$scope.itemsParaDetalle[prop].Nombre,Obligatorio: 0,Validaciones: '',Tipo_Registro: 'ITEM',Default_Value: '',observacion: '',Rutina_Validacion: '',Rutina_Transformacion: '',CaracterConcatenacion: '',OrdenCampo: -1,Rutina_Conversion: '',ValidaEnMasivas: 1});
+              $scope.arrayConversorDetalle.push({IdDetalle:$scope.itemsParaDetalle[prop].IdDetalle,TipoRegistro: 'D',NumeroCampo:$scope.itemsParaDetalle[prop].orden,PosicionInicio: 0,LongitudCampo: 0,TipoCampo: 'X',SeparadorDecimales: 0,NumeroDecimales: 0,DescripcionCampo:'',IdCampoEquivalente: 0,CampoEquivalente:$scope.itemsParaDetalle[prop].Nombre,Obligatorio: 0,Validaciones: '',Tipo_Registro: 'ITEM',Default_Value: '',observacion: '',Rutina_Validacion: '',Rutina_Transformacion: '',CaracterConcatenacion: '',OrdenCampo: -1,Rutina_Conversion: '',ValidaEnMasivas: 1});
            }else{
-              $scope.arrayConversorDetalle.push({TipoRegistro: 'D',NumeroCampo:$scope.itemsParaDetalle[prop].orden, PosicionInicio: 0,LongitudCampo: 0,TipoCampo: 'X',SeparadorDecimales: 0,NumeroDecimales: 0,DescripcionCampo:$scope.itemsParaDetalle[prop].Nombre,IdCampoEquivalente: 0,CampoEquivalente:'',Obligatorio: 0,Validaciones: '',Tipo_Registro: 'ITEM',Default_Value: '',observacion: '',Rutina_Validacion: '',Rutina_Transformacion: '',CaracterConcatenacion: '',OrdenCampo: -1,Rutina_Conversion: '',ValidaEnMasivas: 1});
+              $scope.arrayConversorDetalle.push({IdDetalle:$scope.itemsParaDetalle[prop].IdDetalle,TipoRegistro: 'D',NumeroCampo:$scope.itemsParaDetalle[prop].orden, PosicionInicio: 0,LongitudCampo: 0,TipoCampo: 'X',SeparadorDecimales: 0,NumeroDecimales: 0,DescripcionCampo:$scope.itemsParaDetalle[prop].Nombre,IdCampoEquivalente: 0,CampoEquivalente:'',Obligatorio: 0,Validaciones: '',Tipo_Registro: 'ITEM',Default_Value: '',observacion: '',Rutina_Validacion: '',Rutina_Transformacion: '',CaracterConcatenacion: '',OrdenCampo: -1,Rutina_Conversion: '',ValidaEnMasivas: 1});
            }
        }
+
        for(prop in $scope.arrayConversorDetalle){
            for(p in  $scope.detallesFormatos){
-              if($scope.arrayConversorDetalle[prop].NumeroCampo == $scope.detallesFormatos[p].NumeroCampo){
+             if($scope.arrayConversorDetalle[prop].IdDetalle == $scope.detallesFormatos[p].IdDetalle){
                   $scope.arrayConversorDetalle[prop].TipoRegistro = $scope.detallesFormatos[p].TipoRegistro;
                   $scope.arrayConversorDetalle[prop].NumeroCampo = $scope.detallesFormatos[p].NumeroCampo;
                   $scope.arrayConversorDetalle[prop].PosicionInicio = $scope.detallesFormatos[p].PosicionInicio;
@@ -596,11 +597,10 @@
     }
 
     $scope.siguienteTablaConversorDetalle = function(){
-      //console.log($scope.detallesFormatos);
        if($scope.nuevoFormatoIso){
            creacionArrayConversorDetalle($scope.tipoCabecera.value);
        }else if($scope.editarFormatoIso){
-           creacionArrayConversorDetalleEditar(); // to do  
+           creacionArrayConversorDetalleEditar(); 
        }
        $scope.cuartaVista = false;
        $scope.tablaConversorDetalleVista = true;
@@ -755,7 +755,7 @@
             for(prop in resp){
                 if(resp[prop].NumeroCampo == $scope.nuevosChecks[p].orden){
                    $scope.nuevosChecks[p].check = true;
-                   $scope.itemsParaDetalle.push($scope.nuevosChecks[p]);
+                   $scope.itemsParaDetalle.push(Object.assign(resp[prop],$scope.nuevosChecks[p]));
                 }
             }
         }

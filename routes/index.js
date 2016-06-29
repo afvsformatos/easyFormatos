@@ -8,7 +8,7 @@ var fs = require('fs');
 var path = require('path');
 var connectionString = function(){
 	var options = {
-	  host: '10.0.1.32',
+	  host: '127.0.0.1',
 	  path: '/Accesspoint/api/accesspoint/MULTICANAL_NEW/CONEXIONMULTICANAL_NEW'
 	};
 	callback = function(response) {

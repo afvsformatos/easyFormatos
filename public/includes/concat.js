@@ -2008,14 +2008,15 @@
        $scope.arrayConversorDetalle = [];
        for(prop in $scope.itemsParaDetalle){
             if($scope.tipoCabecera.value == 'ENVIO'){
-              $scope.arrayConversorDetalle.push({TipoRegistro: 'D',NumeroCampo:$scope.itemsParaDetalle[prop].orden,PosicionInicio: 0,LongitudCampo: 0,TipoCampo: 'X',SeparadorDecimales: 0,NumeroDecimales: 0,DescripcionCampo:'',IdCampoEquivalente: 0,CampoEquivalente:$scope.itemsParaDetalle[prop].Nombre,Obligatorio: 0,Validaciones: '',Tipo_Registro: 'ITEM',Default_Value: '',observacion: '',Rutina_Validacion: '',Rutina_Transformacion: '',CaracterConcatenacion: '',OrdenCampo: -1,Rutina_Conversion: '',ValidaEnMasivas: 1});
+              $scope.arrayConversorDetalle.push({IdDetalle:$scope.itemsParaDetalle[prop].IdDetalle,TipoRegistro: 'D',NumeroCampo:$scope.itemsParaDetalle[prop].orden,PosicionInicio: 0,LongitudCampo: 0,TipoCampo: 'X',SeparadorDecimales: 0,NumeroDecimales: 0,DescripcionCampo:'',IdCampoEquivalente: 0,CampoEquivalente:$scope.itemsParaDetalle[prop].Nombre,Obligatorio: 0,Validaciones: '',Tipo_Registro: 'ITEM',Default_Value: '',observacion: '',Rutina_Validacion: '',Rutina_Transformacion: '',CaracterConcatenacion: '',OrdenCampo: -1,Rutina_Conversion: '',ValidaEnMasivas: 1});
            }else{
-              $scope.arrayConversorDetalle.push({TipoRegistro: 'D',NumeroCampo:$scope.itemsParaDetalle[prop].orden, PosicionInicio: 0,LongitudCampo: 0,TipoCampo: 'X',SeparadorDecimales: 0,NumeroDecimales: 0,DescripcionCampo:$scope.itemsParaDetalle[prop].Nombre,IdCampoEquivalente: 0,CampoEquivalente:'',Obligatorio: 0,Validaciones: '',Tipo_Registro: 'ITEM',Default_Value: '',observacion: '',Rutina_Validacion: '',Rutina_Transformacion: '',CaracterConcatenacion: '',OrdenCampo: -1,Rutina_Conversion: '',ValidaEnMasivas: 1});
+              $scope.arrayConversorDetalle.push({IdDetalle:$scope.itemsParaDetalle[prop].IdDetalle,TipoRegistro: 'D',NumeroCampo:$scope.itemsParaDetalle[prop].orden, PosicionInicio: 0,LongitudCampo: 0,TipoCampo: 'X',SeparadorDecimales: 0,NumeroDecimales: 0,DescripcionCampo:$scope.itemsParaDetalle[prop].Nombre,IdCampoEquivalente: 0,CampoEquivalente:'',Obligatorio: 0,Validaciones: '',Tipo_Registro: 'ITEM',Default_Value: '',observacion: '',Rutina_Validacion: '',Rutina_Transformacion: '',CaracterConcatenacion: '',OrdenCampo: -1,Rutina_Conversion: '',ValidaEnMasivas: 1});
            }
        }
+
        for(prop in $scope.arrayConversorDetalle){
            for(p in  $scope.detallesFormatos){
-              if($scope.arrayConversorDetalle[prop].NumeroCampo == $scope.detallesFormatos[p].NumeroCampo){
+             if($scope.arrayConversorDetalle[prop].IdDetalle == $scope.detallesFormatos[p].IdDetalle){
                   $scope.arrayConversorDetalle[prop].TipoRegistro = $scope.detallesFormatos[p].TipoRegistro;
                   $scope.arrayConversorDetalle[prop].NumeroCampo = $scope.detallesFormatos[p].NumeroCampo;
                   $scope.arrayConversorDetalle[prop].PosicionInicio = $scope.detallesFormatos[p].PosicionInicio;
@@ -2044,11 +2045,10 @@
     }
 
     $scope.siguienteTablaConversorDetalle = function(){
-      //console.log($scope.detallesFormatos);
        if($scope.nuevoFormatoIso){
            creacionArrayConversorDetalle($scope.tipoCabecera.value);
        }else if($scope.editarFormatoIso){
-           creacionArrayConversorDetalleEditar(); // to do  
+           creacionArrayConversorDetalleEditar(); 
        }
        $scope.cuartaVista = false;
        $scope.tablaConversorDetalleVista = true;
@@ -2203,7 +2203,7 @@
             for(prop in resp){
                 if(resp[prop].NumeroCampo == $scope.nuevosChecks[p].orden){
                    $scope.nuevosChecks[p].check = true;
-                   $scope.itemsParaDetalle.push($scope.nuevosChecks[p]);
+                   $scope.itemsParaDetalle.push(Object.assign(resp[prop],$scope.nuevosChecks[p]));
                 }
             }
         }
@@ -3639,145 +3639,16 @@
         restricted: false,
        rol: 1
       }
+    })
+     .when('/conversordetalles/:idFormato/:NombreFormato', {
+      templateUrl: '/templates/conversordetalles/index.html',
+      controller: 'conversordetallesController',
+      access: {
+        restricted: false,
+       rol: 1
+      }
     });
  })
-.controller('modalUserCreateController',
-  ['$scope', '$uibModalInstance', 'item','AuthService','userService',
-  function ($scope, $uibModalInstance, item,AuthService,userService) {
-  
-    $scope.item = item;
-    $scope.saving = false;
-    if(item){
-     $scope.tmpUsername = angular.copy(item.username);
-    }
-     
-    $scope.save = function () {
-
-      if(!item){
-        $scope.saving = true;
-        item = {username:$scope.item.username,rol:$scope.item.rol,flat:true};
-        AuthService.register($scope.item.username,$scope.item.password,$scope.item.rol).then(function(r){
-          $scope.saving = false;
-        });
-      }else{
-        userService.editUser($scope.tmpUsername,item.username,$scope.item.password,$scope.item.rol).then(function(r){
-          $scope.saving = false;
-        });
-      }
-      $uibModalInstance.close(item);
-    };
-
-}])
-
-.controller('modalUserDeleteController',
-  ['$scope', '$modalInstance', 'item',
-  function ($scope, $modalInstance, item) {
-    
-  $scope.item = item;
-  $scope.ok = function () {
-    $modalInstance.close($scope.item);
-  };
-
-  $scope.cancel = function () {
-    $modalInstance.dismiss('cancel');
-  };
-    
-
-}])
-.controller('userController',
-  ['$rootScope','$scope', '$location', 'userService','$timeout','$uibModal','UsersModel',
-  function ($rootScope,$scope, $location, userService,$timeout,$uibModal,UsersModel) {
-    $scope.titleLoginController = "MEAN-CASE SUPER HEROIC";
-    $rootScope.titleWeb = "Users";
-    $scope.preloader = true;
-    $scope.msjAlert = false;
-    UsersModel.getAll().then(function(data){
-            $scope.usersList = data; 
-            $scope.usersTemp = angular.copy($scope.usersList);
-            $scope.preloader = false;
-    })
-    /*  Modal*/
-
-    /*  Create    */
-     $scope.open = function (size,item) {
-        var modalInstance = $uibModal.open({
-          animation: true,
-          templateUrl: 'templates/users/modalUserCreate.html',
-          controller: 'modalUserCreateController',
-          size: size,
-          resolve: {
-            item: function () {
-              return item;
-            }
-          }
-        });
-
-        modalInstance.result.then(function(data) {
-          if(!data._id) {
-         
-                $scope.usersList.push(data); 
-                $scope.usersTemp = angular.copy($scope.usersList);
-            }      
-        },function(result){
-          $scope.usersList = $scope.usersTemp;
-          $scope.usersTemp = angular.copy($scope.usersList);  
-        });
-    };
-
-    /*  Create    */
-    /*  Delete    */
-    $scope.openDelete = function (size,item) {
-        var modalInstance = $uibModal.open({
-          animation: true,
-          templateUrl: 'templates/users/modalUserDelete.html',
-          controller: 'modalUserDeleteController',
-          size: size,
-          resolve: {
-            item: function () {
-              return item;
-            }
-          }
-        });
-
-        modalInstance.result.then(function(data) { 
-          var idx = $scope.usersList.indexOf(data); 
-          $scope.usersList.splice(idx, 1);
-          userService
-            .deleteUser(data._id)
-            .then(function(result) {
-                $scope.msjAlert = true;
-                $scope.alert = "success";
-                $scope.message = result.message;
-            })
-            .catch(function(err) {
-                //error
-                $scope.msjAlert = true;
-                $scope.alert = "danger";
-                $scope.message = "Error "+err;
-            })            
-        });
-    };
-
-    /*  Delete    */
-
-    /*  Modal*/
-
-    /*    Configuration Watch  Change Serch    */
-         /* $scope.filterText = '';
-          // Instantiate these variables outside the watch
-          var tempFilterText = '',
-          filterTextTimeout;
-          $scope.$watch('searchText', function (val) {
-              if (filterTextTimeout) $timeout.cancel(filterTextTimeout);
-              tempFilterText = val;
-              filterTextTimeout = $timeout(function() {
-                  $scope.filterText = tempFilterText;
-              }, 1500); // delay 250 ms
-          })*/
-    /*    Configuration Watch Change Serch     */
-        
-
-}])
 .controller('parsingController',
   ['$rootScope','$scope', '$location', 'conversorcabecerasModel','$uibModal','$routeParams','factoryParsing','almacentramasModel',
   function ($rootScope,$scope, $location, conversorcabecerasModel,$uibModal,$routeParams,factoryParsing,almacentramasModel) {
@@ -3940,6 +3811,143 @@
       }
     });
  })
+.controller('modalUserCreateController',
+  ['$scope', '$uibModalInstance', 'item','AuthService','userService',
+  function ($scope, $uibModalInstance, item,AuthService,userService) {
+  
+    $scope.item = item;
+    $scope.saving = false;
+    if(item){
+     $scope.tmpUsername = angular.copy(item.username);
+    }
+     
+    $scope.save = function () {
+
+      if(!item){
+        $scope.saving = true;
+        item = {username:$scope.item.username,rol:$scope.item.rol,flat:true};
+        AuthService.register($scope.item.username,$scope.item.password,$scope.item.rol).then(function(r){
+          $scope.saving = false;
+        });
+      }else{
+        userService.editUser($scope.tmpUsername,item.username,$scope.item.password,$scope.item.rol).then(function(r){
+          $scope.saving = false;
+        });
+      }
+      $uibModalInstance.close(item);
+    };
+
+}])
+
+.controller('modalUserDeleteController',
+  ['$scope', '$modalInstance', 'item',
+  function ($scope, $modalInstance, item) {
+    
+  $scope.item = item;
+  $scope.ok = function () {
+    $modalInstance.close($scope.item);
+  };
+
+  $scope.cancel = function () {
+    $modalInstance.dismiss('cancel');
+  };
+    
+
+}])
+.controller('userController',
+  ['$rootScope','$scope', '$location', 'userService','$timeout','$uibModal','UsersModel',
+  function ($rootScope,$scope, $location, userService,$timeout,$uibModal,UsersModel) {
+    $scope.titleLoginController = "MEAN-CASE SUPER HEROIC";
+    $rootScope.titleWeb = "Users";
+    $scope.preloader = true;
+    $scope.msjAlert = false;
+    UsersModel.getAll().then(function(data){
+            $scope.usersList = data; 
+            $scope.usersTemp = angular.copy($scope.usersList);
+            $scope.preloader = false;
+    })
+    /*  Modal*/
+
+    /*  Create    */
+     $scope.open = function (size,item) {
+        var modalInstance = $uibModal.open({
+          animation: true,
+          templateUrl: 'templates/users/modalUserCreate.html',
+          controller: 'modalUserCreateController',
+          size: size,
+          resolve: {
+            item: function () {
+              return item;
+            }
+          }
+        });
+
+        modalInstance.result.then(function(data) {
+          if(!data._id) {
+         
+                $scope.usersList.push(data); 
+                $scope.usersTemp = angular.copy($scope.usersList);
+            }      
+        },function(result){
+          $scope.usersList = $scope.usersTemp;
+          $scope.usersTemp = angular.copy($scope.usersList);  
+        });
+    };
+
+    /*  Create    */
+    /*  Delete    */
+    $scope.openDelete = function (size,item) {
+        var modalInstance = $uibModal.open({
+          animation: true,
+          templateUrl: 'templates/users/modalUserDelete.html',
+          controller: 'modalUserDeleteController',
+          size: size,
+          resolve: {
+            item: function () {
+              return item;
+            }
+          }
+        });
+
+        modalInstance.result.then(function(data) { 
+          var idx = $scope.usersList.indexOf(data); 
+          $scope.usersList.splice(idx, 1);
+          userService
+            .deleteUser(data._id)
+            .then(function(result) {
+                $scope.msjAlert = true;
+                $scope.alert = "success";
+                $scope.message = result.message;
+            })
+            .catch(function(err) {
+                //error
+                $scope.msjAlert = true;
+                $scope.alert = "danger";
+                $scope.message = "Error "+err;
+            })            
+        });
+    };
+
+    /*  Delete    */
+
+    /*  Modal*/
+
+    /*    Configuration Watch  Change Serch    */
+         /* $scope.filterText = '';
+          // Instantiate these variables outside the watch
+          var tempFilterText = '',
+          filterTextTimeout;
+          $scope.$watch('searchText', function (val) {
+              if (filterTextTimeout) $timeout.cancel(filterTextTimeout);
+              tempFilterText = val;
+              filterTextTimeout = $timeout(function() {
+                  $scope.filterText = tempFilterText;
+              }, 1500); // delay 250 ms
+          })*/
+    /*    Configuration Watch Change Serch     */
+        
+
+}])
 .controller('crudController',
     ['$scope', 'crudService',
         function ($scope, crudService) {
