@@ -1040,6 +1040,83 @@
       }
     });
  })
+.controller('AuditController',
+  ['$rootScope','$scope', '$location', 'AuditService','$uibModal',
+  function ($rootScope,$scope, $location, AuditService,$uibModal) {
+    $scope.titleController = 'MEAN-CASE SUPER HEROIC';
+    $rootScope.titleWeb = 'Audit';
+    $scope.preloader = true;
+    $scope.msjAlert = false;
+    AuditService.allAudit().then(function(data) {
+      $scope.AuditList = data;
+      $scope.AuditTemp = angular.copy($scope.AuditList);
+      $scope.preloader = false;
+    });
+    /*  Modal */
+     $scope.open = function (item) {
+       var modalInstance = $uibModal.open({
+        animation: true,
+        templateUrl: 'templates/Audit/modalCreate.html',
+        controller: 'modalAuditCreateController',
+        size: 'lg',
+        resolve: {
+         item: function () {
+          return item;
+         }
+        }
+      });
+      modalInstance.result.then(function(data) {
+        if(!item) {
+           $scope.AuditList.push(data);
+           $scope.AuditTemp = angular.copy($scope.AuditList);
+        }
+      },function(result){
+      $scope.AuditList = $scope.AuditTemp;
+      $scope.AuditTemp = angular.copy($scope.AuditList);
+    });
+  };
+  /*  Delete  */
+  $scope.openDelete = function (item) {
+    var modalInstance = $uibModal.open({
+      animation: true,
+      templateUrl: 'templates/Audit/modalDelete.html',
+      controller: 'modalAuditDeleteController',
+      size: 'lg',
+      resolve: {
+        item: function () {
+           return item;
+        }
+      }
+    });
+    modalInstance.result.then(function(data) {
+      var idx = $scope.AuditList.indexOf(data);
+      $scope.AuditList.splice(idx, 1);
+      AuditService
+        .del(data._id)
+        .then(function(result) {
+          $scope.msjAlert = true;
+          $scope.alert = 'success';
+          $scope.message = result.message;
+        })
+        .catch(function(err) {
+          $scope.msjAlert = true;
+          $scope.alert = 'danger';
+          $scope.message = 'Error '+err;
+        })
+      });
+    };
+}])
+.config(function ($routeProvider) {
+  $routeProvider
+    .when('/Audit', {
+      templateUrl: '/templates/Audit/auditIndex.html',
+      controller: 'AuditController',
+      access: {
+        restricted: false,
+       rol: 4
+      }
+    });
+ })
 .controller('habilitarAmbienteController',
   ['$scope', '$uibModalInstance', 'ambientes','ambientesModel','$filter',
   function ($scope, $uibModalInstance, ambientes,ambientesModel,$filter) {
@@ -1222,83 +1299,6 @@
       }
     });
  })
-.controller('AuditController',
-  ['$rootScope','$scope', '$location', 'AuditService','$uibModal',
-  function ($rootScope,$scope, $location, AuditService,$uibModal) {
-    $scope.titleController = 'MEAN-CASE SUPER HEROIC';
-    $rootScope.titleWeb = 'Audit';
-    $scope.preloader = true;
-    $scope.msjAlert = false;
-    AuditService.allAudit().then(function(data) {
-      $scope.AuditList = data;
-      $scope.AuditTemp = angular.copy($scope.AuditList);
-      $scope.preloader = false;
-    });
-    /*  Modal */
-     $scope.open = function (item) {
-       var modalInstance = $uibModal.open({
-        animation: true,
-        templateUrl: 'templates/Audit/modalCreate.html',
-        controller: 'modalAuditCreateController',
-        size: 'lg',
-        resolve: {
-         item: function () {
-          return item;
-         }
-        }
-      });
-      modalInstance.result.then(function(data) {
-        if(!item) {
-           $scope.AuditList.push(data);
-           $scope.AuditTemp = angular.copy($scope.AuditList);
-        }
-      },function(result){
-      $scope.AuditList = $scope.AuditTemp;
-      $scope.AuditTemp = angular.copy($scope.AuditList);
-    });
-  };
-  /*  Delete  */
-  $scope.openDelete = function (item) {
-    var modalInstance = $uibModal.open({
-      animation: true,
-      templateUrl: 'templates/Audit/modalDelete.html',
-      controller: 'modalAuditDeleteController',
-      size: 'lg',
-      resolve: {
-        item: function () {
-           return item;
-        }
-      }
-    });
-    modalInstance.result.then(function(data) {
-      var idx = $scope.AuditList.indexOf(data);
-      $scope.AuditList.splice(idx, 1);
-      AuditService
-        .del(data._id)
-        .then(function(result) {
-          $scope.msjAlert = true;
-          $scope.alert = 'success';
-          $scope.message = result.message;
-        })
-        .catch(function(err) {
-          $scope.msjAlert = true;
-          $scope.alert = 'danger';
-          $scope.message = 'Error '+err;
-        })
-      });
-    };
-}])
-.config(function ($routeProvider) {
-  $routeProvider
-    .when('/Audit', {
-      templateUrl: '/templates/Audit/auditIndex.html',
-      controller: 'AuditController',
-      access: {
-        restricted: false,
-       rol: 4
-      }
-    });
- })
 .controller('catalogosController',
   ['$rootScope','$scope', '$location', 'catalogosModel','$uibModal',
   function ($rootScope,$scope, $location, catalogosModel,$uibModal) {
@@ -1446,6 +1446,1513 @@
       }
     });
  })
+.controller('duplicarFormatoController',
+  ['$rootScope','$scope', '$location', 'conversorcabecerasModel','$uibModal','$routeParams',
+  function ($rootScope,$scope, $location, conversorcabecerasModel,$uibModal,$routeParams) {
+
+    $scope.titleController = 'MEAN-CASE SUPER HEROIC';
+    $rootScope.titleWeb = 'conversorcabeceras';
+    $scope.preloader = true;
+    $scope.msjAlert = false;
+    $scope.mostrarGrid = false;
+    var obtenerCabeceras = function(){
+      conversorcabecerasModel.getAll().then(function(data) {
+        $scope.conversorcabecerasList = data;
+        $scope.conversorcabecerasTemp = angular.copy($scope.conversorcabecerasList);
+        //$scope.preloader = false;
+      });
+    }
+
+    obtenerCabeceras();
+    $scope.item = {};
+    $scope.duplicarFormato = function(){
+      var formatoCabecera = conversorcabecerasModel.create();
+        formatoCabecera.url = '/api/duplicarFormato';
+        formatoCabecera.idFormato = $scope.item.formato;
+        formatoCabecera.nombreFormato = $scope.item.nombreFormato;
+        formatoCabecera.descripcionFormato = $scope.item.descripcionFormato;
+        formatoCabecera.save().then(function(r){
+          $scope.datosCabecera = [];
+          $scope.datosCabecera.push(r);
+          $scope.item.formato = null;
+          $scope.item.nombreFormato = null;
+          $scope.item.descripcionFormato = null;
+          $scope.preloader = false;
+          $scope.mostrarGrid = true;
+        });
+    }
+
+    $scope.options = [
+        {
+          name: '5',
+          value: '5'
+        }, 
+        {
+          name: '10',
+          value: '10'
+        }, 
+        {
+          name: '15',
+          value: '15'
+        }, 
+        {
+          name: '20',
+          value: '20'
+        }
+    ];
+
+    $scope.valorPaginacion = $scope.options[0];
+    $scope.cambioPaginacion = function(dato){
+      $rootScope.configTable.itemsPerPage =  dato.value;
+    }
+    $scope.obtenerDetalles = function(item){
+      $location.url('/conversordetalles/'+item.IdFormato+'/'+item.NombreFormato);
+      /*conversorcabecerasModel.url = '/api/conversorcabeceras/detalles';
+      conversorcabecerasModel.findById(idFormato).then(function(detalles){
+        
+        //$location.url('/conversorcabeceras/detalles');
+        $scope.conversoDetalles = detalles;
+        console.log($scope.conversoDetalles);
+      });*/
+      
+     
+    }
+    $scope.verPlantilla = function(item){
+      $location.url('/conversordetalleplantillas/'+item.IdFormato+'/'+item.NombreFormato);
+    }
+
+    /*  Modal */
+     $scope.open = function (item) {
+       var modalInstance = $uibModal.open({
+        animation: true,
+        templateUrl: 'templates/conversorcabeceras/modalCreate.html',
+        controller: 'modalconversorcabecerasCreateController',
+        size: 'lg',
+        resolve: {
+         item: function () {
+          return item;
+         }
+        }
+      });
+      modalInstance.result.then(function(data) {
+        if(!item) {
+           $scope.conversorcabecerasList.push(data);
+           $scope.conversorcabecerasTemp = angular.copy($scope.conversorcabecerasList);
+        }
+        if(data.message){
+          $scope.alert = 'success';
+          $scope.message = data.message;
+          $scope.msjAlert = true;
+        }
+ 
+      },function(result){
+          $scope.conversorcabecerasList = $scope.conversorcabecerasTemp;
+          $scope.conversorcabecerasTemp = angular.copy($scope.conversorcabecerasList);
+    })
+    .catch(function(err) {
+          $scope.msjAlert = true;
+          $scope.alert = 'danger';
+          $scope.message = 'Error '+err;
+          $scope.msjAlert = true;
+    });
+  };
+  /*  Delete  */
+  $scope.openDelete = function (item) {
+    var modalInstance = $uibModal.open({
+      animation: true,
+      templateUrl: 'templates/conversorcabeceras/modalDelete.html',
+      controller: 'modalconversorcabecerasDeleteController',
+      size: 'lg',
+      resolve: {
+        item: function () {
+           return item;
+        }
+      }
+    });
+    modalInstance.result.then(function(data) {
+      var idx = $scope.conversorcabecerasList.indexOf(data);
+      $scope.conversorcabecerasList.splice(idx, 1);
+      conversorcabecerasModel
+        .destroy(data.IdFormato)
+        .then(function(result) {
+          $scope.msjAlert = true;
+          $scope.alert = 'success';
+          $scope.message = result.message;
+        })
+        .catch(function(err) {
+          $scope.msjAlert = true;
+          $scope.alert = 'danger';
+          $scope.message = 'Error '+err;
+        })
+      });
+    };
+}])
+.controller('formatosAutomaticosController',
+  ['$rootScope','$scope', '$location', 'conversorcabecerasModel','$uibModal','$routeParams','x2js','factoryParsing','$route',
+  function ($rootScope,$scope, $location, conversorcabecerasModel,$uibModal,$routeParams,x2js,factoryParsing,$route) {
+
+    $scope.titleController = 'MEAN-CASE SUPER HEROIC';
+    $rootScope.titleWeb = 'Formatos Automaticos';
+    $scope.mostrarPrimeraVista = true;
+    $scope.mostrarSegundaVista = false;
+    $scope.preloader = true;
+    $scope.msjAlert = false;
+    $scope.showTramaJson = true;
+    $scope.showMensajeError = false;
+    var flagDetalle = false;
+    $scope.mostrarTerceraVista = false;
+    $scope.preloader = true;
+    $scope.enlazarTabla = true;
+    //var xmlText = '<?xml version="1.0" encoding="UTF-8"?><soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ser="http://bpichincha.com/servicios"><soapenv:Header /><soapenv:Body><ser:ProcesarRequerimiento><header><usuario>{usuario}</usuario><aplicacion>{aplicacion}</aplicacion><canal>{canal}</canal><idTransaccion /><banco>{banco}</banco><oficina>{oficina}</oficina></header><body><servicio>{servicio}</servicio><metodo>{metodo}</metodo><dataIn><field id="iuto" valor="hbCI2" /><field id="tipoTarjeta" valor="{TipoTarjeta}" /><field id="Tipo_Emisor" valor="{Tipo_Emisor}" /><field id="numTarjeta" valor="{Tarjeta}" /><field id="timestamp" valor="{fechahora}" /></dataIn></body></ser:ProcesarRequerimiento></soapenv:Body></soapenv:Envelope>';
+   
+    //console.log(jsonObj);
+
+
+    var scan = function(obj,superior){
+        superior = superior || null;
+        var k;
+        if (obj instanceof Object) {
+            for (k in obj){
+                if (obj.hasOwnProperty(k)){
+                    if(superior == 'Detalle' ){
+                        flagDetalle = true;
+                        if(typeof obj[k] != 'object'){
+                          var tmp = k;
+                          $scope.nodosJson.push({name:tmp,value:tmp});
+                        }                     
+                    }else if (flagDetalle) {
+                          var tmp = superior+'.'+k;
+                          $scope.nodosJson.push({name:tmp,value:tmp});    
+                    }
+                    scan(obj[k],k);  
+                }  
+                                              
+            }
+        } else {
+            //si no es obj[k] instancia de objeto
+        };
+
+    };
+    $scope.nodosXml = [];
+    var scanXml = function(obj){
+        var k;
+        if (obj instanceof Object) {
+            for (k in obj){
+                if (obj.hasOwnProperty(k)){
+                    
+                    if(k != '__prefix'){
+                      if(typeof obj[k] == 'string'){
+                        if(k != '_id'){
+                          var tmpExist = obj[k].indexOf("http");
+                          if(obj[k] != ''){   
+                              if(tmpExist == -1) {
+                                  var tmpExistLlave = obj[k].indexOf("{");
+                                   if(tmpExistLlave != -1) {
+                                      $scope.nodosXml.push({name:obj[k],value:obj[k]});
+                                    }
+                              }                                                                              
+                          }
+                           
+                        }
+                         
+                      }
+                      
+                    }
+                    scanXml(obj[k]);  
+                }  
+                                              
+            }
+        } else {
+            //si no es obj[k] instancia de objeto
+        };
+
+    };
+    //scanXml(jsonObj);
+    $scope.nodosJson = [];
+   
+
+    $scope.options = [
+        {
+          name: 'ENVIO',
+          value: 'ENVIO'
+        }, 
+        {
+          name: 'RESPUESTA',
+          value: 'RESPUESTA'
+        }
+      ];
+
+      
+    
+      
+      
+
+    $scope.nodosResultados = [];
+    $scope.concatenar = function(){
+      var concatName = $scope.nodoJson[0].name+' | '+ $scope.nodoXml[0].name;
+      //var concatValue = $scope.nodoJson[0].value+','+ $scope.nodoXml[0].value;
+      var equivalentes = $scope.nodoXml[0].name.replace(/{/g, "");
+      equivalentes = equivalentes.replace(/}/g, "");
+      $scope.nodosResultados.push({name:concatName,descripcionCampo:$scope.nodoJson[0].name,campoEquivalente:equivalentes});
+    }
+    $scope.generarFormato = function(){
+      if($scope.valorTipoProceso.value == 'ENVIO'){
+          $scope.nodosResultados.unshift({value:$scope.tramaXml.replace(/\s/g, ' ')});
+          $scope.nodosResultados.unshift({value:$scope.inputNombreFormato});
+          $scope.nodosResultados.unshift({value:$scope.inputDescripcionFormato});
+          $scope.nodosResultados.unshift({value: $scope.valorTipoProceso.value});
+          factoryParsing.generarFormatoAutomatico($scope.nodosResultados).then(function(res){
+              $scope.nodosResultados.shift();
+              $scope.nodosResultados.shift();
+              $scope.nodosResultados.shift();
+              $scope.nodosJson = [];
+              $scope.nodosXml = [];
+              var tmpArray = [];
+              tmpArray.push(res);
+              $scope.conversorcabecerasList = tmpArray;
+              $scope.mostrarSegundaVista = false;
+              $scope.mostrarTerceraVista = true;
+              $scope.preloader = false;
+          });
+      }else{
+                $scope.tablaEnlazada.unshift({value:$scope.inputNombreFormato});
+                $scope.tablaEnlazada.unshift({value:$scope.inputDescripcionFormato});
+                $scope.tablaEnlazada.unshift({value: $scope.valorTipoProceso.value});
+                factoryParsing.generarFormatoAutomatico($scope.tablaEnlazada).then(function(res){
+                    $scope.tablaEnlazada.shift();
+                    $scope.tablaEnlazada.shift();
+                    $scope.tablaEnlazada.shift();
+                    var tmpArray = [];
+                    tmpArray.push(res);
+                    $scope.conversorcabecerasList = tmpArray;
+                    $scope.showTramaJson = true;
+                    //$scope.mostrarTerceraVista = true;
+                    $scope.preloader = false;
+                });
+      }
+      
+      
+    }
+
+    $scope.refrescar = function(){
+      $route.reload();
+    }
+
+    $scope.eliminarElemento = function(elemento){
+      var idx = $scope.nodosResultados.indexOf(elemento[0]);
+      $scope.nodosResultados.splice(idx, 1);
+    }
+
+    $scope.valorTipoProceso = $scope.options[0];
+
+    $scope.cambiarTipoProceso = function(){
+        $scope.showTramaJson = !$scope.showTramaJson;    
+    }
+    $scope.validarBtnEnlazar = function(){
+      if($scope.campoTemporal != ''){
+        $scope.enlazarTabla = false;
+      }else{
+        $scope.enlazarTabla = true;
+      }
+    }
+    $scope.showSegundaVista = function(arg){
+        if($scope.valorTipoProceso.value == 'ENVIO'){
+                  if($scope.tramaJson != undefined){
+                      if (/^[\],:{}\s]*$/.test($scope.tramaJson.replace(/\\["\\\/bfnrtu]/g, '@').
+                        replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']').
+                        replace(/(?:^|:|,)(?:\s*\[)+/g, ''))) {
+                          scan(JSON.parse($scope.tramaJson));
+                          var jsonObj = x2js.xml_str2json( $scope.tramaXml );
+                          if(jsonObj != null){
+                              scanXml(jsonObj);
+                              $scope.mostrarPrimeraVista = false;
+                              $scope.mostrarSegundaVista = true;
+                              $scope.showMensajeError = false;
+                          }else{
+                              $scope.showMensajeError = true;
+                              $scope.mensajeError  = 'Su trama XML no tiene el formato esperado';
+                          }
+                          
+                        }else{
+                          $scope.showMensajeError = true;
+                          $scope.mensajeError  = 'Su trama JSON no tiene el formato esperado';
+                        }    
+                  
+                  }
+
+        }else{
+          if($scope.tramaXml != undefined){
+              var jsonObj = x2js.xml_str2json( $scope.tramaXml );
+              if(jsonObj != null){
+                  //scanXml(jsonObj);
+                  $scope.mostrarPrimeraVista = false;
+                  $scope.mostrarSegundaVista = true;
+                  $scope.showMensajeError = false;
+              }else{
+                  $scope.showMensajeError = true;
+                  $scope.mensajeError  = 'Su trama XML no tiene el formato esperado';
+              }
+
+          }
+
+        }
+        
+           
+    }
+    $scope.arrayTemporales = [{name:'Temp_TramaRespuesta'}];
+    $scope.addTemporal = function(arg){
+       $scope.arrayTemporales.push({name:arg[0].name});
+    }
+    $scope.tablaEnlazada = [{descripcionCampo:'RespuestaAutorizador',campoEquivalente:'Temp_TramaRespuesta'}];
+    $scope.variablesTemporales = [];
+    $scope.enlazar = function(){
+        var union = $scope.arrayTemporales.map(function(elem){
+            return elem.name;
+        }).join(".");
+        $scope.tablaEnlazada.push({descripcionCampo:union,campoEquivalente:$scope.campoTemporal});
+        $scope.variablesTemporales.push({name:$scope.campoTemporal});
+        $scope.arrayTemporales = [];
+        $scope.campoTemporal = '';
+        $scope.enlazarTabla = true;
+    }
+    $scope.eliminarTemporal = function(index){
+        $scope.arrayTemporales.splice(index, 1);
+    }
+    $scope.eliminarTablatemporal = function(index){
+       $scope.tablaEnlazada.splice(index, 1);
+    }
+    $scope.obtenerDetalles = function(item){
+      $location.url('/conversordetalles/'+item.IdFormato+'/'+item.NombreFormato);
+    }
+   
+    $scope.nodosResultadoTramaXml = [];
+    var scanXmlRespuesta = function(obj){
+        var k;
+        if (obj instanceof Object) {
+            for (k in obj){
+                if (obj.hasOwnProperty(k)){
+                  if(obj[k].__prefix){
+                    var tmpUnion = obj[k].__prefix+':'+k;
+                    $scope.nodosResultadoTramaXml.push({name:tmpUnion}); 
+                  }else{
+                    var tmpExist = k.indexOf("xmlns");
+                    var tmpExist2 = k.indexOf("__prefix");
+                    if(tmpExist2 == -1){
+                      if (tmpExist == -1) {
+                          $scope.nodosResultadoTramaXml.push({name:k}); 
+                      }
+                      
+                    }
+                    
+                  }
+                     
+                    scanXmlRespuesta(obj[k]);  
+                }  
+                                              
+            }
+        } else {
+            //si no es obj[k] instancia de objeto
+        };
+
+    };
+    $scope.generarDirecto = function(){
+        
+        var jsonObj = x2js.xml_str2json( $scope.tramaXml );
+         if(jsonObj != null){
+              scanXmlRespuesta(jsonObj);
+              $scope.mostrarPrimeraVista = false;
+              $scope.mostrarTerceraVista = true;
+              $scope.showTramaJson = false;
+              $scope.showMensajeError = false;
+              
+          }else{
+              $scope.showMensajeError = true;
+              $scope.mensajeError  = 'Su trama XML no tiene el formato esperado';
+          }
+    }
+
+    $scope.verPlantilla = function(item){
+      $location.url('/conversordetalleplantillas/'+item.IdFormato+'/'+item.NombreFormato);
+    }
+    /*  Modal */
+     $scope.open = function (item) {
+       var modalInstance = $uibModal.open({
+        animation: true,
+        templateUrl: 'templates/conversorcabeceras/modalCreate.html',
+        controller: 'modalconversorcabecerasCreateController',
+        size: 'lg',
+        resolve: {
+         item: function () {
+          return item;
+         }
+        }
+      });
+      modalInstance.result.then(function(data) {
+        if(!item) {
+           $scope.conversorcabecerasList.push(data);
+           $scope.conversorcabecerasTemp = angular.copy($scope.conversorcabecerasList);
+        }
+        if(data.message){
+          $scope.alert = 'success';
+          $scope.message = data.message;
+          $scope.msjAlert = true;
+        }
+ 
+      },function(result){
+          $scope.conversorcabecerasList = $scope.conversorcabecerasTemp;
+          $scope.conversorcabecerasTemp = angular.copy($scope.conversorcabecerasList);
+    })
+    .catch(function(err) {
+          $scope.msjAlert = true;
+          $scope.alert = 'danger';
+          $scope.message = 'Error '+err;
+          $scope.msjAlert = true;
+    });
+  };
+  /*  Delete  */
+  $scope.openDelete = function (item) {
+    var modalInstance = $uibModal.open({
+      animation: true,
+      templateUrl: 'templates/conversorcabeceras/modalDelete.html',
+      controller: 'modalconversorcabecerasDeleteController',
+      size: 'lg',
+      resolve: {
+        item: function () {
+           return item;
+        }
+      }
+    });
+    modalInstance.result.then(function(data) {
+      var idx = $scope.conversorcabecerasList.indexOf(data);
+      $scope.conversorcabecerasList.splice(idx, 1);
+      conversorcabecerasModel
+        .destroy(data.IdFormato)
+        .then(function(result) {
+          $scope.msjAlert = true;
+          $scope.alert = 'success';
+          $scope.message = result.message;
+        })
+        .catch(function(err) {
+          $scope.msjAlert = true;
+          $scope.alert = 'danger';
+          $scope.message = 'Error '+err;
+        })
+      });
+    };
+}])
+.controller('conversorcabecerasController',
+  ['$rootScope','$scope', '$location', 'conversorcabecerasModel','$uibModal','$routeParams',
+  function ($rootScope,$scope, $location, conversorcabecerasModel,$uibModal,$routeParams) {
+
+    $scope.titleController = 'MEAN-CASE SUPER HEROIC';
+    $rootScope.titleWeb = 'conversorcabeceras';
+    $scope.preloader = true;
+    $scope.msjAlert = false;
+    var obtenerCabeceras = function(){
+      conversorcabecerasModel.getAll().then(function(data) {
+        $scope.conversorcabecerasList = data;
+        $scope.conversorcabecerasTemp = angular.copy($scope.conversorcabecerasList);
+        $scope.preloader = false;
+      });
+    }
+
+    var unaCabecera = function(){
+      //conversorcabecerasModel.url = '/api/conversorcabeceras';
+      conversorcabecerasModel.findById($routeParams.idFormato).then(function(cabecera){
+              $scope.conversorcabecerasList = cabecera;
+              $scope.conversorcabecerasTemp = angular.copy($scope.conversorcabecerasList);
+              $scope.preloader = false;
+      });
+    }
+
+    if(!$routeParams.idFormato){
+      obtenerCabeceras();
+    }else{
+      unaCabecera();
+    }
+    $scope.options = [
+        {
+          name: '5',
+          value: '5'
+        }, 
+        {
+          name: '10',
+          value: '10'
+        }, 
+        {
+          name: '15',
+          value: '15'
+        }, 
+        {
+          name: '20',
+          value: '20'
+        }
+    ];
+
+    $scope.valorPaginacion = $scope.options[0];
+    $scope.cambioPaginacion = function(dato){
+      $rootScope.configTable.itemsPerPage =  dato.value;
+    }
+    $scope.obtenerDetalles = function(item){
+      $location.url('/conversordetalles/'+item.IdFormato+'/'+item.NombreFormato+'/'+item.TipoConversion);
+      /*conversorcabecerasModel.url = '/api/conversorcabeceras/detalles';
+      conversorcabecerasModel.findById(idFormato).then(function(detalles){
+        
+        //$location.url('/conversorcabeceras/detalles');
+        $scope.conversoDetalles = detalles;
+        console.log($scope.conversoDetalles);
+      });*/
+      
+     
+    }
+    $scope.verPlantilla = function(item){
+      $location.url('/conversordetalleplantillas/'+item.IdFormato+'/'+item.NombreFormato);
+    }
+
+    /*  Modal */
+     $scope.open = function (item) {
+       var modalInstance = $uibModal.open({
+        animation: true,
+        templateUrl: 'templates/conversorcabeceras/modalCreate.html',
+        controller: 'modalconversorcabecerasCreateController',
+        size: 'lg',
+        resolve: {
+         item: function () {
+          return item;
+         }
+        }
+      });
+      modalInstance.result.then(function(data) {
+        if(!item) {
+           $scope.conversorcabecerasList.push(data);
+           $scope.conversorcabecerasTemp = angular.copy($scope.conversorcabecerasList);
+        }
+        if(data.message){
+          $scope.alert = 'success';
+          $scope.message = "Exito al guardar la cabecera del Formato";
+          $scope.msjAlert = true;
+        }
+ 
+      },function(result){
+          $scope.conversorcabecerasList = $scope.conversorcabecerasTemp;
+          $scope.conversorcabecerasTemp = angular.copy($scope.conversorcabecerasList);
+    })
+    .catch(function(err) {
+          $scope.msjAlert = true;
+          $scope.alert = 'danger';
+          $scope.message = 'Error '+err;
+          $scope.msjAlert = true;
+    });
+  };
+  /*  Delete  */
+  $scope.openDelete = function (item) {
+    var modalInstance = $uibModal.open({
+      animation: true,
+      templateUrl: 'templates/conversorcabeceras/modalDelete.html',
+      controller: 'modalconversorcabecerasDeleteController',
+      size: 'lg',
+      resolve: {
+        item: function () {
+           return item;
+        }
+      }
+    });
+    modalInstance.result.then(function(data) {
+      var idx = $scope.conversorcabecerasList.indexOf(data);
+      $scope.conversorcabecerasList.splice(idx, 1);
+      conversorcabecerasModel
+        .destroy(data.IdFormato)
+        .then(function(result) {
+          $scope.msjAlert = true;
+          $scope.alert = 'success';
+          $scope.message = result.message;
+        })
+        .catch(function(err) {
+          $scope.msjAlert = true;
+          $scope.alert = 'danger';
+          $scope.message = 'Error '+err;
+        })
+      });
+    };
+}])
+.controller('modalconversorcabecerasCreateController',
+  ['$scope', '$uibModalInstance', 'item','conversorcabecerasModel','$filter',
+  function ($scope, $uibModalInstance, item,conversorcabecerasModel,$filter) {
+    $scope.item = item;
+    $scope.saving = false;
+    if(item){
+       $scope.validarCampos = item.TipoConversion.indexOf('ISO8583') != -1;
+    }else{
+       $scope.validarCampos = false;
+    }
+    var reemplazarEspacios = function(arg){
+        if(item){
+             $scope.item.NombreFormato = $scope.item.NombreFormato.replace(/\s/g,"_");
+        }
+       return  arg.replace(/\s/g,"_");
+    }
+    $scope.save = function () {
+      if(!item){
+        $scope.saving = true;
+        item = {IdFormato: $scope.item.IdFormato,NombreFormato: $scope.item.NombreFormato,DescripcionFormato: $scope.item.DescripcionFormato,Cabecera: $scope.item.Cabecera,Pie: $scope.item.Pie,Separador: $scope.item.Separador,FormatoConversion: $scope.item.FormatoConversion,Formato_destino: $scope.item.Formato_destino,Tipo_Proceso: $scope.item.Tipo_Proceso,NombreObjeto: $scope.item.NombreObjeto,estado: $scope.item.estado,tipo_archivo_salida: $scope.item.tipo_archivo_salida,ORIENTACION: $scope.item.ORIENTACION,RutinaPrevalidacion: $scope.item.RutinaPrevalidacion,Unificador: $scope.item.Unificador,Check_Totales_Por: $scope.item.Check_Totales_Por,ValidaIdentificacion: $scope.item.ValidaIdentificacion,RutinaPreconversion: $scope.item.RutinaPreconversion,InfiereTipoIdCliente: $scope.item.InfiereTipoIdCliente,MuestraCabeceraColumna: $scope.item.MuestraCabeceraColumna,TipoConversion: $scope.item.TipoConversion};
+        var conversorCabeceras = conversorcabecerasModel.create();
+        conversorCabeceras.IdFormato = $scope.item.IdFormato;
+        conversorCabeceras.NombreFormato = reemplazarEspacios($scope.item.NombreFormato);
+        conversorCabeceras.DescripcionFormato = $scope.item.DescripcionFormato;
+        if($scope.item.Cabecera == undefined)
+            $scope.item.Cabecera = false;
+        conversorCabeceras.Cabecera = $scope.item.Cabecera;
+        if($scope.item.Pie == undefined)
+            $scope.item.Pie = false;
+        conversorCabeceras.Pie = $scope.item.Pie;
+        conversorCabeceras.Separador = $scope.item.Separador;
+        conversorCabeceras.FormatoConversion = $scope.item.FormatoConversion;
+        if($scope.item.Formato_destino == undefined)
+            $scope.item.Formato_destino = false;
+        conversorCabeceras.Formato_destino = $scope.item.Formato_destino;
+        conversorCabeceras.Tipo_Proceso = $scope.item.Tipo_Proceso;
+        conversorCabeceras.NombreObjeto = $scope.item.NombreObjeto;
+        conversorCabeceras.estado = $scope.item.estado;
+        conversorCabeceras.tipo_archivo_salida = $scope.item.tipo_archivo_salida;
+        conversorCabeceras.ORIENTACION = $scope.item.ORIENTACION;
+        conversorCabeceras.RutinaPrevalidacion = $scope.item.RutinaPrevalidacion;
+        conversorCabeceras.Unificador = $scope.item.Unificador;
+        conversorCabeceras.Check_Totales_Por = $scope.item.Check_Totales_Por;
+        if($scope.item.ValidaIdentificacion == undefined)
+            $scope.item.ValidaIdentificacion = false;
+        conversorCabeceras.ValidaIdentificacion = $scope.item.ValidaIdentificacion;
+        conversorCabeceras.RutinaPreconversion = $scope.item.RutinaPreconversion;
+        if($scope.item.InfiereTipoIdCliente == undefined)
+            $scope.item.InfiereTipoIdCliente = false;
+        conversorCabeceras.InfiereTipoIdCliente = $scope.item.InfiereTipoIdCliente;
+        if($scope.item.MuestraCabeceraColumna == undefined)
+            $scope.item.MuestraCabeceraColumna = false;
+        conversorCabeceras.MuestraCabeceraColumna = $scope.item.MuestraCabeceraColumna;
+        if($scope.item.TipoConversion == undefined)
+            $scope.item.TipoConversion = "PLANTILLA";
+        conversorCabeceras.TipoConversion = $scope.item.TipoConversion;
+        conversorCabeceras.save().then(function(r){
+          $scope.saving = false;
+          $uibModalInstance.close(r);
+        });
+      }else{
+        conversorcabecerasModel.findById($scope.item.IdFormato);
+        conversorcabecerasModel.IdFormato = $scope.item.IdFormato;
+        conversorcabecerasModel.NombreFormato = reemplazarEspacios($scope.item.NombreFormato); 
+        conversorcabecerasModel.DescripcionFormato = $scope.item.DescripcionFormato;
+        conversorcabecerasModel.Cabecera = $scope.item.Cabecera;
+        conversorcabecerasModel.Pie = $scope.item.Pie;
+        conversorcabecerasModel.Separador = $scope.item.Separador;
+        conversorcabecerasModel.FormatoConversion = $scope.item.FormatoConversion;
+        conversorcabecerasModel.Formato_destino = $scope.item.Formato_destino;
+        conversorcabecerasModel.Tipo_Proceso = $scope.item.Tipo_Proceso;
+        conversorcabecerasModel.NombreObjeto = $scope.item.NombreObjeto;
+        conversorcabecerasModel.estado = $scope.item.estado;
+        conversorcabecerasModel.tipo_archivo_salida = $scope.item.tipo_archivo_salida;
+        conversorcabecerasModel.ORIENTACION = $scope.item.ORIENTACION;
+        conversorcabecerasModel.RutinaPrevalidacion = $scope.item.RutinaPrevalidacion;
+        conversorcabecerasModel.Unificador = $scope.item.Unificador;
+        conversorcabecerasModel.Check_Totales_Por = $scope.item.Check_Totales_Por;
+        conversorcabecerasModel.ValidaIdentificacion = $scope.item.ValidaIdentificacion;
+        conversorcabecerasModel.RutinaPreconversion = $scope.item.RutinaPreconversion;
+        conversorcabecerasModel.InfiereTipoIdCliente = $scope.item.InfiereTipoIdCliente;
+        conversorcabecerasModel.MuestraCabeceraColumna = $scope.item.MuestraCabeceraColumna;
+        conversorcabecerasModel.TipoConversion = $scope.item.TipoConversion;
+        conversorcabecerasModel.save().then(function(r){
+          $scope.saving = false;
+          $uibModalInstance.close(r);
+        });
+      }
+    };
+}])
+.controller('modalconversorcabecerasDeleteController',
+  ['$scope', '$uibModalInstance', 'item',
+  function ($scope, $uibModalInstance, item) {
+    $scope.item = item;
+    $scope.ok = function () {
+      $uibModalInstance.close($scope.item);
+    };
+    $scope.cancel = function () {
+       $uibModalInstance.dismiss('cancel');
+     };
+}])
+.config(function ($routeProvider) {
+  $routeProvider
+    .when('/conversorcabeceras', {
+      templateUrl: '/templates/conversorcabeceras/index.html',
+      controller: 'conversorcabecerasController',
+      access: {
+        restricted: false,
+       rol: 1
+      }
+    })
+    .when('/conversorcabeceras/:idFormato', {
+      templateUrl: '/templates/conversorcabeceras/index.html',
+      controller: 'conversorcabecerasController',
+      access: {
+        restricted: false,
+       rol: 1
+      }
+    })
+    .when('/duplicarFormato', {
+      templateUrl: '/templates/conversorcabeceras/duplicarFormato.html',
+      controller: 'duplicarFormatoController',
+      access: {
+        restricted: false,
+       rol: 1
+      }
+    })
+    .when('/formatosAutomaticos', {
+      templateUrl: '/templates/conversorcabeceras/formatosAutomaticos.html',
+      controller: 'formatosAutomaticosController',
+      access: {
+        restricted: false,
+       rol: 1
+      }
+    });
+ })
+.controller('conversordetalleplantillasController',
+  ['$rootScope','$scope', '$location', 'conversordetalleplantillasModel','$uibModal','$routeParams',
+  function ($rootScope,$scope, $location, conversordetalleplantillasModel,$uibModal,$routeParams) {
+    $scope.titleController = 'MEAN-CASE SUPER HEROIC';
+    $rootScope.titleWeb = 'conversordetalleplantillas';
+    $scope.preloader = true;
+    $scope.msjAlert = false;
+
+    if($routeParams.idFormato){
+          conversordetalleplantillasModel.url = '/api/conversordetalleplantillas';
+          conversordetalleplantillasModel.findById($routeParams.idFormato).then(function(plantillas){
+              console.log(plantillas);
+              $scope.conversordetalleplantillasList = plantillas;
+              $scope.conversordetalleplantillasTemp = angular.copy($scope.conversordetalleplantillasList);
+              $scope.preloader = false;
+          });
+      }else{
+            conversordetalleplantillasModel.getAll().then(function(data) {
+              $scope.conversordetalleplantillasList = data;
+              $scope.conversordetalleplantillasTemp = angular.copy($scope.conversordetalleplantillasList);
+              $scope.preloader = false;
+            });
+
+      }
+
+     $scope.regresarFormato = function(){
+      $location.url('/conversorcabeceras/'+$routeParams.idFormato);
+    }
+      
+    $scope.NombreFormato = $routeParams.NombreFormato;
+    /*  Modal */
+     $scope.open = function (item) {
+      if($routeParams.idFormato)
+        var IdFormato = $routeParams.idFormato;
+       var modalInstance = $uibModal.open({
+        animation: true,
+        templateUrl: 'templates/conversordetalleplantillas/modalCreate.html',
+        controller: 'modalconversordetalleplantillasCreateController',
+        size: 'lg',
+        resolve: {
+         item: function () {
+          return item;
+         },
+         IdFormato: function(){
+          return IdFormato;
+         }
+        }
+      });
+      modalInstance.result.then(function(data) {
+        if(!item) {
+           $scope.conversordetalleplantillasList.push(data);
+           $scope.conversordetalleplantillasTemp = angular.copy($scope.conversordetalleplantillasList);
+
+        }
+        if(data.message){
+          $scope.alert = 'success';
+          $scope.message = data.message;
+          $scope.msjAlert = true;
+        }
+      },function(result){
+          $scope.conversordetalleplantillasList = $scope.conversordetalleplantillasTemp;
+          $scope.conversordetalleplantillasTemp = angular.copy($scope.conversordetalleplantillasList);
+        })
+      .catch(function(err) {
+          $scope.msjAlert = true;
+          $scope.alert = 'danger';
+          $scope.message = 'Error '+err;
+          $scope.msjAlert = true;
+    });
+  };
+  /*  Delete  */
+  $scope.openDelete = function (item) {
+    var modalInstance = $uibModal.open({
+      animation: true,
+      templateUrl: 'templates/conversordetalleplantillas/modalDelete.html',
+      controller: 'modalconversordetalleplantillasDeleteController',
+      size: 'lg',
+      resolve: {
+        item: function () {
+           return item;
+        }
+      }
+    });
+    modalInstance.result.then(function(data) {
+      var idx = $scope.conversordetalleplantillasList.indexOf(data);
+      $scope.conversordetalleplantillasList.splice(idx, 1);
+      conversordetalleplantillasModel
+        .destroy(data.IdPlantilla)
+        .then(function(result) {
+          $scope.msjAlert = true;
+          $scope.alert = 'success';
+          $scope.message = result.message;
+        })
+        .catch(function(err) {
+          $scope.msjAlert = true;
+          $scope.alert = 'danger';
+          $scope.message = 'Error '+err;
+        })
+      });
+    };
+}])
+.controller('modalconversordetalleplantillasCreateController',
+  ['$scope', '$uibModalInstance', 'item','conversordetalleplantillasModel','$filter','IdFormato',
+  function ($scope, $uibModalInstance, item,conversordetalleplantillasModel,$filter,IdFormato) {
+    $scope.item = item;
+    $scope.saving = false;
+    if(item){
+       //add optional code
+    }
+    console.log(IdFormato);
+    $scope.save = function () {
+      if(!item){
+        $scope.saving = true;
+        item = {IdPlantilla: $scope.item.IdPlantilla,IdFormato: IdFormato,Plantilla: $scope.item.Plantilla,Tipo: $scope.item.Tipo,Orden: $scope.item.Orden,Nivel: $scope.item.Nivel,Origen: $scope.item.Origen};
+        var conversordetalleplantillas = conversordetalleplantillasModel.create();
+        conversordetalleplantillas.IdPlantilla = $scope.item.IdPlantilla;
+        conversordetalleplantillas.IdFormato = IdFormato;
+        conversordetalleplantillas.Plantilla = $scope.item.Plantilla;
+        conversordetalleplantillas.Tipo = $scope.item.Tipo;
+        conversordetalleplantillas.Orden = $scope.item.Orden;
+        conversordetalleplantillas.Nivel = $scope.item.Nivel;
+        conversordetalleplantillas.Origen = $scope.item.Origen;
+        conversordetalleplantillas.save().then(function(r){
+          $scope.saving = false;
+          $uibModalInstance.close(r);
+        });
+      }else{
+        conversordetalleplantillasModel.findById($scope.item.IdPlantilla);
+        conversordetalleplantillasModel.IdPlantilla = $scope.item.IdPlantilla;
+        conversordetalleplantillasModel.IdFormato = $scope.item.IdFormato;
+        conversordetalleplantillasModel.Plantilla = $scope.item.Plantilla;
+        conversordetalleplantillasModel.Tipo = $scope.item.Tipo;
+        conversordetalleplantillasModel.Orden = $scope.item.Orden;
+        conversordetalleplantillasModel.Nivel = $scope.item.Nivel;
+        conversordetalleplantillasModel.Origen = $scope.item.Origen;
+        conversordetalleplantillasModel.save().then(function(r){
+          $scope.saving = false;
+          $uibModalInstance.close(r);
+        });
+      }
+    };
+}])
+.controller('modalconversordetalleplantillasDeleteController',
+  ['$scope', '$uibModalInstance', 'item',
+  function ($scope, $uibModalInstance, item) {
+    $scope.item = item;
+    $scope.ok = function () {
+      $uibModalInstance.close($scope.item);
+    };
+    $scope.cancel = function () {
+       $uibModalInstance.dismiss('cancel');
+     };
+}])
+.config(function ($routeProvider) {
+  $routeProvider
+    .when('/conversordetalleplantillas/:idFormato/:NombreFormato', {
+      templateUrl: '/templates/conversordetalleplantillas/index.html',
+      controller: 'conversordetalleplantillasController',
+      access: {
+        restricted: false,
+       rol: 1
+      }
+    })
+    .when('/conversordetalleplantillas/', {
+      templateUrl: '/templates/conversordetalleplantillas/index.html',
+      controller: 'conversordetalleplantillasController',
+      access: {
+        restricted: false,
+       rol: 1
+      }
+    });
+ })
+.controller('conversordetallesController',
+  ['$rootScope','$scope', '$location', 'conversordetallesModel','$uibModal','$routeParams',
+  function ($rootScope,$scope, $location, conversordetallesModel,$uibModal,$routeParams) {
+    $scope.titleController = 'MEAN-CASE SUPER HEROIC';
+    $rootScope.titleWeb = 'conversordetalles';
+    $scope.preloader = true;
+    $scope.msjAlert = false;
+    
+    /*conversordetallesModel.getAll().then(function(data) {
+      $scope.conversordetallesList = data;
+      $scope.conversordetallesTemp = angular.copy($scope.conversordetallesList);
+      $scope.preloader = false;
+    });*/
+
+    $scope.regresarFormato = function(){
+      $location.url('/conversorcabeceras/'+$routeParams.idFormato);
+    }
+    if($routeParams.idFormato){
+      conversordetallesModel.url = '/api/conversordetalles';
+      conversordetallesModel.findById($routeParams.idFormato).then(function(detalles){
+              $scope.conversordetallesList = detalles;
+              $scope.conversordetallesTemp = angular.copy($scope.conversordetallesList);
+              $scope.preloader = false;
+      });
+    }else{
+      conversordetallesModel.getAll().then(function(data) {
+        $scope.conversordetallesList = data;
+        $scope.conversordetallesTemp = angular.copy($scope.conversordetallesList);
+        $scope.preloader = false;
+      });
+      
+    }
+    
+    $scope.NombreFormato = $routeParams.NombreFormato;
+    $scope.tipoConversion = $routeParams.tipoConversion;
+  
+     $scope.options = [
+        {
+          name: '5',
+          value: '5'
+        }, 
+        {
+          name: '10',
+          value: '10'
+        }, 
+        {
+          name: '15',
+          value: '15'
+        }, 
+        {
+          name: '20',
+          value: '20'
+        }
+    ];
+
+    $scope.valorPaginacion = $scope.options[0];
+    $scope.cambioPaginacion = function(dato){
+      $rootScope.configTable.itemsPerPage =  dato.value;
+    }
+    /*  Modal */
+     $scope.open = function (item,tipoConversion) {
+      if($routeParams.idFormato)
+        var IdFormato = $routeParams.idFormato;
+       var modalInstance = $uibModal.open({
+        animation: true,
+        templateUrl: 'templates/conversordetalles/modalCreate.html',
+        controller: 'modalconversordetallesCreateController',
+        size: 'lg',
+        resolve: {
+         item: function () {
+          return item;
+         },
+         tipoConversion: function () {
+          return tipoConversion;
+         },
+         IdFormato: function(){
+          return IdFormato;
+         }
+
+        }
+      });
+      modalInstance.result.then(function(data) {
+        if(!item) {
+           $scope.conversordetallesList.push(data);
+           $scope.conversordetallesTemp = angular.copy($scope.conversordetallesList);
+        }
+        if(data.message){
+          $scope.alert = 'success';
+          $scope.message = data.message;
+          $scope.msjAlert = true;
+        }
+      },function(result){
+          $scope.conversordetallesList = $scope.conversordetallesTemp;
+          $scope.conversordetallesTemp = angular.copy($scope.conversordetallesList);
+      })
+      .catch(function(err) {
+          $scope.msjAlert = true;
+          $scope.alert = 'danger';
+          $scope.message = 'Error '+err;
+          $scope.msjAlert = true;
+    });
+  };
+  /*  Delete  */
+  $scope.openDelete = function (item) {
+    var modalInstance = $uibModal.open({
+      animation: true,
+      templateUrl: 'templates/conversordetalles/modalDelete.html',
+      controller: 'modalconversordetallesDeleteController',
+      size: 'lg',
+      resolve: {
+        item: function () {
+           return item;
+        }
+      }
+    });
+    modalInstance.result.then(function(data) {
+      var idx = $scope.conversordetallesList.indexOf(data);
+      $scope.conversordetallesList.splice(idx, 1);
+      conversordetallesModel
+        .destroy(data.IdDetalle)
+        .then(function(result) {
+          $scope.msjAlert = true;
+          if(result.exito)
+            $scope.alert = 'success';
+          else
+            $scope.alert = 'danger';
+          $scope.message = result.message;
+        })
+        .catch(function(err) {
+          $scope.msjAlert = true;
+          $scope.alert = 'danger';
+          $scope.message = 'Error '+err;
+        })
+      });
+    };
+}])
+.controller('modalconversordetallesCreateController',
+  ['$scope', '$uibModalInstance', 'item','conversordetallesModel','$filter','IdFormato','tipoConversion',
+  function ($scope, $uibModalInstance, item,conversordetallesModel,$filter,IdFormato,tipoConversion) {
+    $scope.item = item;
+    $scope.saving = false;
+    if(!item){
+       //add optional code
+        $scope.item = {};
+        $scope.item.TipoRegistro = 'D';
+        $scope.item.PosicionInicio = 0;
+        $scope.item.LongitudCampo = 0;
+        $scope.item.TipoCampo = 'X';
+        $scope.item.SeparadorDecimales = false;
+        $scope.item.NumeroDecimales = 0;
+        $scope.item.IdCampoEquivalente = 0;
+        $scope.item.Obligatorio = false;
+        $scope.item.Tipo_Registro = 'ITEM';
+        $scope.item.OrdenCampo = '-1';
+        $scope.item.ValidaEnMasivas = true;
+        $scope.validarCampos = false;
+    }else{
+        $scope.validarCampos = tipoConversion.indexOf('ISO8583') != -1;
+    }
+    var eliminarEspaciosDescripcionCampo = function(arg){
+        if(item){
+             $scope.item.DescripcionCampo = $scope.item.DescripcionCampo.replace(/\s/g,'');
+        }
+       return  arg.replace(/\s/g,'');
+    }
+    var eliminarCampoEquivalente = function(arg){
+        if(item){
+             $scope.item.CampoEquivalente = $scope.item.CampoEquivalente.replace(/\s/g,'');
+        }
+       return  arg.replace(/\s/g,'');
+    }
+    $scope.save = function () {
+      if(!item){
+        $scope.saving = true;
+        item = {IdDetalle: $scope.item.IdDetalle,IdFormato:IdFormato,TipoRegistro: $scope.item.TipoRegistro,NumeroCampo: $scope.item.NumeroCampo,PosicionInicio: $scope.item.PosicionInicio,LongitudCampo: $scope.item.LongitudCampo,TipoCampo: $scope.item.TipoCampo,SeparadorDecimales: $scope.item.SeparadorDecimales,NumeroDecimales: $scope.item.NumeroDecimales,DescripcionCampo: $scope.item.DescripcionCampo,IdCampoEquivalente: $scope.item.IdCampoEquivalente,CampoEquivalente: $scope.item.CampoEquivalente,Obligatorio: $scope.item.Obligatorio,Validaciones: $scope.item.Validaciones,Tipo_Registro: $scope.item.Tipo_Registro,Default_Value: $scope.item.Default_Value,observacion: $scope.item.observacion,Rutina_Validacion: $scope.item.Rutina_Validacion,Rutina_Transformacion: $scope.item.Rutina_Transformacion,CaracterConcatenacion: $scope.item.CaracterConcatenacion,OrdenCampo: $scope.item.OrdenCampo,Rutina_Conversion: $scope.item.Rutina_Conversion,ValidaEnMasivas: $scope.item.ValidaEnMasivas};
+        var conversordetalles = conversordetallesModel.create();
+        conversordetalles.IdDetalle = $scope.item.IdDetalle;
+        conversordetalles.IdFormato = IdFormato;
+        conversordetalles.TipoRegistro = $scope.item.TipoRegistro;
+        conversordetalles.NumeroCampo = $scope.item.NumeroCampo;
+        conversordetalles.PosicionInicio = $scope.item.PosicionInicio;
+        conversordetalles.LongitudCampo = $scope.item.LongitudCampo;
+        conversordetalles.TipoCampo = $scope.item.TipoCampo;
+        if($scope.item.SeparadorDecimales == undefined)
+            $scope.item.SeparadorDecimales = false;
+        conversordetalles.SeparadorDecimales = $scope.item.SeparadorDecimales;
+        conversordetalles.NumeroDecimales = $scope.item.NumeroDecimales;
+        conversordetalles.DescripcionCampo = eliminarEspaciosDescripcionCampo($scope.item.DescripcionCampo);
+        conversordetalles.IdCampoEquivalente = $scope.item.IdCampoEquivalente;
+        conversordetalles.CampoEquivalente = eliminarCampoEquivalente($scope.item.CampoEquivalente);
+        if($scope.item.Obligatorio == undefined)
+            $scope.item.Obligatorio = false;
+        conversordetalles.Obligatorio = $scope.item.Obligatorio;
+        conversordetalles.Validaciones = $scope.item.Validaciones;
+        conversordetalles.Tipo_Registro = $scope.item.Tipo_Registro;
+        conversordetalles.Default_Value = $scope.item.Default_Value;
+        conversordetalles.observacion = $scope.item.observacion;
+        conversordetalles.Rutina_Validacion = $scope.item.Rutina_Validacion;
+        conversordetalles.Rutina_Transformacion = $scope.item.Rutina_Transformacion;
+        conversordetalles.CaracterConcatenacion = $scope.item.CaracterConcatenacion;
+        conversordetalles.OrdenCampo = $scope.item.OrdenCampo;
+        conversordetalles.Rutina_Conversion = $scope.item.Rutina_Conversion;
+        if($scope.item.ValidaEnMasivas == undefined)
+            $scope.item.ValidaEnMasivas = false;
+        conversordetalles.ValidaEnMasivas = $scope.item.ValidaEnMasivas;
+        conversordetalles.save().then(function(r){
+          $scope.saving = false;
+          $uibModalInstance.close(r);
+        });
+      }else{
+        conversordetallesModel.findById($scope.item.IdDetalle);
+        conversordetallesModel.IdDetalle = $scope.item.IdDetalle;
+        conversordetallesModel.IdFormato = $scope.item.IdFormato;
+        conversordetallesModel.TipoRegistro = $scope.item.TipoRegistro;
+        conversordetallesModel.NumeroCampo = $scope.item.NumeroCampo;
+        conversordetallesModel.PosicionInicio = $scope.item.PosicionInicio;
+        conversordetallesModel.LongitudCampo = $scope.item.LongitudCampo;
+        conversordetallesModel.TipoCampo = $scope.item.TipoCampo;
+        conversordetallesModel.SeparadorDecimales = $scope.item.SeparadorDecimales;
+        conversordetallesModel.NumeroDecimales = $scope.item.NumeroDecimales;
+        conversordetallesModel.DescripcionCampo = eliminarEspaciosDescripcionCampo($scope.item.DescripcionCampo);
+        conversordetallesModel.IdCampoEquivalente = $scope.item.IdCampoEquivalente;
+        conversordetallesModel.CampoEquivalente = eliminarCampoEquivalente($scope.item.CampoEquivalente);
+        conversordetallesModel.Obligatorio = $scope.item.Obligatorio;
+        conversordetallesModel.Validaciones = $scope.item.Validaciones;
+        conversordetallesModel.Tipo_Registro = $scope.item.Tipo_Registro;
+        conversordetallesModel.Default_Value = $scope.item.Default_Value;
+        conversordetallesModel.observacion = $scope.item.observacion;
+        conversordetallesModel.Rutina_Validacion = $scope.item.Rutina_Validacion;
+        conversordetallesModel.Rutina_Transformacion = $scope.item.Rutina_Transformacion;
+        conversordetallesModel.CaracterConcatenacion = $scope.item.CaracterConcatenacion;
+        conversordetallesModel.OrdenCampo = $scope.item.OrdenCampo;
+        conversordetallesModel.Rutina_Conversion = $scope.item.Rutina_Conversion;
+        conversordetallesModel.ValidaEnMasivas = $scope.item.ValidaEnMasivas;
+        conversordetallesModel.save().then(function(r){
+          $scope.saving = false;
+          $uibModalInstance.close(r);
+        });
+      }
+    };
+}])
+.controller('modalconversordetallesDeleteController',
+  ['$scope', '$uibModalInstance', 'item',
+  function ($scope, $uibModalInstance, item) {
+    $scope.item = item;
+    $scope.ok = function () {
+      $uibModalInstance.close($scope.item);
+    };
+    $scope.cancel = function () {
+       $uibModalInstance.dismiss('cancel');
+     };
+}])
+.config(function ($routeProvider) {
+  $routeProvider
+    .when('/conversordetalles/:idFormato/:NombreFormato/:tipoConversion', {
+      templateUrl: '/templates/conversordetalles/index.html',
+      controller: 'conversordetallesController',
+      access: {
+        restricted: false,
+       rol: 1
+      }
+    })
+     .when('/conversordetalles/:idFormato/:NombreFormato', {
+      templateUrl: '/templates/conversordetalles/index.html',
+      controller: 'conversordetallesController',
+      access: {
+        restricted: false,
+       rol: 1
+      }
+    });
+ })
+.controller('parsingController',
+  ['$rootScope','$scope', '$location', 'conversorcabecerasModel','$uibModal','$routeParams','factoryParsing','almacentramasModel',
+  function ($rootScope,$scope, $location, conversorcabecerasModel,$uibModal,$routeParams,factoryParsing,almacentramasModel) {
+
+    $scope.titleController = 'MEAN-CASE SUPER HEROIC';
+    $rootScope.titleWeb = 'Test Parcing';
+    $scope.preloader = true;
+    $scope.msjAlert = false; 
+  //$scope.tramaSrtring = JSON.stringify($scope.trama);
+
+    $scope.probarParsing = function(){
+        factoryParsing.testParsing($scope.trama).then(function(data) {
+            $scope.tramaRespuesta = JSON.stringify(data, null, 4);
+        })
+        .catch(function(err){
+            $scope.tramaRespuesta = JSON.stringify(err);
+        });
+    }
+
+   if($routeParams.nombreFormato){
+      $scope.showRes = false; 
+      $scope.showMensaje = false;
+      $scope.NombreFormato = $routeParams.nombreFormato;
+      $scope.regresarFormato = function(){
+        $location.url('/conversorcabeceras/'+$routeParams.idFormato);
+      }
+      $scope.grabar = function(){
+        var parsingPass = {};
+        parsingPass.id_formato  = $routeParams.idFormato;
+        parsingPass.nombre_formato  = $routeParams.nombreFormato;
+        parsingPass.trama  = $scope.tramaPersonalizada.replace(/\s+/g, ' ');
+        /*if(!$scope.labelTrama){
+          //Respuesta
+          parsingPass.trama  = $scope.tramaPersonalizada.replace(/\s+/g, ' ');
+        }else{
+          //Envio
+          var tmpTest = $scope.tramaPersonalizada.replace(/\s+/g, ' ');
+          console.log(tmpTest);
+          parsingPass.trama  = tmpTest.replace(/\\\\/g,'');
+          console.log(parsingPass.trama);
+        }*/
+        console.log(parsingPass.trama);
+        parsingPass.aprobo = false;
+        if($scope.tmpParsing != null){
+            parsingPass.idMongo = $scope.tmpParsing._id;
+        }
+        factoryParsing.eliminarGrabar(parsingPass).then(function(r){
+          $scope.showMensaje = true;
+          $scope.mensaje = r;
+        });
+      }
+      almacentramasModel.findById($routeParams.idFormato).then(function(result){
+        if(result != null){
+          $scope.tmpParsing = result;
+          var tramaSinComillas = JSON.stringify(result.trama);
+          var sizeCadena = tramaSinComillas.length - 1;
+          $scope.tramaPersonalizada = tramaSinComillas.slice(1,sizeCadena).replace(/\\/g,'');
+        }else{
+          $scope.tmpParsing = null;
+        }
+      });
+
+      $scope.options = [
+        {
+          name: 'ENVIO',
+          value: 'ENVIO'
+        }, 
+        {
+          name: 'RESPUESTA',
+          value: 'RESPUESTA'
+        }
+      ];
+      $scope.tramaGenerica =   {
+            "Transaccion": {
+                "Cabecera": {
+                  "Aplicacion": "SE",
+                  "Canal": "TELLER",
+                  "CodigoBanco": "0010",
+                  "IdEmpresa": "43591",
+                  "Sucursal": "QUITO",
+                  "Agencia": "270",
+                  "CodigoCaja": "005",
+                  "Usuario": "userempresa",
+                  "Codigo": "CONVERTIR-TRAMA",
+                  "IdTransaccion": "0"
+                },
+                "Detalle": {
+                  "FuenteInformacion": "PARSING",
+                  "Tipo_Proceso": "RESPUESTA"
+                }
+            },
+            "Metodo": "CONVERTIR",
+            "Formato": $routeParams.nombreFormato
+
+      };
+      $scope.valorTipoProceso = $scope.options[1];
+      $scope.labelTrama = false;
+      $scope.cambiarValores = function(arg){
+          $scope.showRes = false; 
+          $scope.resultado = '';
+          //$scope.tramaPersonalizada = '';
+          if(arg.value == 'ENVIO'){
+             $scope.labelTrama = true;
+          }else{
+             $scope.labelTrama = false;
+          }
+          $scope.tramaGenerica.Transaccion.Detalle.Tipo_Proceso = arg.value;
+      }
+      $scope.deshabilitarResultado = '#eee';
+      $scope.cambiarEstadoResultado = function(){
+        $scope.deshabilitarResultado = !$scope.deshabilitarResultado;
+        $scope.tramaPersonalizada = undefined;
+      }
+      $scope.testear = function(){
+          if($scope.tramaPersonalizada != undefined){
+             var tramaLimpia = $scope.tramaPersonalizada.replace(/\s+/g, ' ');
+             var conversionTrama = tramaLimpia.replace(/"/g,'\\"');
+             $scope.resultado =  conversionTrama;
+          }
+          $scope.tramaGenerica.Trama = {};
+         if($scope.labelTrama){
+            $scope.tramaGenerica.Trama = JSON.parse($scope.tramaPersonalizada);
+         }else{
+            $scope.tramaGenerica.Trama['RespuestaAutorizador'] = $scope.resultado.replace(/\\/g,'');
+         }
+         factoryParsing.testParsing($scope.tramaGenerica).then(function(data) {
+            $scope.res = JSON.stringify(data, null, 4);
+            $scope.showRes = true; 
+         })
+         .catch(function(err){
+            $scope.res = JSON.stringify(err, null, 4);
+            $scope.showRes = true;
+         });
+         //console.log(JSON.stringify($scope.tramaGenerica));
+         //console.log(conversionTrama);
+      }
+      
+
+
+
+   }
+ 
+}])
+.config(function ($routeProvider) {
+  $routeProvider
+    .when('/testParsing', {
+      templateUrl: '/templates/testParsing/index.html',
+      controller: 'parsingController',
+      access: {
+        restricted: false,
+        rol: 1
+      }
+    })
+    .when('/probarFormato/:nombreFormato/:idFormato', {
+      templateUrl: '/templates/testParsing/probarFormato.html',
+      controller: 'parsingController',
+      access: {
+        restricted: false,
+        rol: 1
+      }
+    });
+ })
+.controller('modalUserCreateController',
+  ['$scope', '$uibModalInstance', 'item','AuthService','userService',
+  function ($scope, $uibModalInstance, item,AuthService,userService) {
+  
+    $scope.item = item;
+    $scope.saving = false;
+    if(item){
+     $scope.tmpUsername = angular.copy(item.username);
+    }
+     
+    $scope.save = function () {
+
+      if(!item){
+        $scope.saving = true;
+        item = {username:$scope.item.username,rol:$scope.item.rol,flat:true};
+        AuthService.register($scope.item.username,$scope.item.password,$scope.item.rol).then(function(r){
+          $scope.saving = false;
+        });
+      }else{
+        userService.editUser($scope.tmpUsername,item.username,$scope.item.password,$scope.item.rol).then(function(r){
+          $scope.saving = false;
+        });
+      }
+      $uibModalInstance.close(item);
+    };
+
+}])
+
+.controller('modalUserDeleteController',
+  ['$scope', '$modalInstance', 'item',
+  function ($scope, $modalInstance, item) {
+    
+  $scope.item = item;
+  $scope.ok = function () {
+    $modalInstance.close($scope.item);
+  };
+
+  $scope.cancel = function () {
+    $modalInstance.dismiss('cancel');
+  };
+    
+
+}])
+.controller('userController',
+  ['$rootScope','$scope', '$location', 'userService','$timeout','$uibModal','UsersModel',
+  function ($rootScope,$scope, $location, userService,$timeout,$uibModal,UsersModel) {
+    $scope.titleLoginController = "MEAN-CASE SUPER HEROIC";
+    $rootScope.titleWeb = "Users";
+    $scope.preloader = true;
+    $scope.msjAlert = false;
+    UsersModel.getAll().then(function(data){
+            $scope.usersList = data; 
+            $scope.usersTemp = angular.copy($scope.usersList);
+            $scope.preloader = false;
+    })
+    /*  Modal*/
+
+    /*  Create    */
+     $scope.open = function (size,item) {
+        var modalInstance = $uibModal.open({
+          animation: true,
+          templateUrl: 'templates/users/modalUserCreate.html',
+          controller: 'modalUserCreateController',
+          size: size,
+          resolve: {
+            item: function () {
+              return item;
+            }
+          }
+        });
+
+        modalInstance.result.then(function(data) {
+          if(!data._id) {
+         
+                $scope.usersList.push(data); 
+                $scope.usersTemp = angular.copy($scope.usersList);
+            }      
+        },function(result){
+          $scope.usersList = $scope.usersTemp;
+          $scope.usersTemp = angular.copy($scope.usersList);  
+        });
+    };
+
+    /*  Create    */
+    /*  Delete    */
+    $scope.openDelete = function (size,item) {
+        var modalInstance = $uibModal.open({
+          animation: true,
+          templateUrl: 'templates/users/modalUserDelete.html',
+          controller: 'modalUserDeleteController',
+          size: size,
+          resolve: {
+            item: function () {
+              return item;
+            }
+          }
+        });
+
+        modalInstance.result.then(function(data) { 
+          var idx = $scope.usersList.indexOf(data); 
+          $scope.usersList.splice(idx, 1);
+          userService
+            .deleteUser(data._id)
+            .then(function(result) {
+                $scope.msjAlert = true;
+                $scope.alert = "success";
+                $scope.message = result.message;
+            })
+            .catch(function(err) {
+                //error
+                $scope.msjAlert = true;
+                $scope.alert = "danger";
+                $scope.message = "Error "+err;
+            })            
+        });
+    };
+
+    /*  Delete    */
+
+    /*  Modal*/
+
+    /*    Configuration Watch  Change Serch    */
+         /* $scope.filterText = '';
+          // Instantiate these variables outside the watch
+          var tempFilterText = '',
+          filterTextTimeout;
+          $scope.$watch('searchText', function (val) {
+              if (filterTextTimeout) $timeout.cancel(filterTextTimeout);
+              tempFilterText = val;
+              filterTextTimeout = $timeout(function() {
+                  $scope.filterText = tempFilterText;
+              }, 1500); // delay 250 ms
+          })*/
+    /*    Configuration Watch Change Serch     */
+        
+
+}])
 .controller('conversorcabeceraisosController',
   ['$rootScope','$scope', '$location', 'conversorcabeceraisosModel','$uibModal','factoryParsing','conversorcabecerasModel','catalogosModel','$route','$ngBootbox',
   function ($rootScope,$scope, $location, conversorcabeceraisosModel,$uibModal,factoryParsing,conversorcabecerasModel,catalogosModel,$route,$ngBootbox) {
@@ -2461,1493 +3968,6 @@
       }
     });
  })
-.controller('duplicarFormatoController',
-  ['$rootScope','$scope', '$location', 'conversorcabecerasModel','$uibModal','$routeParams',
-  function ($rootScope,$scope, $location, conversorcabecerasModel,$uibModal,$routeParams) {
-
-    $scope.titleController = 'MEAN-CASE SUPER HEROIC';
-    $rootScope.titleWeb = 'conversorcabeceras';
-    $scope.preloader = true;
-    $scope.msjAlert = false;
-    $scope.mostrarGrid = false;
-    var obtenerCabeceras = function(){
-      conversorcabecerasModel.getAll().then(function(data) {
-        $scope.conversorcabecerasList = data;
-        $scope.conversorcabecerasTemp = angular.copy($scope.conversorcabecerasList);
-        //$scope.preloader = false;
-      });
-    }
-
-    obtenerCabeceras();
-    $scope.item = {};
-    $scope.duplicarFormato = function(){
-      var formatoCabecera = conversorcabecerasModel.create();
-        formatoCabecera.url = '/api/duplicarFormato';
-        formatoCabecera.idFormato = $scope.item.formato;
-        formatoCabecera.nombreFormato = $scope.item.nombreFormato;
-        formatoCabecera.descripcionFormato = $scope.item.descripcionFormato;
-        formatoCabecera.save().then(function(r){
-          $scope.datosCabecera = [];
-          $scope.datosCabecera.push(r);
-          $scope.item.formato = null;
-          $scope.item.nombreFormato = null;
-          $scope.item.descripcionFormato = null;
-          $scope.preloader = false;
-          $scope.mostrarGrid = true;
-        });
-    }
-
-    $scope.options = [
-        {
-          name: '5',
-          value: '5'
-        }, 
-        {
-          name: '10',
-          value: '10'
-        }, 
-        {
-          name: '15',
-          value: '15'
-        }, 
-        {
-          name: '20',
-          value: '20'
-        }
-    ];
-
-    $scope.valorPaginacion = $scope.options[0];
-    $scope.cambioPaginacion = function(dato){
-      $rootScope.configTable.itemsPerPage =  dato.value;
-    }
-    $scope.obtenerDetalles = function(item){
-      $location.url('/conversordetalles/'+item.IdFormato+'/'+item.NombreFormato);
-      /*conversorcabecerasModel.url = '/api/conversorcabeceras/detalles';
-      conversorcabecerasModel.findById(idFormato).then(function(detalles){
-        
-        //$location.url('/conversorcabeceras/detalles');
-        $scope.conversoDetalles = detalles;
-        console.log($scope.conversoDetalles);
-      });*/
-      
-     
-    }
-    $scope.verPlantilla = function(item){
-      $location.url('/conversordetalleplantillas/'+item.IdFormato+'/'+item.NombreFormato);
-    }
-
-    /*  Modal */
-     $scope.open = function (item) {
-       var modalInstance = $uibModal.open({
-        animation: true,
-        templateUrl: 'templates/conversorcabeceras/modalCreate.html',
-        controller: 'modalconversorcabecerasCreateController',
-        size: 'lg',
-        resolve: {
-         item: function () {
-          return item;
-         }
-        }
-      });
-      modalInstance.result.then(function(data) {
-        if(!item) {
-           $scope.conversorcabecerasList.push(data);
-           $scope.conversorcabecerasTemp = angular.copy($scope.conversorcabecerasList);
-        }
-        if(data.message){
-          $scope.alert = 'success';
-          $scope.message = data.message;
-          $scope.msjAlert = true;
-        }
- 
-      },function(result){
-          $scope.conversorcabecerasList = $scope.conversorcabecerasTemp;
-          $scope.conversorcabecerasTemp = angular.copy($scope.conversorcabecerasList);
-    })
-    .catch(function(err) {
-          $scope.msjAlert = true;
-          $scope.alert = 'danger';
-          $scope.message = 'Error '+err;
-          $scope.msjAlert = true;
-    });
-  };
-  /*  Delete  */
-  $scope.openDelete = function (item) {
-    var modalInstance = $uibModal.open({
-      animation: true,
-      templateUrl: 'templates/conversorcabeceras/modalDelete.html',
-      controller: 'modalconversorcabecerasDeleteController',
-      size: 'lg',
-      resolve: {
-        item: function () {
-           return item;
-        }
-      }
-    });
-    modalInstance.result.then(function(data) {
-      var idx = $scope.conversorcabecerasList.indexOf(data);
-      $scope.conversorcabecerasList.splice(idx, 1);
-      conversorcabecerasModel
-        .destroy(data.IdFormato)
-        .then(function(result) {
-          $scope.msjAlert = true;
-          $scope.alert = 'success';
-          $scope.message = result.message;
-        })
-        .catch(function(err) {
-          $scope.msjAlert = true;
-          $scope.alert = 'danger';
-          $scope.message = 'Error '+err;
-        })
-      });
-    };
-}])
-.controller('formatosAutomaticosController',
-  ['$rootScope','$scope', '$location', 'conversorcabecerasModel','$uibModal','$routeParams','x2js','factoryParsing','$route',
-  function ($rootScope,$scope, $location, conversorcabecerasModel,$uibModal,$routeParams,x2js,factoryParsing,$route) {
-
-    $scope.titleController = 'MEAN-CASE SUPER HEROIC';
-    $rootScope.titleWeb = 'Formatos Automaticos';
-    $scope.mostrarPrimeraVista = true;
-    $scope.mostrarSegundaVista = false;
-    $scope.preloader = true;
-    $scope.msjAlert = false;
-    $scope.showTramaJson = true;
-    $scope.showMensajeError = false;
-    var flagDetalle = false;
-    $scope.mostrarTerceraVista = false;
-    $scope.preloader = true;
-    $scope.enlazarTabla = true;
-    //var xmlText = '<?xml version="1.0" encoding="UTF-8"?><soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ser="http://bpichincha.com/servicios"><soapenv:Header /><soapenv:Body><ser:ProcesarRequerimiento><header><usuario>{usuario}</usuario><aplicacion>{aplicacion}</aplicacion><canal>{canal}</canal><idTransaccion /><banco>{banco}</banco><oficina>{oficina}</oficina></header><body><servicio>{servicio}</servicio><metodo>{metodo}</metodo><dataIn><field id="iuto" valor="hbCI2" /><field id="tipoTarjeta" valor="{TipoTarjeta}" /><field id="Tipo_Emisor" valor="{Tipo_Emisor}" /><field id="numTarjeta" valor="{Tarjeta}" /><field id="timestamp" valor="{fechahora}" /></dataIn></body></ser:ProcesarRequerimiento></soapenv:Body></soapenv:Envelope>';
-   
-    //console.log(jsonObj);
-
-
-    var scan = function(obj,superior){
-        superior = superior || null;
-        var k;
-        if (obj instanceof Object) {
-            for (k in obj){
-                if (obj.hasOwnProperty(k)){
-                    if(superior == 'Detalle' ){
-                        flagDetalle = true;
-                        if(typeof obj[k] != 'object'){
-                          var tmp = k;
-                          $scope.nodosJson.push({name:tmp,value:tmp});
-                        }                     
-                    }else if (flagDetalle) {
-                          var tmp = superior+'.'+k;
-                          $scope.nodosJson.push({name:tmp,value:tmp});    
-                    }
-                    scan(obj[k],k);  
-                }  
-                                              
-            }
-        } else {
-            //si no es obj[k] instancia de objeto
-        };
-
-    };
-    $scope.nodosXml = [];
-    var scanXml = function(obj){
-        var k;
-        if (obj instanceof Object) {
-            for (k in obj){
-                if (obj.hasOwnProperty(k)){
-                    
-                    if(k != '__prefix'){
-                      if(typeof obj[k] == 'string'){
-                        if(k != '_id'){
-                          var tmpExist = obj[k].indexOf("http");
-                          if(obj[k] != ''){   
-                              if(tmpExist == -1) {
-                                  var tmpExistLlave = obj[k].indexOf("{");
-                                   if(tmpExistLlave != -1) {
-                                      $scope.nodosXml.push({name:obj[k],value:obj[k]});
-                                    }
-                              }                                                                              
-                          }
-                           
-                        }
-                         
-                      }
-                      
-                    }
-                    scanXml(obj[k]);  
-                }  
-                                              
-            }
-        } else {
-            //si no es obj[k] instancia de objeto
-        };
-
-    };
-    //scanXml(jsonObj);
-    $scope.nodosJson = [];
-   
-
-    $scope.options = [
-        {
-          name: 'ENVIO',
-          value: 'ENVIO'
-        }, 
-        {
-          name: 'RESPUESTA',
-          value: 'RESPUESTA'
-        }
-      ];
-
-      
-    
-      
-      
-
-    $scope.nodosResultados = [];
-    $scope.concatenar = function(){
-      var concatName = $scope.nodoJson[0].name+' | '+ $scope.nodoXml[0].name;
-      //var concatValue = $scope.nodoJson[0].value+','+ $scope.nodoXml[0].value;
-      var equivalentes = $scope.nodoXml[0].name.replace(/{/g, "");
-      equivalentes = equivalentes.replace(/}/g, "");
-      $scope.nodosResultados.push({name:concatName,descripcionCampo:$scope.nodoJson[0].name,campoEquivalente:equivalentes});
-    }
-    $scope.generarFormato = function(){
-      if($scope.valorTipoProceso.value == 'ENVIO'){
-          $scope.nodosResultados.unshift({value:$scope.tramaXml.replace(/\s/g, ' ')});
-          $scope.nodosResultados.unshift({value:$scope.inputNombreFormato});
-          $scope.nodosResultados.unshift({value:$scope.inputDescripcionFormato});
-          $scope.nodosResultados.unshift({value: $scope.valorTipoProceso.value});
-          factoryParsing.generarFormatoAutomatico($scope.nodosResultados).then(function(res){
-              $scope.nodosResultados.shift();
-              $scope.nodosResultados.shift();
-              $scope.nodosResultados.shift();
-              $scope.nodosJson = [];
-              $scope.nodosXml = [];
-              var tmpArray = [];
-              tmpArray.push(res);
-              $scope.conversorcabecerasList = tmpArray;
-              $scope.mostrarSegundaVista = false;
-              $scope.mostrarTerceraVista = true;
-              $scope.preloader = false;
-          });
-      }else{
-                $scope.tablaEnlazada.unshift({value:$scope.inputNombreFormato});
-                $scope.tablaEnlazada.unshift({value:$scope.inputDescripcionFormato});
-                $scope.tablaEnlazada.unshift({value: $scope.valorTipoProceso.value});
-                factoryParsing.generarFormatoAutomatico($scope.tablaEnlazada).then(function(res){
-                    $scope.tablaEnlazada.shift();
-                    $scope.tablaEnlazada.shift();
-                    $scope.tablaEnlazada.shift();
-                    var tmpArray = [];
-                    tmpArray.push(res);
-                    $scope.conversorcabecerasList = tmpArray;
-                    $scope.showTramaJson = true;
-                    //$scope.mostrarTerceraVista = true;
-                    $scope.preloader = false;
-                });
-      }
-      
-      
-    }
-
-    $scope.refrescar = function(){
-      $route.reload();
-    }
-
-    $scope.eliminarElemento = function(elemento){
-      var idx = $scope.nodosResultados.indexOf(elemento[0]);
-      $scope.nodosResultados.splice(idx, 1);
-    }
-
-    $scope.valorTipoProceso = $scope.options[0];
-
-    $scope.cambiarTipoProceso = function(){
-        $scope.showTramaJson = !$scope.showTramaJson;    
-    }
-    $scope.validarBtnEnlazar = function(){
-      if($scope.campoTemporal != ''){
-        $scope.enlazarTabla = false;
-      }else{
-        $scope.enlazarTabla = true;
-      }
-    }
-    $scope.showSegundaVista = function(arg){
-        if($scope.valorTipoProceso.value == 'ENVIO'){
-                  if($scope.tramaJson != undefined){
-                      if (/^[\],:{}\s]*$/.test($scope.tramaJson.replace(/\\["\\\/bfnrtu]/g, '@').
-                        replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']').
-                        replace(/(?:^|:|,)(?:\s*\[)+/g, ''))) {
-                          scan(JSON.parse($scope.tramaJson));
-                          var jsonObj = x2js.xml_str2json( $scope.tramaXml );
-                          if(jsonObj != null){
-                              scanXml(jsonObj);
-                              $scope.mostrarPrimeraVista = false;
-                              $scope.mostrarSegundaVista = true;
-                              $scope.showMensajeError = false;
-                          }else{
-                              $scope.showMensajeError = true;
-                              $scope.mensajeError  = 'Su trama XML no tiene el formato esperado';
-                          }
-                          
-                        }else{
-                          $scope.showMensajeError = true;
-                          $scope.mensajeError  = 'Su trama JSON no tiene el formato esperado';
-                        }    
-                  
-                  }
-
-        }else{
-          if($scope.tramaXml != undefined){
-              var jsonObj = x2js.xml_str2json( $scope.tramaXml );
-              if(jsonObj != null){
-                  //scanXml(jsonObj);
-                  $scope.mostrarPrimeraVista = false;
-                  $scope.mostrarSegundaVista = true;
-                  $scope.showMensajeError = false;
-              }else{
-                  $scope.showMensajeError = true;
-                  $scope.mensajeError  = 'Su trama XML no tiene el formato esperado';
-              }
-
-          }
-
-        }
-        
-           
-    }
-    $scope.arrayTemporales = [{name:'Temp_TramaRespuesta'}];
-    $scope.addTemporal = function(arg){
-       $scope.arrayTemporales.push({name:arg[0].name});
-    }
-    $scope.tablaEnlazada = [{descripcionCampo:'RespuestaAutorizador',campoEquivalente:'Temp_TramaRespuesta'}];
-    $scope.variablesTemporales = [];
-    $scope.enlazar = function(){
-        var union = $scope.arrayTemporales.map(function(elem){
-            return elem.name;
-        }).join(".");
-        $scope.tablaEnlazada.push({descripcionCampo:union,campoEquivalente:$scope.campoTemporal});
-        $scope.variablesTemporales.push({name:$scope.campoTemporal});
-        $scope.arrayTemporales = [];
-        $scope.campoTemporal = '';
-        $scope.enlazarTabla = true;
-    }
-    $scope.eliminarTemporal = function(index){
-        $scope.arrayTemporales.splice(index, 1);
-    }
-    $scope.eliminarTablatemporal = function(index){
-       $scope.tablaEnlazada.splice(index, 1);
-    }
-    $scope.obtenerDetalles = function(item){
-      $location.url('/conversordetalles/'+item.IdFormato+'/'+item.NombreFormato);
-    }
-   
-    $scope.nodosResultadoTramaXml = [];
-    var scanXmlRespuesta = function(obj){
-        var k;
-        if (obj instanceof Object) {
-            for (k in obj){
-                if (obj.hasOwnProperty(k)){
-                  if(obj[k].__prefix){
-                    var tmpUnion = obj[k].__prefix+':'+k;
-                    $scope.nodosResultadoTramaXml.push({name:tmpUnion}); 
-                  }else{
-                    var tmpExist = k.indexOf("xmlns");
-                    var tmpExist2 = k.indexOf("__prefix");
-                    if(tmpExist2 == -1){
-                      if (tmpExist == -1) {
-                          $scope.nodosResultadoTramaXml.push({name:k}); 
-                      }
-                      
-                    }
-                    
-                  }
-                     
-                    scanXmlRespuesta(obj[k]);  
-                }  
-                                              
-            }
-        } else {
-            //si no es obj[k] instancia de objeto
-        };
-
-    };
-    $scope.generarDirecto = function(){
-        
-        var jsonObj = x2js.xml_str2json( $scope.tramaXml );
-         if(jsonObj != null){
-              scanXmlRespuesta(jsonObj);
-              $scope.mostrarPrimeraVista = false;
-              $scope.mostrarTerceraVista = true;
-              $scope.showTramaJson = false;
-              $scope.showMensajeError = false;
-              
-          }else{
-              $scope.showMensajeError = true;
-              $scope.mensajeError  = 'Su trama XML no tiene el formato esperado';
-          }
-    }
-
-    $scope.verPlantilla = function(item){
-      $location.url('/conversordetalleplantillas/'+item.IdFormato+'/'+item.NombreFormato);
-    }
-    /*  Modal */
-     $scope.open = function (item) {
-       var modalInstance = $uibModal.open({
-        animation: true,
-        templateUrl: 'templates/conversorcabeceras/modalCreate.html',
-        controller: 'modalconversorcabecerasCreateController',
-        size: 'lg',
-        resolve: {
-         item: function () {
-          return item;
-         }
-        }
-      });
-      modalInstance.result.then(function(data) {
-        if(!item) {
-           $scope.conversorcabecerasList.push(data);
-           $scope.conversorcabecerasTemp = angular.copy($scope.conversorcabecerasList);
-        }
-        if(data.message){
-          $scope.alert = 'success';
-          $scope.message = data.message;
-          $scope.msjAlert = true;
-        }
- 
-      },function(result){
-          $scope.conversorcabecerasList = $scope.conversorcabecerasTemp;
-          $scope.conversorcabecerasTemp = angular.copy($scope.conversorcabecerasList);
-    })
-    .catch(function(err) {
-          $scope.msjAlert = true;
-          $scope.alert = 'danger';
-          $scope.message = 'Error '+err;
-          $scope.msjAlert = true;
-    });
-  };
-  /*  Delete  */
-  $scope.openDelete = function (item) {
-    var modalInstance = $uibModal.open({
-      animation: true,
-      templateUrl: 'templates/conversorcabeceras/modalDelete.html',
-      controller: 'modalconversorcabecerasDeleteController',
-      size: 'lg',
-      resolve: {
-        item: function () {
-           return item;
-        }
-      }
-    });
-    modalInstance.result.then(function(data) {
-      var idx = $scope.conversorcabecerasList.indexOf(data);
-      $scope.conversorcabecerasList.splice(idx, 1);
-      conversorcabecerasModel
-        .destroy(data.IdFormato)
-        .then(function(result) {
-          $scope.msjAlert = true;
-          $scope.alert = 'success';
-          $scope.message = result.message;
-        })
-        .catch(function(err) {
-          $scope.msjAlert = true;
-          $scope.alert = 'danger';
-          $scope.message = 'Error '+err;
-        })
-      });
-    };
-}])
-.controller('conversorcabecerasController',
-  ['$rootScope','$scope', '$location', 'conversorcabecerasModel','$uibModal','$routeParams',
-  function ($rootScope,$scope, $location, conversorcabecerasModel,$uibModal,$routeParams) {
-
-    $scope.titleController = 'MEAN-CASE SUPER HEROIC';
-    $rootScope.titleWeb = 'conversorcabeceras';
-    $scope.preloader = true;
-    $scope.msjAlert = false;
-    var obtenerCabeceras = function(){
-      conversorcabecerasModel.getAll().then(function(data) {
-        $scope.conversorcabecerasList = data;
-        $scope.conversorcabecerasTemp = angular.copy($scope.conversorcabecerasList);
-        $scope.preloader = false;
-      });
-    }
-
-    var unaCabecera = function(){
-      //conversorcabecerasModel.url = '/api/conversorcabeceras';
-      conversorcabecerasModel.findById($routeParams.idFormato).then(function(cabecera){
-              $scope.conversorcabecerasList = cabecera;
-              $scope.conversorcabecerasTemp = angular.copy($scope.conversorcabecerasList);
-              $scope.preloader = false;
-      });
-    }
-
-    if(!$routeParams.idFormato){
-      obtenerCabeceras();
-    }else{
-      unaCabecera();
-    }
-    $scope.options = [
-        {
-          name: '5',
-          value: '5'
-        }, 
-        {
-          name: '10',
-          value: '10'
-        }, 
-        {
-          name: '15',
-          value: '15'
-        }, 
-        {
-          name: '20',
-          value: '20'
-        }
-    ];
-
-    $scope.valorPaginacion = $scope.options[0];
-    $scope.cambioPaginacion = function(dato){
-      $rootScope.configTable.itemsPerPage =  dato.value;
-    }
-    $scope.obtenerDetalles = function(item){
-      $location.url('/conversordetalles/'+item.IdFormato+'/'+item.NombreFormato+'/'+item.TipoConversion);
-      /*conversorcabecerasModel.url = '/api/conversorcabeceras/detalles';
-      conversorcabecerasModel.findById(idFormato).then(function(detalles){
-        
-        //$location.url('/conversorcabeceras/detalles');
-        $scope.conversoDetalles = detalles;
-        console.log($scope.conversoDetalles);
-      });*/
-      
-     
-    }
-    $scope.verPlantilla = function(item){
-      $location.url('/conversordetalleplantillas/'+item.IdFormato+'/'+item.NombreFormato);
-    }
-
-    /*  Modal */
-     $scope.open = function (item) {
-       var modalInstance = $uibModal.open({
-        animation: true,
-        templateUrl: 'templates/conversorcabeceras/modalCreate.html',
-        controller: 'modalconversorcabecerasCreateController',
-        size: 'lg',
-        resolve: {
-         item: function () {
-          return item;
-         }
-        }
-      });
-      modalInstance.result.then(function(data) {
-        if(!item) {
-           $scope.conversorcabecerasList.push(data);
-           $scope.conversorcabecerasTemp = angular.copy($scope.conversorcabecerasList);
-        }
-        if(data.message){
-          $scope.alert = 'success';
-          $scope.message = "Exito al guardar la cabecera del Formato";
-          $scope.msjAlert = true;
-        }
- 
-      },function(result){
-          $scope.conversorcabecerasList = $scope.conversorcabecerasTemp;
-          $scope.conversorcabecerasTemp = angular.copy($scope.conversorcabecerasList);
-    })
-    .catch(function(err) {
-          $scope.msjAlert = true;
-          $scope.alert = 'danger';
-          $scope.message = 'Error '+err;
-          $scope.msjAlert = true;
-    });
-  };
-  /*  Delete  */
-  $scope.openDelete = function (item) {
-    var modalInstance = $uibModal.open({
-      animation: true,
-      templateUrl: 'templates/conversorcabeceras/modalDelete.html',
-      controller: 'modalconversorcabecerasDeleteController',
-      size: 'lg',
-      resolve: {
-        item: function () {
-           return item;
-        }
-      }
-    });
-    modalInstance.result.then(function(data) {
-      var idx = $scope.conversorcabecerasList.indexOf(data);
-      $scope.conversorcabecerasList.splice(idx, 1);
-      conversorcabecerasModel
-        .destroy(data.IdFormato)
-        .then(function(result) {
-          $scope.msjAlert = true;
-          $scope.alert = 'success';
-          $scope.message = result.message;
-        })
-        .catch(function(err) {
-          $scope.msjAlert = true;
-          $scope.alert = 'danger';
-          $scope.message = 'Error '+err;
-        })
-      });
-    };
-}])
-.controller('modalconversorcabecerasCreateController',
-  ['$scope', '$uibModalInstance', 'item','conversorcabecerasModel','$filter',
-  function ($scope, $uibModalInstance, item,conversorcabecerasModel,$filter) {
-    $scope.item = item;
-    $scope.saving = false;
-    if(item){
-       $scope.validarCampos = item.TipoConversion.indexOf('ISO8583') != -1;
-    }else{
-       $scope.validarCampos = false;
-    }
-    $scope.save = function () {
-      if(!item){
-        $scope.saving = true;
-        item = {IdFormato: $scope.item.IdFormato,NombreFormato: $scope.item.NombreFormato,DescripcionFormato: $scope.item.DescripcionFormato,Cabecera: $scope.item.Cabecera,Pie: $scope.item.Pie,Separador: $scope.item.Separador,FormatoConversion: $scope.item.FormatoConversion,Formato_destino: $scope.item.Formato_destino,Tipo_Proceso: $scope.item.Tipo_Proceso,NombreObjeto: $scope.item.NombreObjeto,estado: $scope.item.estado,tipo_archivo_salida: $scope.item.tipo_archivo_salida,ORIENTACION: $scope.item.ORIENTACION,RutinaPrevalidacion: $scope.item.RutinaPrevalidacion,Unificador: $scope.item.Unificador,Check_Totales_Por: $scope.item.Check_Totales_Por,ValidaIdentificacion: $scope.item.ValidaIdentificacion,RutinaPreconversion: $scope.item.RutinaPreconversion,InfiereTipoIdCliente: $scope.item.InfiereTipoIdCliente,MuestraCabeceraColumna: $scope.item.MuestraCabeceraColumna,TipoConversion: $scope.item.TipoConversion};
-        var conversorCabeceras = conversorcabecerasModel.create();
-        conversorCabeceras.IdFormato = $scope.item.IdFormato;
-        conversorCabeceras.NombreFormato = $scope.item.NombreFormato;
-        conversorCabeceras.DescripcionFormato = $scope.item.DescripcionFormato;
-        if($scope.item.Cabecera == undefined)
-            $scope.item.Cabecera = false;
-        conversorCabeceras.Cabecera = $scope.item.Cabecera;
-        if($scope.item.Pie == undefined)
-            $scope.item.Pie = false;
-        conversorCabeceras.Pie = $scope.item.Pie;
-        conversorCabeceras.Separador = $scope.item.Separador;
-        conversorCabeceras.FormatoConversion = $scope.item.FormatoConversion;
-        if($scope.item.Formato_destino == undefined)
-            $scope.item.Formato_destino = false;
-        conversorCabeceras.Formato_destino = $scope.item.Formato_destino;
-        conversorCabeceras.Tipo_Proceso = $scope.item.Tipo_Proceso;
-        conversorCabeceras.NombreObjeto = $scope.item.NombreObjeto;
-        conversorCabeceras.estado = $scope.item.estado;
-        conversorCabeceras.tipo_archivo_salida = $scope.item.tipo_archivo_salida;
-        conversorCabeceras.ORIENTACION = $scope.item.ORIENTACION;
-        conversorCabeceras.RutinaPrevalidacion = $scope.item.RutinaPrevalidacion;
-        conversorCabeceras.Unificador = $scope.item.Unificador;
-        conversorCabeceras.Check_Totales_Por = $scope.item.Check_Totales_Por;
-        if($scope.item.ValidaIdentificacion == undefined)
-            $scope.item.ValidaIdentificacion = false;
-        conversorCabeceras.ValidaIdentificacion = $scope.item.ValidaIdentificacion;
-        conversorCabeceras.RutinaPreconversion = $scope.item.RutinaPreconversion;
-        if($scope.item.InfiereTipoIdCliente == undefined)
-            $scope.item.InfiereTipoIdCliente = false;
-        conversorCabeceras.InfiereTipoIdCliente = $scope.item.InfiereTipoIdCliente;
-        if($scope.item.MuestraCabeceraColumna == undefined)
-            $scope.item.MuestraCabeceraColumna = false;
-        conversorCabeceras.MuestraCabeceraColumna = $scope.item.MuestraCabeceraColumna;
-        conversorCabeceras.TipoConversion = $scope.item.TipoConversion;
-        conversorCabeceras.save().then(function(r){
-          $scope.saving = false;
-          $uibModalInstance.close(r);
-        });
-      }else{
-        conversorcabecerasModel.findById($scope.item.IdFormato);
-        conversorcabecerasModel.IdFormato = $scope.item.IdFormato;
-        conversorcabecerasModel.NombreFormato = $scope.item.NombreFormato;
-        conversorcabecerasModel.DescripcionFormato = $scope.item.DescripcionFormato;
-        conversorcabecerasModel.Cabecera = $scope.item.Cabecera;
-        conversorcabecerasModel.Pie = $scope.item.Pie;
-        conversorcabecerasModel.Separador = $scope.item.Separador;
-        conversorcabecerasModel.FormatoConversion = $scope.item.FormatoConversion;
-        conversorcabecerasModel.Formato_destino = $scope.item.Formato_destino;
-        conversorcabecerasModel.Tipo_Proceso = $scope.item.Tipo_Proceso;
-        conversorcabecerasModel.NombreObjeto = $scope.item.NombreObjeto;
-        conversorcabecerasModel.estado = $scope.item.estado;
-        conversorcabecerasModel.tipo_archivo_salida = $scope.item.tipo_archivo_salida;
-        conversorcabecerasModel.ORIENTACION = $scope.item.ORIENTACION;
-        conversorcabecerasModel.RutinaPrevalidacion = $scope.item.RutinaPrevalidacion;
-        conversorcabecerasModel.Unificador = $scope.item.Unificador;
-        conversorcabecerasModel.Check_Totales_Por = $scope.item.Check_Totales_Por;
-        conversorcabecerasModel.ValidaIdentificacion = $scope.item.ValidaIdentificacion;
-        conversorcabecerasModel.RutinaPreconversion = $scope.item.RutinaPreconversion;
-        conversorcabecerasModel.InfiereTipoIdCliente = $scope.item.InfiereTipoIdCliente;
-        conversorcabecerasModel.MuestraCabeceraColumna = $scope.item.MuestraCabeceraColumna;
-        conversorcabecerasModel.TipoConversion = $scope.item.TipoConversion;
-        conversorcabecerasModel.save().then(function(r){
-          $scope.saving = false;
-          $uibModalInstance.close(r);
-        });
-      }
-    };
-}])
-.controller('modalconversorcabecerasDeleteController',
-  ['$scope', '$uibModalInstance', 'item',
-  function ($scope, $uibModalInstance, item) {
-    $scope.item = item;
-    $scope.ok = function () {
-      $uibModalInstance.close($scope.item);
-    };
-    $scope.cancel = function () {
-       $uibModalInstance.dismiss('cancel');
-     };
-}])
-.config(function ($routeProvider) {
-  $routeProvider
-    .when('/conversorcabeceras', {
-      templateUrl: '/templates/conversorcabeceras/index.html',
-      controller: 'conversorcabecerasController',
-      access: {
-        restricted: false,
-       rol: 1
-      }
-    })
-    .when('/conversorcabeceras/:idFormato', {
-      templateUrl: '/templates/conversorcabeceras/index.html',
-      controller: 'conversorcabecerasController',
-      access: {
-        restricted: false,
-       rol: 1
-      }
-    })
-    .when('/duplicarFormato', {
-      templateUrl: '/templates/conversorcabeceras/duplicarFormato.html',
-      controller: 'duplicarFormatoController',
-      access: {
-        restricted: false,
-       rol: 1
-      }
-    })
-    .when('/formatosAutomaticos', {
-      templateUrl: '/templates/conversorcabeceras/formatosAutomaticos.html',
-      controller: 'formatosAutomaticosController',
-      access: {
-        restricted: false,
-       rol: 1
-      }
-    });
- })
-.controller('conversordetalleplantillasController',
-  ['$rootScope','$scope', '$location', 'conversordetalleplantillasModel','$uibModal','$routeParams',
-  function ($rootScope,$scope, $location, conversordetalleplantillasModel,$uibModal,$routeParams) {
-    $scope.titleController = 'MEAN-CASE SUPER HEROIC';
-    $rootScope.titleWeb = 'conversordetalleplantillas';
-    $scope.preloader = true;
-    $scope.msjAlert = false;
-
-    if($routeParams.idFormato){
-          conversordetalleplantillasModel.url = '/api/conversordetalleplantillas';
-          conversordetalleplantillasModel.findById($routeParams.idFormato).then(function(plantillas){
-              console.log(plantillas);
-              $scope.conversordetalleplantillasList = plantillas;
-              $scope.conversordetalleplantillasTemp = angular.copy($scope.conversordetalleplantillasList);
-              $scope.preloader = false;
-          });
-      }else{
-            conversordetalleplantillasModel.getAll().then(function(data) {
-              $scope.conversordetalleplantillasList = data;
-              $scope.conversordetalleplantillasTemp = angular.copy($scope.conversordetalleplantillasList);
-              $scope.preloader = false;
-            });
-
-      }
-
-     $scope.regresarFormato = function(){
-      $location.url('/conversorcabeceras/'+$routeParams.idFormato);
-    }
-      
-    $scope.NombreFormato = $routeParams.NombreFormato;
-    /*  Modal */
-     $scope.open = function (item) {
-      if($routeParams.idFormato)
-        var IdFormato = $routeParams.idFormato;
-       var modalInstance = $uibModal.open({
-        animation: true,
-        templateUrl: 'templates/conversordetalleplantillas/modalCreate.html',
-        controller: 'modalconversordetalleplantillasCreateController',
-        size: 'lg',
-        resolve: {
-         item: function () {
-          return item;
-         },
-         IdFormato: function(){
-          return IdFormato;
-         }
-        }
-      });
-      modalInstance.result.then(function(data) {
-        if(!item) {
-           $scope.conversordetalleplantillasList.push(data);
-           $scope.conversordetalleplantillasTemp = angular.copy($scope.conversordetalleplantillasList);
-
-        }
-        if(data.message){
-          $scope.alert = 'success';
-          $scope.message = data.message;
-          $scope.msjAlert = true;
-        }
-      },function(result){
-          $scope.conversordetalleplantillasList = $scope.conversordetalleplantillasTemp;
-          $scope.conversordetalleplantillasTemp = angular.copy($scope.conversordetalleplantillasList);
-        })
-      .catch(function(err) {
-          $scope.msjAlert = true;
-          $scope.alert = 'danger';
-          $scope.message = 'Error '+err;
-          $scope.msjAlert = true;
-    });
-  };
-  /*  Delete  */
-  $scope.openDelete = function (item) {
-    var modalInstance = $uibModal.open({
-      animation: true,
-      templateUrl: 'templates/conversordetalleplantillas/modalDelete.html',
-      controller: 'modalconversordetalleplantillasDeleteController',
-      size: 'lg',
-      resolve: {
-        item: function () {
-           return item;
-        }
-      }
-    });
-    modalInstance.result.then(function(data) {
-      var idx = $scope.conversordetalleplantillasList.indexOf(data);
-      $scope.conversordetalleplantillasList.splice(idx, 1);
-      conversordetalleplantillasModel
-        .destroy(data.IdPlantilla)
-        .then(function(result) {
-          $scope.msjAlert = true;
-          $scope.alert = 'success';
-          $scope.message = result.message;
-        })
-        .catch(function(err) {
-          $scope.msjAlert = true;
-          $scope.alert = 'danger';
-          $scope.message = 'Error '+err;
-        })
-      });
-    };
-}])
-.controller('modalconversordetalleplantillasCreateController',
-  ['$scope', '$uibModalInstance', 'item','conversordetalleplantillasModel','$filter','IdFormato',
-  function ($scope, $uibModalInstance, item,conversordetalleplantillasModel,$filter,IdFormato) {
-    $scope.item = item;
-    $scope.saving = false;
-    if(item){
-       //add optional code
-    }
-    console.log(IdFormato);
-    $scope.save = function () {
-      if(!item){
-        $scope.saving = true;
-        item = {IdPlantilla: $scope.item.IdPlantilla,IdFormato: IdFormato,Plantilla: $scope.item.Plantilla,Tipo: $scope.item.Tipo,Orden: $scope.item.Orden,Nivel: $scope.item.Nivel,Origen: $scope.item.Origen};
-        var conversordetalleplantillas = conversordetalleplantillasModel.create();
-        conversordetalleplantillas.IdPlantilla = $scope.item.IdPlantilla;
-        conversordetalleplantillas.IdFormato = IdFormato;
-        conversordetalleplantillas.Plantilla = $scope.item.Plantilla;
-        conversordetalleplantillas.Tipo = $scope.item.Tipo;
-        conversordetalleplantillas.Orden = $scope.item.Orden;
-        conversordetalleplantillas.Nivel = $scope.item.Nivel;
-        conversordetalleplantillas.Origen = $scope.item.Origen;
-        conversordetalleplantillas.save().then(function(r){
-          $scope.saving = false;
-          $uibModalInstance.close(r);
-        });
-      }else{
-        conversordetalleplantillasModel.findById($scope.item.IdPlantilla);
-        conversordetalleplantillasModel.IdPlantilla = $scope.item.IdPlantilla;
-        conversordetalleplantillasModel.IdFormato = $scope.item.IdFormato;
-        conversordetalleplantillasModel.Plantilla = $scope.item.Plantilla;
-        conversordetalleplantillasModel.Tipo = $scope.item.Tipo;
-        conversordetalleplantillasModel.Orden = $scope.item.Orden;
-        conversordetalleplantillasModel.Nivel = $scope.item.Nivel;
-        conversordetalleplantillasModel.Origen = $scope.item.Origen;
-        conversordetalleplantillasModel.save().then(function(r){
-          $scope.saving = false;
-          $uibModalInstance.close(r);
-        });
-      }
-    };
-}])
-.controller('modalconversordetalleplantillasDeleteController',
-  ['$scope', '$uibModalInstance', 'item',
-  function ($scope, $uibModalInstance, item) {
-    $scope.item = item;
-    $scope.ok = function () {
-      $uibModalInstance.close($scope.item);
-    };
-    $scope.cancel = function () {
-       $uibModalInstance.dismiss('cancel');
-     };
-}])
-.config(function ($routeProvider) {
-  $routeProvider
-    .when('/conversordetalleplantillas/:idFormato/:NombreFormato', {
-      templateUrl: '/templates/conversordetalleplantillas/index.html',
-      controller: 'conversordetalleplantillasController',
-      access: {
-        restricted: false,
-       rol: 1
-      }
-    })
-    .when('/conversordetalleplantillas/', {
-      templateUrl: '/templates/conversordetalleplantillas/index.html',
-      controller: 'conversordetalleplantillasController',
-      access: {
-        restricted: false,
-       rol: 1
-      }
-    });
- })
-.controller('conversordetallesController',
-  ['$rootScope','$scope', '$location', 'conversordetallesModel','$uibModal','$routeParams',
-  function ($rootScope,$scope, $location, conversordetallesModel,$uibModal,$routeParams) {
-    $scope.titleController = 'MEAN-CASE SUPER HEROIC';
-    $rootScope.titleWeb = 'conversordetalles';
-    $scope.preloader = true;
-    $scope.msjAlert = false;
-    
-    /*conversordetallesModel.getAll().then(function(data) {
-      $scope.conversordetallesList = data;
-      $scope.conversordetallesTemp = angular.copy($scope.conversordetallesList);
-      $scope.preloader = false;
-    });*/
-
-    $scope.regresarFormato = function(){
-      $location.url('/conversorcabeceras/'+$routeParams.idFormato);
-    }
-    if($routeParams.idFormato){
-      conversordetallesModel.url = '/api/conversordetalles';
-      conversordetallesModel.findById($routeParams.idFormato).then(function(detalles){
-              $scope.conversordetallesList = detalles;
-              $scope.conversordetallesTemp = angular.copy($scope.conversordetallesList);
-              $scope.preloader = false;
-      });
-    }else{
-      conversordetallesModel.getAll().then(function(data) {
-        $scope.conversordetallesList = data;
-        $scope.conversordetallesTemp = angular.copy($scope.conversordetallesList);
-        $scope.preloader = false;
-      });
-      
-    }
-    
-    $scope.NombreFormato = $routeParams.NombreFormato;
-    $scope.tipoConversion = $routeParams.tipoConversion;
-  
-     $scope.options = [
-        {
-          name: '5',
-          value: '5'
-        }, 
-        {
-          name: '10',
-          value: '10'
-        }, 
-        {
-          name: '15',
-          value: '15'
-        }, 
-        {
-          name: '20',
-          value: '20'
-        }
-    ];
-
-    $scope.valorPaginacion = $scope.options[0];
-    $scope.cambioPaginacion = function(dato){
-      $rootScope.configTable.itemsPerPage =  dato.value;
-    }
-    /*  Modal */
-     $scope.open = function (item,tipoConversion) {
-      if($routeParams.idFormato)
-        var IdFormato = $routeParams.idFormato;
-       var modalInstance = $uibModal.open({
-        animation: true,
-        templateUrl: 'templates/conversordetalles/modalCreate.html',
-        controller: 'modalconversordetallesCreateController',
-        size: 'lg',
-        resolve: {
-         item: function () {
-          return item;
-         },
-         tipoConversion: function () {
-          return tipoConversion;
-         },
-         IdFormato: function(){
-          return IdFormato;
-         }
-
-        }
-      });
-      modalInstance.result.then(function(data) {
-        if(!item) {
-           $scope.conversordetallesList.push(data);
-           $scope.conversordetallesTemp = angular.copy($scope.conversordetallesList);
-        }
-        if(data.message){
-          $scope.alert = 'success';
-          $scope.message = data.message;
-          $scope.msjAlert = true;
-        }
-      },function(result){
-          $scope.conversordetallesList = $scope.conversordetallesTemp;
-          $scope.conversordetallesTemp = angular.copy($scope.conversordetallesList);
-      })
-      .catch(function(err) {
-          $scope.msjAlert = true;
-          $scope.alert = 'danger';
-          $scope.message = 'Error '+err;
-          $scope.msjAlert = true;
-    });
-  };
-  /*  Delete  */
-  $scope.openDelete = function (item) {
-    var modalInstance = $uibModal.open({
-      animation: true,
-      templateUrl: 'templates/conversordetalles/modalDelete.html',
-      controller: 'modalconversordetallesDeleteController',
-      size: 'lg',
-      resolve: {
-        item: function () {
-           return item;
-        }
-      }
-    });
-    modalInstance.result.then(function(data) {
-      var idx = $scope.conversordetallesList.indexOf(data);
-      $scope.conversordetallesList.splice(idx, 1);
-      conversordetallesModel
-        .destroy(data.IdDetalle)
-        .then(function(result) {
-          $scope.msjAlert = true;
-          if(result.exito)
-            $scope.alert = 'success';
-          else
-            $scope.alert = 'danger';
-          $scope.message = result.message;
-        })
-        .catch(function(err) {
-          $scope.msjAlert = true;
-          $scope.alert = 'danger';
-          $scope.message = 'Error '+err;
-        })
-      });
-    };
-}])
-.controller('modalconversordetallesCreateController',
-  ['$scope', '$uibModalInstance', 'item','conversordetallesModel','$filter','IdFormato','tipoConversion',
-  function ($scope, $uibModalInstance, item,conversordetallesModel,$filter,IdFormato,tipoConversion) {
-    $scope.item = item;
-    $scope.saving = false;
-    if(!item){
-       //add optional code
-        $scope.item = {};
-        $scope.item.TipoRegistro = 'D';
-        $scope.item.PosicionInicio = 0;
-        $scope.item.LongitudCampo = 0;
-        $scope.item.TipoCampo = 'X';
-        $scope.item.SeparadorDecimales = false;
-        $scope.item.NumeroDecimales = 0;
-        $scope.item.IdCampoEquivalente = 0;
-        $scope.item.Obligatorio = false;
-        $scope.item.Tipo_Registro = 'ITEM';
-        $scope.item.OrdenCampo = '-1';
-        $scope.item.ValidaEnMasivas = true;
-        $scope.validarCampos = false;
-    }else{
-        $scope.validarCampos = tipoConversion.indexOf('ISO8583') != -1;
-    }
-    $scope.save = function () {
-      if(!item){
-        $scope.saving = true;
-        item = {IdDetalle: $scope.item.IdDetalle,IdFormato:IdFormato,TipoRegistro: $scope.item.TipoRegistro,NumeroCampo: $scope.item.NumeroCampo,PosicionInicio: $scope.item.PosicionInicio,LongitudCampo: $scope.item.LongitudCampo,TipoCampo: $scope.item.TipoCampo,SeparadorDecimales: $scope.item.SeparadorDecimales,NumeroDecimales: $scope.item.NumeroDecimales,DescripcionCampo: $scope.item.DescripcionCampo,IdCampoEquivalente: $scope.item.IdCampoEquivalente,CampoEquivalente: $scope.item.CampoEquivalente,Obligatorio: $scope.item.Obligatorio,Validaciones: $scope.item.Validaciones,Tipo_Registro: $scope.item.Tipo_Registro,Default_Value: $scope.item.Default_Value,observacion: $scope.item.observacion,Rutina_Validacion: $scope.item.Rutina_Validacion,Rutina_Transformacion: $scope.item.Rutina_Transformacion,CaracterConcatenacion: $scope.item.CaracterConcatenacion,OrdenCampo: $scope.item.OrdenCampo,Rutina_Conversion: $scope.item.Rutina_Conversion,ValidaEnMasivas: $scope.item.ValidaEnMasivas};
-        var conversordetalles = conversordetallesModel.create();
-        conversordetalles.IdDetalle = $scope.item.IdDetalle;
-        conversordetalles.IdFormato = IdFormato;
-        conversordetalles.TipoRegistro = $scope.item.TipoRegistro;
-        conversordetalles.NumeroCampo = $scope.item.NumeroCampo;
-        conversordetalles.PosicionInicio = $scope.item.PosicionInicio;
-        conversordetalles.LongitudCampo = $scope.item.LongitudCampo;
-        conversordetalles.TipoCampo = $scope.item.TipoCampo;
-        if($scope.item.SeparadorDecimales == undefined)
-            $scope.item.SeparadorDecimales = false;
-        conversordetalles.SeparadorDecimales = $scope.item.SeparadorDecimales;
-        conversordetalles.NumeroDecimales = $scope.item.NumeroDecimales;
-        conversordetalles.DescripcionCampo = $scope.item.DescripcionCampo;
-        conversordetalles.IdCampoEquivalente = $scope.item.IdCampoEquivalente;
-        conversordetalles.CampoEquivalente = $scope.item.CampoEquivalente;
-        if($scope.item.Obligatorio == undefined)
-            $scope.item.Obligatorio = false;
-        conversordetalles.Obligatorio = $scope.item.Obligatorio;
-        conversordetalles.Validaciones = $scope.item.Validaciones;
-        conversordetalles.Tipo_Registro = $scope.item.Tipo_Registro;
-        conversordetalles.Default_Value = $scope.item.Default_Value;
-        conversordetalles.observacion = $scope.item.observacion;
-        conversordetalles.Rutina_Validacion = $scope.item.Rutina_Validacion;
-        conversordetalles.Rutina_Transformacion = $scope.item.Rutina_Transformacion;
-        conversordetalles.CaracterConcatenacion = $scope.item.CaracterConcatenacion;
-        conversordetalles.OrdenCampo = $scope.item.OrdenCampo;
-        conversordetalles.Rutina_Conversion = $scope.item.Rutina_Conversion;
-        if($scope.item.ValidaEnMasivas == undefined)
-            $scope.item.ValidaEnMasivas = false;
-        conversordetalles.ValidaEnMasivas = $scope.item.ValidaEnMasivas;
-        conversordetalles.save().then(function(r){
-          $scope.saving = false;
-          $uibModalInstance.close(r);
-        });
-      }else{
-        conversordetallesModel.findById($scope.item.IdDetalle);
-        conversordetallesModel.IdDetalle = $scope.item.IdDetalle;
-        conversordetallesModel.IdFormato = $scope.item.IdFormato;
-        conversordetallesModel.TipoRegistro = $scope.item.TipoRegistro;
-        conversordetallesModel.NumeroCampo = $scope.item.NumeroCampo;
-        conversordetallesModel.PosicionInicio = $scope.item.PosicionInicio;
-        conversordetallesModel.LongitudCampo = $scope.item.LongitudCampo;
-        conversordetallesModel.TipoCampo = $scope.item.TipoCampo;
-        conversordetallesModel.SeparadorDecimales = $scope.item.SeparadorDecimales;
-        conversordetallesModel.NumeroDecimales = $scope.item.NumeroDecimales;
-        conversordetallesModel.DescripcionCampo = $scope.item.DescripcionCampo;
-        conversordetallesModel.IdCampoEquivalente = $scope.item.IdCampoEquivalente;
-        conversordetallesModel.CampoEquivalente = $scope.item.CampoEquivalente;
-        conversordetallesModel.Obligatorio = $scope.item.Obligatorio;
-        conversordetallesModel.Validaciones = $scope.item.Validaciones;
-        conversordetallesModel.Tipo_Registro = $scope.item.Tipo_Registro;
-        conversordetallesModel.Default_Value = $scope.item.Default_Value;
-        conversordetallesModel.observacion = $scope.item.observacion;
-        conversordetallesModel.Rutina_Validacion = $scope.item.Rutina_Validacion;
-        conversordetallesModel.Rutina_Transformacion = $scope.item.Rutina_Transformacion;
-        conversordetallesModel.CaracterConcatenacion = $scope.item.CaracterConcatenacion;
-        conversordetallesModel.OrdenCampo = $scope.item.OrdenCampo;
-        conversordetallesModel.Rutina_Conversion = $scope.item.Rutina_Conversion;
-        conversordetallesModel.ValidaEnMasivas = $scope.item.ValidaEnMasivas;
-        conversordetallesModel.save().then(function(r){
-          $scope.saving = false;
-          $uibModalInstance.close(r);
-        });
-      }
-    };
-}])
-.controller('modalconversordetallesDeleteController',
-  ['$scope', '$uibModalInstance', 'item',
-  function ($scope, $uibModalInstance, item) {
-    $scope.item = item;
-    $scope.ok = function () {
-      $uibModalInstance.close($scope.item);
-    };
-    $scope.cancel = function () {
-       $uibModalInstance.dismiss('cancel');
-     };
-}])
-.config(function ($routeProvider) {
-  $routeProvider
-    .when('/conversordetalles/:idFormato/:NombreFormato/:tipoConversion', {
-      templateUrl: '/templates/conversordetalles/index.html',
-      controller: 'conversordetallesController',
-      access: {
-        restricted: false,
-       rol: 1
-      }
-    })
-     .when('/conversordetalles/:idFormato/:NombreFormato', {
-      templateUrl: '/templates/conversordetalles/index.html',
-      controller: 'conversordetallesController',
-      access: {
-        restricted: false,
-       rol: 1
-      }
-    });
- })
-.controller('parsingController',
-  ['$rootScope','$scope', '$location', 'conversorcabecerasModel','$uibModal','$routeParams','factoryParsing','almacentramasModel',
-  function ($rootScope,$scope, $location, conversorcabecerasModel,$uibModal,$routeParams,factoryParsing,almacentramasModel) {
-
-    $scope.titleController = 'MEAN-CASE SUPER HEROIC';
-    $rootScope.titleWeb = 'Test Parcing';
-    $scope.preloader = true;
-    $scope.msjAlert = false; 
-  //$scope.tramaSrtring = JSON.stringify($scope.trama);
-
-    $scope.probarParsing = function(){
-        factoryParsing.testParsing($scope.trama).then(function(data) {
-            $scope.tramaRespuesta = JSON.stringify(data, null, 4);
-        })
-        .catch(function(err){
-            $scope.tramaRespuesta = JSON.stringify(err);
-        });
-    }
-
-   if($routeParams.nombreFormato){
-      $scope.showRes = false; 
-      $scope.showMensaje = false;
-      $scope.NombreFormato = $routeParams.nombreFormato;
-      $scope.regresarFormato = function(){
-        $location.url('/conversorcabeceras/'+$routeParams.idFormato);
-      }
-      $scope.grabar = function(){
-        var parsingPass = {};
-        parsingPass.id_formato  = $routeParams.idFormato;
-        parsingPass.nombre_formato  = $routeParams.nombreFormato;
-        parsingPass.trama  = $scope.tramaPersonalizada.replace(/\s+/g, ' ');
-        /*if(!$scope.labelTrama){
-          //Respuesta
-          parsingPass.trama  = $scope.tramaPersonalizada.replace(/\s+/g, ' ');
-        }else{
-          //Envio
-          var tmpTest = $scope.tramaPersonalizada.replace(/\s+/g, ' ');
-          console.log(tmpTest);
-          parsingPass.trama  = tmpTest.replace(/\\\\/g,'');
-          console.log(parsingPass.trama);
-        }*/
-        console.log(parsingPass.trama);
-        parsingPass.aprobo = false;
-        if($scope.tmpParsing != null){
-            parsingPass.idMongo = $scope.tmpParsing._id;
-        }
-        factoryParsing.eliminarGrabar(parsingPass).then(function(r){
-          $scope.showMensaje = true;
-          $scope.mensaje = r;
-        });
-      }
-      almacentramasModel.findById($routeParams.idFormato).then(function(result){
-        if(result != null){
-          $scope.tmpParsing = result;
-          var tramaSinComillas = JSON.stringify(result.trama);
-          var sizeCadena = tramaSinComillas.length - 1;
-          $scope.tramaPersonalizada = tramaSinComillas.slice(1,sizeCadena).replace(/\\/g,'');
-        }else{
-          $scope.tmpParsing = null;
-        }
-      });
-
-      $scope.options = [
-        {
-          name: 'ENVIO',
-          value: 'ENVIO'
-        }, 
-        {
-          name: 'RESPUESTA',
-          value: 'RESPUESTA'
-        }
-      ];
-      $scope.tramaGenerica =   {
-            "Transaccion": {
-                "Cabecera": {
-                  "Aplicacion": "SE",
-                  "Canal": "TELLER",
-                  "CodigoBanco": "0010",
-                  "IdEmpresa": "43591",
-                  "Sucursal": "QUITO",
-                  "Agencia": "270",
-                  "CodigoCaja": "005",
-                  "Usuario": "userempresa",
-                  "Codigo": "CONVERTIR-TRAMA",
-                  "IdTransaccion": "0"
-                },
-                "Detalle": {
-                  "FuenteInformacion": "PARSING",
-                  "Tipo_Proceso": "RESPUESTA"
-                }
-            },
-            "Metodo": "CONVERTIR",
-            "Formato": $routeParams.nombreFormato
-
-      };
-      $scope.valorTipoProceso = $scope.options[1];
-      $scope.labelTrama = false;
-      $scope.cambiarValores = function(arg){
-          $scope.showRes = false; 
-          $scope.resultado = '';
-          //$scope.tramaPersonalizada = '';
-          if(arg.value == 'ENVIO'){
-             $scope.labelTrama = true;
-          }else{
-             $scope.labelTrama = false;
-          }
-          $scope.tramaGenerica.Transaccion.Detalle.Tipo_Proceso = arg.value;
-      }
-      $scope.deshabilitarResultado = '#eee';
-      $scope.cambiarEstadoResultado = function(){
-        $scope.deshabilitarResultado = !$scope.deshabilitarResultado;
-        $scope.tramaPersonalizada = undefined;
-      }
-      $scope.testear = function(){
-          if($scope.tramaPersonalizada != undefined){
-             var tramaLimpia = $scope.tramaPersonalizada.replace(/\s+/g, ' ');
-             var conversionTrama = tramaLimpia.replace(/"/g,'\\"');
-             $scope.resultado =  conversionTrama;
-          }
-          $scope.tramaGenerica.Trama = {};
-         if($scope.labelTrama){
-            $scope.tramaGenerica.Trama = JSON.parse($scope.tramaPersonalizada);
-         }else{
-            $scope.tramaGenerica.Trama['RespuestaAutorizador'] = $scope.resultado.replace(/\\/g,'');
-         }
-         factoryParsing.testParsing($scope.tramaGenerica).then(function(data) {
-            $scope.res = JSON.stringify(data, null, 4);
-            $scope.showRes = true; 
-         })
-         .catch(function(err){
-            $scope.res = JSON.stringify(err, null, 4);
-            $scope.showRes = true;
-         });
-         //console.log(JSON.stringify($scope.tramaGenerica));
-         //console.log(conversionTrama);
-      }
-      
-
-
-
-   }
- 
-}])
-.config(function ($routeProvider) {
-  $routeProvider
-    .when('/testParsing', {
-      templateUrl: '/templates/testParsing/index.html',
-      controller: 'parsingController',
-      access: {
-        restricted: false,
-        rol: 1
-      }
-    })
-    .when('/probarFormato/:nombreFormato/:idFormato', {
-      templateUrl: '/templates/testParsing/probarFormato.html',
-      controller: 'parsingController',
-      access: {
-        restricted: false,
-        rol: 1
-      }
-    });
- })
-.controller('modalUserCreateController',
-  ['$scope', '$uibModalInstance', 'item','AuthService','userService',
-  function ($scope, $uibModalInstance, item,AuthService,userService) {
-  
-    $scope.item = item;
-    $scope.saving = false;
-    if(item){
-     $scope.tmpUsername = angular.copy(item.username);
-    }
-     
-    $scope.save = function () {
-
-      if(!item){
-        $scope.saving = true;
-        item = {username:$scope.item.username,rol:$scope.item.rol,flat:true};
-        AuthService.register($scope.item.username,$scope.item.password,$scope.item.rol).then(function(r){
-          $scope.saving = false;
-        });
-      }else{
-        userService.editUser($scope.tmpUsername,item.username,$scope.item.password,$scope.item.rol).then(function(r){
-          $scope.saving = false;
-        });
-      }
-      $uibModalInstance.close(item);
-    };
-
-}])
-
-.controller('modalUserDeleteController',
-  ['$scope', '$modalInstance', 'item',
-  function ($scope, $modalInstance, item) {
-    
-  $scope.item = item;
-  $scope.ok = function () {
-    $modalInstance.close($scope.item);
-  };
-
-  $scope.cancel = function () {
-    $modalInstance.dismiss('cancel');
-  };
-    
-
-}])
-.controller('userController',
-  ['$rootScope','$scope', '$location', 'userService','$timeout','$uibModal','UsersModel',
-  function ($rootScope,$scope, $location, userService,$timeout,$uibModal,UsersModel) {
-    $scope.titleLoginController = "MEAN-CASE SUPER HEROIC";
-    $rootScope.titleWeb = "Users";
-    $scope.preloader = true;
-    $scope.msjAlert = false;
-    UsersModel.getAll().then(function(data){
-            $scope.usersList = data; 
-            $scope.usersTemp = angular.copy($scope.usersList);
-            $scope.preloader = false;
-    })
-    /*  Modal*/
-
-    /*  Create    */
-     $scope.open = function (size,item) {
-        var modalInstance = $uibModal.open({
-          animation: true,
-          templateUrl: 'templates/users/modalUserCreate.html',
-          controller: 'modalUserCreateController',
-          size: size,
-          resolve: {
-            item: function () {
-              return item;
-            }
-          }
-        });
-
-        modalInstance.result.then(function(data) {
-          if(!data._id) {
-         
-                $scope.usersList.push(data); 
-                $scope.usersTemp = angular.copy($scope.usersList);
-            }      
-        },function(result){
-          $scope.usersList = $scope.usersTemp;
-          $scope.usersTemp = angular.copy($scope.usersList);  
-        });
-    };
-
-    /*  Create    */
-    /*  Delete    */
-    $scope.openDelete = function (size,item) {
-        var modalInstance = $uibModal.open({
-          animation: true,
-          templateUrl: 'templates/users/modalUserDelete.html',
-          controller: 'modalUserDeleteController',
-          size: size,
-          resolve: {
-            item: function () {
-              return item;
-            }
-          }
-        });
-
-        modalInstance.result.then(function(data) { 
-          var idx = $scope.usersList.indexOf(data); 
-          $scope.usersList.splice(idx, 1);
-          userService
-            .deleteUser(data._id)
-            .then(function(result) {
-                $scope.msjAlert = true;
-                $scope.alert = "success";
-                $scope.message = result.message;
-            })
-            .catch(function(err) {
-                //error
-                $scope.msjAlert = true;
-                $scope.alert = "danger";
-                $scope.message = "Error "+err;
-            })            
-        });
-    };
-
-    /*  Delete    */
-
-    /*  Modal*/
-
-    /*    Configuration Watch  Change Serch    */
-         /* $scope.filterText = '';
-          // Instantiate these variables outside the watch
-          var tempFilterText = '',
-          filterTextTimeout;
-          $scope.$watch('searchText', function (val) {
-              if (filterTextTimeout) $timeout.cancel(filterTextTimeout);
-              tempFilterText = val;
-              filterTextTimeout = $timeout(function() {
-                  $scope.filterText = tempFilterText;
-              }, 1500); // delay 250 ms
-          })*/
-    /*    Configuration Watch Change Serch     */
-        
-
-}])
 .controller('crudController',
     ['$scope', 'crudService',
         function ($scope, crudService) {
@@ -4186,6 +4206,27 @@ require: 'ngModel',
  			}
  		});
  })
+.controller('listSchemasController',
+    ['$scope', 'schemaModel','$uibModal',
+        function ($scope, schemaModel,$uibModal) {
+        $scope.preloader = true;
+        schemaModel.getAll().then(function(data){
+        	 $scope.schemas = data;
+        	 $scope.preloader = false;
+        });
+
+}])
+.config(function ($routeProvider) {
+ 	$routeProvider
+ 		.when('/listSchemas', {
+ 		    templateUrl: '/javascripts/setup/listSchemas/templates/listSchemas.html',
+ 			controller: 'listSchemasController',
+ 			access: {
+ 				 restricted: false,
+ 				 rol: 5
+ 			}
+ 		});
+ })
 .controller('exportProjectController',
     ['$rootScope','$scope','$uibModal','exportProjectService','$ngBootbox',
         function ($rootScope,$scope,$uibModal,exportProjectService,$ngBootbox) {
@@ -4299,27 +4340,6 @@ require: 'ngModel',
  		.when('/exportProject', {
  		    templateUrl: '/javascripts/setup/exportProject/templates/exportProject.html',
  			controller: 'exportProjectController',
- 			access: {
- 				 restricted: false,
- 				 rol: 5
- 			}
- 		});
- })
-.controller('listSchemasController',
-    ['$scope', 'schemaModel','$uibModal',
-        function ($scope, schemaModel,$uibModal) {
-        $scope.preloader = true;
-        schemaModel.getAll().then(function(data){
-        	 $scope.schemas = data;
-        	 $scope.preloader = false;
-        });
-
-}])
-.config(function ($routeProvider) {
- 	$routeProvider
- 		.when('/listSchemas', {
- 		    templateUrl: '/javascripts/setup/listSchemas/templates/listSchemas.html',
- 			controller: 'listSchemasController',
  			access: {
  				 restricted: false,
  				 rol: 5

@@ -8,13 +8,19 @@
     }else{
        $scope.validarCampos = false;
     }
+    var reemplazarEspacios = function(arg){
+        if(item){
+             $scope.item.NombreFormato = $scope.item.NombreFormato.replace(/\s/g,"_");
+        }
+       return  arg.replace(/\s/g,"_");
+    }
     $scope.save = function () {
       if(!item){
         $scope.saving = true;
         item = {IdFormato: $scope.item.IdFormato,NombreFormato: $scope.item.NombreFormato,DescripcionFormato: $scope.item.DescripcionFormato,Cabecera: $scope.item.Cabecera,Pie: $scope.item.Pie,Separador: $scope.item.Separador,FormatoConversion: $scope.item.FormatoConversion,Formato_destino: $scope.item.Formato_destino,Tipo_Proceso: $scope.item.Tipo_Proceso,NombreObjeto: $scope.item.NombreObjeto,estado: $scope.item.estado,tipo_archivo_salida: $scope.item.tipo_archivo_salida,ORIENTACION: $scope.item.ORIENTACION,RutinaPrevalidacion: $scope.item.RutinaPrevalidacion,Unificador: $scope.item.Unificador,Check_Totales_Por: $scope.item.Check_Totales_Por,ValidaIdentificacion: $scope.item.ValidaIdentificacion,RutinaPreconversion: $scope.item.RutinaPreconversion,InfiereTipoIdCliente: $scope.item.InfiereTipoIdCliente,MuestraCabeceraColumna: $scope.item.MuestraCabeceraColumna,TipoConversion: $scope.item.TipoConversion};
         var conversorCabeceras = conversorcabecerasModel.create();
         conversorCabeceras.IdFormato = $scope.item.IdFormato;
-        conversorCabeceras.NombreFormato = $scope.item.NombreFormato;
+        conversorCabeceras.NombreFormato = reemplazarEspacios($scope.item.NombreFormato);
         conversorCabeceras.DescripcionFormato = $scope.item.DescripcionFormato;
         if($scope.item.Cabecera == undefined)
             $scope.item.Cabecera = false;
@@ -45,6 +51,8 @@
         if($scope.item.MuestraCabeceraColumna == undefined)
             $scope.item.MuestraCabeceraColumna = false;
         conversorCabeceras.MuestraCabeceraColumna = $scope.item.MuestraCabeceraColumna;
+        if($scope.item.TipoConversion == undefined)
+            $scope.item.TipoConversion = "PLANTILLA";
         conversorCabeceras.TipoConversion = $scope.item.TipoConversion;
         conversorCabeceras.save().then(function(r){
           $scope.saving = false;
@@ -53,7 +61,7 @@
       }else{
         conversorcabecerasModel.findById($scope.item.IdFormato);
         conversorcabecerasModel.IdFormato = $scope.item.IdFormato;
-        conversorcabecerasModel.NombreFormato = $scope.item.NombreFormato;
+        conversorcabecerasModel.NombreFormato = reemplazarEspacios($scope.item.NombreFormato); 
         conversorcabecerasModel.DescripcionFormato = $scope.item.DescripcionFormato;
         conversorcabecerasModel.Cabecera = $scope.item.Cabecera;
         conversorcabecerasModel.Pie = $scope.item.Pie;

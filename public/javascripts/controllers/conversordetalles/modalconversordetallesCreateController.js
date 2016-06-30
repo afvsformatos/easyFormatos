@@ -21,6 +21,18 @@
     }else{
         $scope.validarCampos = tipoConversion.indexOf('ISO8583') != -1;
     }
+    var eliminarEspaciosDescripcionCampo = function(arg){
+        if(item){
+             $scope.item.DescripcionCampo = $scope.item.DescripcionCampo.replace(/\s/g,'');
+        }
+       return  arg.replace(/\s/g,'');
+    }
+    var eliminarCampoEquivalente = function(arg){
+        if(item){
+             $scope.item.CampoEquivalente = $scope.item.CampoEquivalente.replace(/\s/g,'');
+        }
+       return  arg.replace(/\s/g,'');
+    }
     $scope.save = function () {
       if(!item){
         $scope.saving = true;
@@ -37,9 +49,9 @@
             $scope.item.SeparadorDecimales = false;
         conversordetalles.SeparadorDecimales = $scope.item.SeparadorDecimales;
         conversordetalles.NumeroDecimales = $scope.item.NumeroDecimales;
-        conversordetalles.DescripcionCampo = $scope.item.DescripcionCampo;
+        conversordetalles.DescripcionCampo = eliminarEspaciosDescripcionCampo($scope.item.DescripcionCampo);
         conversordetalles.IdCampoEquivalente = $scope.item.IdCampoEquivalente;
-        conversordetalles.CampoEquivalente = $scope.item.CampoEquivalente;
+        conversordetalles.CampoEquivalente = eliminarCampoEquivalente($scope.item.CampoEquivalente);
         if($scope.item.Obligatorio == undefined)
             $scope.item.Obligatorio = false;
         conversordetalles.Obligatorio = $scope.item.Obligatorio;
@@ -70,9 +82,9 @@
         conversordetallesModel.TipoCampo = $scope.item.TipoCampo;
         conversordetallesModel.SeparadorDecimales = $scope.item.SeparadorDecimales;
         conversordetallesModel.NumeroDecimales = $scope.item.NumeroDecimales;
-        conversordetallesModel.DescripcionCampo = $scope.item.DescripcionCampo;
+        conversordetallesModel.DescripcionCampo = eliminarEspaciosDescripcionCampo($scope.item.DescripcionCampo);
         conversordetallesModel.IdCampoEquivalente = $scope.item.IdCampoEquivalente;
-        conversordetallesModel.CampoEquivalente = $scope.item.CampoEquivalente;
+        conversordetallesModel.CampoEquivalente = eliminarCampoEquivalente($scope.item.CampoEquivalente);
         conversordetallesModel.Obligatorio = $scope.item.Obligatorio;
         conversordetallesModel.Validaciones = $scope.item.Validaciones;
         conversordetallesModel.Tipo_Registro = $scope.item.Tipo_Registro;
