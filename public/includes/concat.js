@@ -3044,7 +3044,7 @@
         }
         if(data.message){
           $scope.alert = 'success';
-          $scope.message = data.message;
+          $scope.message = "Exito al guardar la cabecera del Formato";
           $scope.msjAlert = true;
         }
  
